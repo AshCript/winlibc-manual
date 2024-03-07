@@ -10,3 +10,4 @@ set "chemin=C:\chemin\vers\manuals"
 ```
   man atoi
 ```
+**FEEL FREE TO CONTRIBUTE 🥰**
