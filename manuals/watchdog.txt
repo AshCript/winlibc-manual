@@ -1,0 +1,1815 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "WATCHDOG" "3" "Jan 18, 2023" "2.2.1" "watchdog"
+.SH NAME
+watchdog \- watchdog Documentation
+.sp
+Python API library and shell utilities to monitor file system events.
+.sp
+Works on 3.6+.
+.sp
+If you want to use Python 2.6, you should stick with watchdog < 0.10.0.
+.sp
+If you want to use Python 2.7, 3.4 or 3.5, you should stick with watchdog < 1.0.0.
+.SH DIRECTORY MONITORING MADE EASY WITH
+.INDENT 0.0
+.IP \(bu 2
+A cross\-platform API.
+.IP \(bu 2
+A shell tool to run commands in response to directory changes.
+.UNINDENT
+.sp
+Get started quickly with a simple example in \fI\%Quickstart\fP\&.
+.SH EASY INSTALLATION
+.sp
+You can use \fI\%pip\fP to install \fBwatchdog\fP quickly and easily:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python \-m pip install \-U watchdog
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Need more help with installing? See \fI\%Installation\fP\&.
+.SH INSTALLATION
+.sp
+\fBwatchdog\fP requires 3.6+ to work. See a list of \fI\%Dependencies\fP\&.
+.SS Installing from PyPI using pip
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python \-m pip install \-U \fBwatchdog\fP
+
+# or to install the watchmedo utility:
+$ python \-m pip install \-U \fBwatchdog\fP[watchmedo]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Installing from source tarballs
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ wget \-c \fI\%https://pypi.python.org/packages/source/w/watchdog/watchdog\fP\-2.2.1\&.tar.gz
+$ tar zxvf \fBwatchdog\fP\-2.2.1\&.tar.gz
+$ cd \fBwatchdog\fP\-2.2.1
+$ python \-m pip install \-e .
+
+# or to install the watchmedo utility:
+$ python \-m pip install \-e ".[watchmedo]"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Installing from the code repository
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ git clone \-\-recursive git://github.com/gorakhargosh/watchdog.git
+$ cd watchdog
+$ python \-m pip install \-e .
+
+# or to install the watchmedo utility:
+$ python \-m pip install \-e ".[watchmedo]"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Dependencies
+.sp
+\fBwatchdog\fP depends on many libraries to do its job. The following is
+a list of dependencies you need based on the operating system you are
+using.
+.TS
+center;
+|l|l|l|l|l|.
+_
+T{
+Operating system
+Dependency (row)
+T}	T{
+Windows
+T}	T{
+Linux 2.6
+T}	T{
+macOS
+Darwin
+T}	T{
+BSD
+T}
+_
+T{
+\fI\%XCode\fP
+T}	T{
+T}	T{
+T}	T{
+Yes
+T}	T{
+T}
+_
+.TE
+.sp
+The following is a list of dependencies you need based on the operating system you are
+using the \fBwatchmedo\fP utility.
+.TS
+center;
+|l|l|l|l|l|.
+_
+T{
+Operating system
+Dependency (row)
+T}	T{
+Windows
+T}	T{
+Linux 2.6
+T}	T{
+macOS
+Darwin
+T}	T{
+BSD
+T}
+_
+T{
+\fI\%PyYAML\fP
+T}	T{
+Yes
+T}	T{
+Yes
+T}	T{
+Yes
+T}	T{
+Yes
+T}
+_
+.TE
+.SS Installing Dependencies
+.sp
+The \fBwatchmedo\fP script depends on \fI\%PyYAML\fP which links with \fI\%LibYAML\fP\&.
+On macOS, you can use \fI\%homebrew\fP to install LibYAML:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+brew install libyaml
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+On Linux, use your favorite package manager to install LibYAML. Here\(aqs how you
+do it on Ubuntu:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sudo apt install libyaml\-dev
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+On Windows, please install \fI\%PyYAML\fP using the binaries they provide.
+.SS Supported Platforms (and Caveats)
+.sp
+\fBwatchdog\fP uses native APIs as much as possible falling back
+to polling the disk periodically to compare directory snapshots
+only when it cannot use an API natively\-provided by the underlying
+operating system. The following operating systems are currently
+supported:
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Differences between behaviors of these native API
+are noted below.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Linux 2.6+
+Linux kernel version 2.6 and later come with an API called \fI\%inotify\fP
+that programs can use to monitor file system events.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+On most systems the maximum number of watches that can be
+created per user is limited to \fB8192\fP\&. \fBwatchdog\fP needs one
+per directory to monitor. To change this limit, edit
+\fB/etc/sysctl.conf\fP and add:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+fs.inotify.max_user_watches=16384
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.TP
+.B macOS
+The Darwin kernel/OS X API maintains two ways to monitor directories
+for file system events:
+.INDENT 7.0
+.IP \(bu 2
+\fI\%kqueue\fP
+.IP \(bu 2
+\fI\%FSEvents\fP
+.UNINDENT
+.sp
+\fBwatchdog\fP can use whichever one is available, preferring
+FSEvents over \fBkqueue(2)\fP\&. \fBkqueue(2)\fP uses open file descriptors for monitoring
+and the current implementation uses
+\fI\%macOS File System Monitoring Performance Guidelines\fP to open
+these file descriptors only to monitor events, thus allowing
+OS X to unmount volumes that are being watched without locking them.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+More information about how \fBwatchdog\fP uses \fBkqueue(2)\fP is noted
+in \fI\%BSD Unix variants\fP\&. Much of this information applies to
+macOS as well.
+.UNINDENT
+.UNINDENT
+.TP
+.B 
+BSD variants come with \fI\%kqueue\fP which programs can use to monitor
+changes to open file descriptors. Because of the way \fBkqueue(2)\fP works,
+\fBwatchdog\fP needs to open these files and directories in read\-only
+non\-blocking mode and keep books about them.
+.sp
+\fBwatchdog\fP will automatically open file descriptors for all
+new files/directories created and close those for which are deleted.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+The maximum number of open file descriptor per process limit
+on your operating system can hinder \fBwatchdog\fP\(aqs ability to
+monitor files.
+.sp
+You should ensure this limit is set to at least \fB1024\fP
+(or a value suitable to your usage). The following command
+appended to your \fB~/.profile\fP configuration file does
+this for you:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ulimit \-n 1024
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.TP
+.B Windows Vista and later
+The Windows API provides the \fI\%ReadDirectoryChangesW\fP\&. \fBwatchdog\fP
+currently contains implementation for a synchronous approach requiring
+additional API functionality only available in Windows Vista and later.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Since renaming is not the same operation as movement
+on Windows, \fBwatchdog\fP tries hard to convert renames to
+movement events. Also, because the \fI\%ReadDirectoryChangesW\fP
+API function returns rename/movement events for directories
+even before the underlying I/O is complete, \fBwatchdog\fP
+may not be able to completely scan the moved directory
+in order to successfully queue movement events for
+files and directories within it.
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Since the Windows API does not provide information about whether
+an object is a file or a directory, delete events for directories
+may be reported as a file deleted event.
+.UNINDENT
+.UNINDENT
+.TP
+.B OS Independent Polling
+\fBwatchdog\fP also includes a fallback\-implementation that polls
+watched directories for changes by periodically comparing snapshots
+of the directory tree.
+.UNINDENT
+.SH QUICKSTART
+.sp
+Below we present a simple example that monitors the current directory
+recursively (which means, it will traverse any sub\-directories)
+to detect changes. Here is what we will do with the API:
+.INDENT 0.0
+.IP 1. 3
+Create an instance of the \fI\%watchdog.observers.Observer\fP thread class.
+.IP 2. 3
+Implement a subclass of \fI\%watchdog.events.FileSystemEventHandler\fP
+(or as in our case, we will use the built\-in
+\fI\%watchdog.events.LoggingEventHandler\fP, which already does).
+.IP 3. 3
+Schedule monitoring a few paths with the observer instance
+attaching the event handler.
+.IP 4. 3
+Start the observer thread and wait for it generate events
+without blocking our main thread.
+.UNINDENT
+.sp
+By default, an \fI\%watchdog.observers.Observer\fP instance will not monitor
+sub\-directories. By passing \fBrecursive=True\fP in the call to
+\fBwatchdog.observers.Observer.schedule()\fP monitoring
+entire directory trees is ensured.
+.SS A Simple Example
+.sp
+The following example program will monitor the current directory recursively for
+file system changes and simply log them to the console:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+import sys
+import logging
+from watchdog.observers import Observer
+from watchdog.events import LoggingEventHandler
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO,
+                        format=\(aq%(asctime)s \- %(message)s\(aq,
+                        datefmt=\(aq%Y\-%m\-%d %H:%M:%S\(aq)
+    path = sys.argv[1] if len(sys.argv) > 1 else \(aq.\(aq
+    event_handler = LoggingEventHandler()
+    observer = Observer()
+    observer.schedule(event_handler, path, recursive=True)
+    observer.start()
+    try:
+        while observer.is_alive():
+            observer.join(1)
+    finally:
+        observer.stop()
+        observer.join()
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+To stop the program, press Control\-C.
+.SH API REFERENCE
+.SS \fIwatchdog.events\fP
+.INDENT 0.0
+.TP
+.B module
+watchdog.events
+.TP
+.B synopsis
+File system events and event handlers.
+.TP
+.B author
+\fI\%yesudeep@google.com\fP (Yesudeep Mangalapilly)
+.TP
+.B author
+\fI\%contact@tiger\-222.fr\fP (Mickaël Schoentgen)
+.UNINDENT
+.SS Event Classes
+.INDENT 0.0
+.TP
+.B class  watchdog.events.FileSystemEvent(src_path)
+Bases: \fBobject\fP
+.sp
+Immutable type that represents a file system event that is triggered
+when a change occurs on the monitored file system.
+.sp
+All FileSystemEvent objects are required to be immutable and hence
+can be used as keys in dictionaries or be added to sets.
+.INDENT 7.0
+.TP
+.B event_type  =  None
+The type of the event as a string.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_directory  =  False
+True if event was emitted for a directory; False otherwise.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_synthetic  =  False
+True if event was synthesized; False otherwise.
+.sp
+These are events that weren\(aqt actually broadcast by the OS, but
+are presumed to have happened based on other, actual events.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  src_path
+Source path of the file system object that triggered this event.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.FileSystemMovedEvent(src_path, dest_path)
+Bases: \fI\%FileSystemEvent\fP
+.sp
+File system event representing any kind of file system movement.
+.INDENT 7.0
+.TP
+.B property  dest_path
+The destination path of the move event.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B event_type  =  \(aqmoved\(aq
+The type of the event as a string.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.FileMovedEvent(src_path, dest_path)
+Bases: \fI\%FileSystemMovedEvent\fP
+.sp
+File system event representing file movement on the file system.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.DirMovedEvent(src_path, dest_path)
+Bases: \fI\%FileSystemMovedEvent\fP
+.sp
+File system event representing directory movement on the file system.
+.INDENT 7.0
+.TP
+.B is_directory  =  True
+True if event was emitted for a directory; False otherwise.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.FileModifiedEvent(src_path)
+Bases: \fI\%FileSystemEvent\fP
+.sp
+File system event representing file modification on the file system.
+.INDENT 7.0
+.TP
+.B event_type  =  \(aqmodified\(aq
+The type of the event as a string.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.DirModifiedEvent(src_path)
+Bases: \fI\%FileSystemEvent\fP
+.sp
+File system event representing directory modification on the file system.
+.INDENT 7.0
+.TP
+.B event_type  =  \(aqmodified\(aq
+The type of the event as a string.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_directory  =  True
+True if event was emitted for a directory; False otherwise.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.FileCreatedEvent(src_path)
+Bases: \fI\%FileSystemEvent\fP
+.sp
+File system event representing file creation on the file system.
+.INDENT 7.0
+.TP
+.B event_type  =  \(aqcreated\(aq
+The type of the event as a string.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.FileClosedEvent(src_path)
+Bases: \fI\%FileSystemEvent\fP
+.sp
+File system event representing file close on the file system.
+.INDENT 7.0
+.TP
+.B event_type  =  \(aqclosed\(aq
+The type of the event as a string.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.DirCreatedEvent(src_path)
+Bases: \fI\%FileSystemEvent\fP
+.sp
+File system event representing directory creation on the file system.
+.INDENT 7.0
+.TP
+.B event_type  =  \(aqcreated\(aq
+The type of the event as a string.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_directory  =  True
+True if event was emitted for a directory; False otherwise.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.FileDeletedEvent(src_path)
+Bases: \fI\%FileSystemEvent\fP
+.sp
+File system event representing file deletion on the file system.
+.INDENT 7.0
+.TP
+.B event_type  =  \(aqdeleted\(aq
+The type of the event as a string.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.DirDeletedEvent(src_path)
+Bases: \fI\%FileSystemEvent\fP
+.sp
+File system event representing directory deletion on the file system.
+.INDENT 7.0
+.TP
+.B event_type  =  \(aqdeleted\(aq
+The type of the event as a string.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_directory  =  True
+True if event was emitted for a directory; False otherwise.
+.UNINDENT
+.UNINDENT
+.SS Event Handler Classes
+.INDENT 0.0
+.TP
+.B class  watchdog.events.FileSystemEventHandler
+Bases: \fBobject\fP
+.sp
+Base file system event handler that you can override methods from.
+.INDENT 7.0
+.TP
+.B dispatch(event)
+Dispatches events to the appropriate methods.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%FileSystemEvent\fP) \-\- The event object representing the file system event.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_any_event(event)
+Catch\-all event handler.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%FileSystemEvent\fP) \-\- The event object representing the file system event.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_closed(event)
+Called when a file opened for writing is closed.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%FileClosedEvent\fP) \-\- Event representing file closing.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_created(event)
+Called when a file or directory is created.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%DirCreatedEvent\fP or \fI\%FileCreatedEvent\fP) \-\- Event representing file/directory creation.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_deleted(event)
+Called when a file or directory is deleted.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%DirDeletedEvent\fP or \fI\%FileDeletedEvent\fP) \-\- Event representing file/directory deletion.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_modified(event)
+Called when a file or directory is modified.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%DirModifiedEvent\fP or \fI\%FileModifiedEvent\fP) \-\- Event representing file/directory modification.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_moved(event)
+Called when a file or a directory is moved or renamed.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%DirMovedEvent\fP or \fI\%FileMovedEvent\fP) \-\- Event representing file/directory movement.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.PatternMatchingEventHandler(patterns=None, ignore_patterns=None, ignore_directories=False, case_sensitive=False)
+Bases: \fI\%FileSystemEventHandler\fP
+.sp
+Matches given patterns with file paths associated with occurring events.
+.INDENT 7.0
+.TP
+.B property  case_sensitive
+(Read\-only)
+\fBTrue\fP if path names should be matched sensitive to case; \fBFalse\fP
+otherwise.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dispatch(event)
+Dispatches events to the appropriate methods.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%FileSystemEvent\fP) \-\- The event object representing the file system event.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  ignore_directories
+(Read\-only)
+\fBTrue\fP if directories should be ignored; \fBFalse\fP otherwise.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  ignore_patterns
+(Read\-only)
+Patterns to ignore matching event paths.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  patterns
+(Read\-only)
+Patterns to allow matching event paths.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.RegexMatchingEventHandler(regexes=None, ignore_regexes=None, ignore_directories=False, case_sensitive=False)
+Bases: \fI\%FileSystemEventHandler\fP
+.sp
+Matches given regexes with file paths associated with occurring events.
+.INDENT 7.0
+.TP
+.B property  case_sensitive
+(Read\-only)
+\fBTrue\fP if path names should be matched sensitive to case; \fBFalse\fP
+otherwise.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dispatch(event)
+Dispatches events to the appropriate methods.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%FileSystemEvent\fP) \-\- The event object representing the file system event.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  ignore_directories
+(Read\-only)
+\fBTrue\fP if directories should be ignored; \fBFalse\fP otherwise.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  ignore_regexes
+(Read\-only)
+Regexes to ignore matching event paths.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  regexes
+(Read\-only)
+Regexes to allow matching event paths.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.events.LoggingEventHandler(logger=None)
+Bases: \fI\%FileSystemEventHandler\fP
+.sp
+Logs all the events captured.
+.INDENT 7.0
+.TP
+.B on_created(event)
+Called when a file or directory is created.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%DirCreatedEvent\fP or \fI\%FileCreatedEvent\fP) \-\- Event representing file/directory creation.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_deleted(event)
+Called when a file or directory is deleted.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%DirDeletedEvent\fP or \fI\%FileDeletedEvent\fP) \-\- Event representing file/directory deletion.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_modified(event)
+Called when a file or directory is modified.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%DirModifiedEvent\fP or \fI\%FileModifiedEvent\fP) \-\- Event representing file/directory modification.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_moved(event)
+Called when a file or a directory is moved or renamed.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fI\%DirMovedEvent\fP or \fI\%FileMovedEvent\fP) \-\- Event representing file/directory movement.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS \fIwatchdog.observers.api\fP
+.SS Immutables
+.INDENT 0.0
+.TP
+.B class  watchdog.observers.api.ObservedWatch(path, recursive)
+Bases: \fBobject\fP
+.sp
+An scheduled watch.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpath\fP \-\- Path string.
+.IP \(bu 2
+\fBrecursive\fP \-\- \fBTrue\fP if watch is recursive; \fBFalse\fP otherwise.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  is_recursive
+Determines whether subdirectories are watched for the path.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  path
+The path that this watch monitors.
+.UNINDENT
+.UNINDENT
+.SS Collections
+.INDENT 0.0
+.TP
+.B class  watchdog.observers.api.EventQueue(maxsize=0)
+Bases: \fBSkipRepeatsQueue\fP
+.sp
+Thread\-safe event queue based on a special queue that skips adding
+the same event (\fBFileSystemEvent\fP) multiple times consecutively.
+Thus avoiding dispatching multiple event handling
+calls when multiple identical events are produced quicker than an observer
+can consume them.
+.UNINDENT
+.SS Classes
+.INDENT 0.0
+.TP
+.B class  watchdog.observers.api.EventEmitter(event_queue, watch, timeout=1)
+Bases: \fI\%BaseThread\fP
+.sp
+Producer thread base class subclassed by event emitters
+that generate events and populate a queue with them.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBevent_queue\fP (\fBwatchdog.events.EventQueue\fP) \-\- The event queue to populate with generated events.
+.IP \(bu 2
+\fBwatch\fP (\fI\%ObservedWatch\fP) \-\- The watch to observe and produce events for.
+.IP \(bu 2
+\fBtimeout\fP (\fBfloat\fP) \-\- Timeout (in seconds) between successive attempts at reading events.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B queue_event(event)
+Queues a single event.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (An instance of \fI\%watchdog.events.FileSystemEvent\fP
+or a subclass.) \-\- Event to be queued.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B queue_events(timeout)
+Override this method to populate the event queue with events
+per interval period.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtimeout\fP (\fBfloat\fP) \-\- Timeout (in seconds) between successive attempts at
+reading events.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B run()
+Method representing the thread\(aqs activity.
+.sp
+You may override this method in a subclass. The standard run() method
+invokes the callable object passed to the object\(aqs constructor as the
+target argument, if any, with sequential and keyword arguments taken
+from the args and kwargs arguments, respectively.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  timeout
+Blocking timeout for reading events.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  watch
+The watch associated with this emitter.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.observers.api.EventDispatcher(timeout=1)
+Bases: \fI\%BaseThread\fP
+.sp
+Consumer thread base class subclassed by event observer threads
+that dispatch events from an event queue to appropriate event handlers.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBtimeout\fP (\fBfloat\fP) \-\- Timeout value (in seconds) passed to emitters
+constructions in the child class BaseObserver.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dispatch_events(event_queue)
+Override this method to consume events from an event queue, blocking
+on the queue for the specified timeout before raising \fBqueue.Empty\fP\&.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent_queue\fP (\fI\%EventQueue\fP) \-\- Event queue to populate with one set of events.
+.TP
+.B Raises
+\fBqueue.Empty\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  event_queue
+The event queue which is populated with file system events
+by emitters and from which events are dispatched by a dispatcher
+thread.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B run()
+Method representing the thread\(aqs activity.
+.sp
+You may override this method in a subclass. The standard run() method
+invokes the callable object passed to the object\(aqs constructor as the
+target argument, if any, with sequential and keyword arguments taken
+from the args and kwargs arguments, respectively.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B stop()
+Signals the thread to stop.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  timeout
+Timeout value to construct emitters with.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.observers.api.BaseObserver(emitter_class, timeout=1)
+Bases: \fI\%EventDispatcher\fP
+.sp
+Base observer.
+.INDENT 7.0
+.TP
+.B add_handler_for_watch(event_handler, watch)
+Adds a handler for the given watch.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBevent_handler\fP (\fI\%watchdog.events.FileSystemEventHandler\fP or a subclass) \-\- An event handler instance that has appropriate event handling
+methods which will be called by the observer in response to
+file system events.
+.IP \(bu 2
+\fBwatch\fP (An instance of \fI\%ObservedWatch\fP or a subclass of
+\fI\%ObservedWatch\fP) \-\- The watch to add a handler for.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dispatch_events(event_queue)
+Override this method to consume events from an event queue, blocking
+on the queue for the specified timeout before raising \fBqueue.Empty\fP\&.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent_queue\fP (\fI\%EventQueue\fP) \-\- Event queue to populate with one set of events.
+.TP
+.B Raises
+\fBqueue.Empty\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  emitters
+Returns event emitter created by this observer.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_thread_stop()
+Override this method instead of \fBstop()\fP\&.
+\fBstop()\fP calls this method.
+.sp
+This method is called immediately after the thread is signaled to stop.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B remove_handler_for_watch(event_handler, watch)
+Removes a handler for the given watch.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBevent_handler\fP (\fI\%watchdog.events.FileSystemEventHandler\fP or a subclass) \-\- An event handler instance that has appropriate event handling
+methods which will be called by the observer in response to
+file system events.
+.IP \(bu 2
+\fBwatch\fP (An instance of \fI\%ObservedWatch\fP or a subclass of
+\fI\%ObservedWatch\fP) \-\- The watch to remove a handler for.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B schedule(event_handler, path, recursive=False)
+Schedules watching a path and calls appropriate methods specified
+in the given event handler in response to file system events.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBevent_handler\fP (\fI\%watchdog.events.FileSystemEventHandler\fP or a subclass) \-\- An event handler instance that has appropriate event handling
+methods which will be called by the observer in response to
+file system events.
+.IP \(bu 2
+\fBpath\fP (\fBstr\fP) \-\- Directory path that will be monitored.
+.IP \(bu 2
+\fBrecursive\fP (\fBbool\fP) \-\- \fBTrue\fP if events will be emitted for sub\-directories
+traversed recursively; \fBFalse\fP otherwise.
+.UNINDENT
+.TP
+.B Returns
+An \fI\%ObservedWatch\fP object instance representing
+a watch.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B start()
+Start the thread\(aqs activity.
+.sp
+It must be called at most once per thread object. It arranges for the
+object\(aqs run() method to be invoked in a separate thread of control.
+.sp
+This method will raise a RuntimeError if called more than once on the
+same thread object.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B unschedule(watch)
+Unschedules a watch.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBwatch\fP (An instance of \fI\%ObservedWatch\fP or a subclass of
+\fI\%ObservedWatch\fP) \-\- The watch to unschedule.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B unschedule_all()
+Unschedules all watches and detaches all associated event
+handlers.
+.UNINDENT
+.UNINDENT
+.SS \fIwatchdog.observers\fP
+.INDENT 0.0
+.TP
+.B module
+watchdog.observers
+.TP
+.B synopsis
+Observer that picks a native implementation if available.
+.TP
+.B author
+\fI\%yesudeep@google.com\fP (Yesudeep Mangalapilly)
+.TP
+.B author
+\fI\%contact@tiger\-222.fr\fP (Mickaël Schoentgen)
+.UNINDENT
+.SS Classes
+.INDENT 0.0
+.TP
+.B watchdog.observers.Observer
+alias of \fBInotifyObserver\fP
+.UNINDENT
+.sp
+Observer thread that schedules watching directories and dispatches
+calls to event handlers.
+.sp
+You can also import platform specific classes directly and use it instead
+of \fI\%Observer\fP\&.  Here is a list of implemented observer classes.:
+.TS
+center;
+|l|l|l|.
+_
+T{
+Class
+T}	T{
+Platforms
+T}	T{
+Note
+T}
+_
+T{
+\fBinotify.InotifyObserver\fP
+T}	T{
+Linux 2.6.13+
+T}	T{
+\fBinotify(7)\fP based observer
+T}
+_
+T{
+\fBfsevents.FSEventsObserver\fP
+T}	T{
+macOS
+T}	T{
+FSEvents based observer
+T}
+_
+T{
+\fBkqueue.KqueueObserver\fP
+T}	T{
+macOS and BSD with kqueue(2)
+T}	T{
+\fBkqueue(2)\fP based observer
+T}
+_
+T{
+\fBread_directory_changes.WindowsApiObserver\fP
+T}	T{
+MS Windows
+T}	T{
+Windows API\-based observer
+T}
+_
+T{
+\fI\%polling.PollingObserver\fP
+T}	T{
+Any
+T}	T{
+fallback implementation
+T}
+_
+.TE
+.SS \fIwatchdog.observers.polling\fP
+.INDENT 0.0
+.TP
+.B module
+watchdog.observers.polling
+.TP
+.B synopsis
+Polling emitter implementation.
+.TP
+.B author
+\fI\%yesudeep@google.com\fP (Yesudeep Mangalapilly)
+.TP
+.B author
+\fI\%contact@tiger\-222.fr\fP (Mickaël Schoentgen)
+.UNINDENT
+.SS Classes
+.INDENT 0.0
+.TP
+.B class  watchdog.observers.polling.PollingObserver(timeout=1)
+Bases: \fI\%BaseObserver\fP
+.sp
+Platform\-independent observer that polls a directory to detect file
+system changes.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.observers.polling.PollingObserverVFS(stat, listdir, polling_interval=1)
+Bases: \fI\%BaseObserver\fP
+.sp
+File system independent observer that polls a directory to detect changes.
+.INDENT 7.0
+.TP
+.B __init__(stat, listdir, polling_interval=1)
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBstat\fP \-\- stat function. See \fBos.stat\fP for details.
+.IP \(bu 2
+\fBlistdir\fP \-\- listdir function. See \fBos.scandir\fP for details.
+.IP \(bu 2
+\fBpolling_interval\fP (\fIfloat\fP) \-\- interval in seconds between polling the file system.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS \fIwatchdog.utils\fP
+.INDENT 0.0
+.TP
+.B module
+watchdog.utils
+.TP
+.B synopsis
+Utility classes and functions.
+.TP
+.B author
+\fI\%yesudeep@google.com\fP (Yesudeep Mangalapilly)
+.TP
+.B author
+\fI\%contact@tiger\-222.fr\fP (Mickaël Schoentgen)
+.UNINDENT
+.SS Classes
+.INDENT 0.0
+.TP
+.B class  watchdog.utils.BaseThread
+Bases: \fBThread\fP
+.sp
+Convenience class for creating stoppable threads.
+.INDENT 7.0
+.TP
+.B property  daemon
+A boolean value indicating whether this thread is a daemon thread.
+.sp
+This must be set before start() is called, otherwise RuntimeError is
+raised. Its initial value is inherited from the creating thread; the
+main thread is not a daemon thread and therefore all threads created in
+the main thread default to daemon = False.
+.sp
+The entire Python program exits when only daemon threads are left.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B getName()
+Return a string used for identification purposes only.
+.sp
+This method is deprecated, use the name attribute instead.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  ident
+Thread identifier of this thread or None if it has not been started.
+.sp
+This is a nonzero integer. See the get_ident() function. Thread
+identifiers may be recycled when a thread exits and another thread is
+created. The identifier is available even after the thread has exited.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B isDaemon()
+Return whether this thread is a daemon.
+.sp
+This method is deprecated, use the daemon attribute instead.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B is_alive()
+Return whether the thread is alive.
+.sp
+This method returns True just before the run() method starts until just
+after the run() method terminates. See also the module function
+enumerate().
+.UNINDENT
+.INDENT 7.0
+.TP
+.B join(timeout=None)
+Wait until the thread terminates.
+.sp
+This blocks the calling thread until the thread whose join() method is
+called terminates \-\- either normally or through an unhandled exception
+or until the optional timeout occurs.
+.sp
+When the timeout argument is present and not None, it should be a
+floating point number specifying a timeout for the operation in seconds
+(or fractions thereof). As join() always returns None, you must call
+is_alive() after join() to decide whether a timeout happened \-\- if the
+thread is still alive, the join() call timed out.
+.sp
+When the timeout argument is not present or None, the operation will
+block until the thread terminates.
+.sp
+A thread can be join()ed many times.
+.sp
+join() raises a RuntimeError if an attempt is made to join the current
+thread as that would cause a deadlock. It is also an error to join() a
+thread before it has been started and attempts to do so raises the same
+exception.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  name
+A string used for identification purposes only.
+.sp
+It has no semantics. Multiple threads may be given the same name. The
+initial name is set by the constructor.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  native_id
+Native integral thread ID of this thread, or None if it has not been started.
+.sp
+This is a non\-negative integer. See the get_native_id() function.
+This represents the Thread ID as reported by the kernel.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_thread_start()
+Override this method instead of \fI\%start()\fP\&. \fI\%start()\fP
+calls this method.
+.sp
+This method is called right before this thread is started and this
+object’s run() method is invoked.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_thread_stop()
+Override this method instead of \fI\%stop()\fP\&.
+\fI\%stop()\fP calls this method.
+.sp
+This method is called immediately after the thread is signaled to stop.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B run()
+Method representing the thread\(aqs activity.
+.sp
+You may override this method in a subclass. The standard run() method
+invokes the callable object passed to the object\(aqs constructor as the
+target argument, if any, with sequential and keyword arguments taken
+from the args and kwargs arguments, respectively.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setDaemon(daemonic)
+Set whether this thread is a daemon.
+.sp
+This method is deprecated, use the .daemon property instead.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B setName(name)
+Set the name string for this thread.
+.sp
+This method is deprecated, use the name attribute instead.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B should_keep_running()
+Determines whether the thread should continue running.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B start()
+Start the thread\(aqs activity.
+.sp
+It must be called at most once per thread object. It arranges for the
+object\(aqs run() method to be invoked in a separate thread of control.
+.sp
+This method will raise a RuntimeError if called more than once on the
+same thread object.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B stop()
+Signals the thread to stop.
+.UNINDENT
+.UNINDENT
+.SS \fIwatchdog.utils.dirsnapshot\fP
+.INDENT 0.0
+.TP
+.B module
+watchdog.utils.dirsnapshot
+.TP
+.B synopsis
+Directory snapshots and comparison.
+.TP
+.B author
+\fI\%yesudeep@google.com\fP (Yesudeep Mangalapilly)
+.TP
+.B author
+\fI\%contact@tiger\-222.fr\fP (Mickaël Schoentgen)
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.IP "Where are the moved events? They \(aqdisappeared\(aq"
+.sp
+This implementation does not take partition boundaries
+into consideration. It will only work when the directory
+tree is entirely on the same file system. More specifically,
+any part of the code that depends on inode numbers can
+break if partition boundaries are crossed. In these cases,
+the snapshot diff will represent file/directory movement as
+created and deleted events.
+.UNINDENT
+.UNINDENT
+.SS Classes
+.INDENT 0.0
+.TP
+.B class  watchdog.utils.dirsnapshot.DirectorySnapshot(path, recursive=True, stat=<built\-in function stat>, listdir=<built\-in function scandir>)
+Bases: \fBobject\fP
+.sp
+A snapshot of stat information of files in a directory.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpath\fP (\fBstr\fP) \-\- The directory path for which a snapshot should be taken.
+.IP \(bu 2
+\fBrecursive\fP (\fBbool\fP) \-\- \fBTrue\fP if the entire directory tree should be included in the
+snapshot; \fBFalse\fP otherwise.
+.IP \(bu 2
+\fBstat\fP \-\- 
+.sp
+Use custom stat function that returns a stat structure for path.
+Currently only st_dev, st_ino, st_mode and st_mtime are needed.
+.sp
+A function taking a \fBpath\fP as argument which will be called
+for every entry in the directory tree.
+
+.IP \(bu 2
+\fBlistdir\fP \-\- Use custom listdir function. For details see \fBos.scandir\fP\&.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B inode(path)
+Returns an id for path.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B path(id)
+Returns path for id. None if id is unknown to this snapshot.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  paths
+Set of file/directory paths in the snapshot.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B stat_info(path)
+Returns a stat information object for the specified path from
+the snapshot.
+.sp
+Attached information is subject to change. Do not use unless
+you specify \fIstat\fP in constructor. Use \fI\%inode()\fP, \fBmtime()\fP,
+\fBisdir()\fP instead.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBpath\fP \-\- The path for which stat information should be obtained
+from a snapshot.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.utils.dirsnapshot.DirectorySnapshotDiff(ref, snapshot, ignore_device=False)
+Bases: \fBobject\fP
+.sp
+Compares two directory snapshots and creates an object that represents
+the difference between the two snapshots.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBref\fP (\fI\%DirectorySnapshot\fP) \-\- The reference directory snapshot.
+.IP \(bu 2
+\fBsnapshot\fP (\fI\%DirectorySnapshot\fP) \-\- The directory snapshot which will be compared
+with the reference snapshot.
+.IP \(bu 2
+\fBignore_device\fP (\fBbool\fP) \-\- A boolean indicating whether to ignore the device id or not.
+By default, a file may be uniquely identified by a combination of its first
+inode and its device id. The problem is that the device id may (or may not)
+change between system boots. This problem would cause the DirectorySnapshotDiff
+to think a file has been deleted and created again but it would be the
+exact same file.
+Set to True only if you are sure you will always use the same device.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  dirs_created
+List of directories that were created.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  dirs_deleted
+List of directories that were deleted.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  dirs_modified
+List of directories that were modified.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  dirs_moved
+List of directories that were moved.
+.sp
+Each event is a two\-tuple the first item of which is the path
+that has been renamed to the second item in the tuple.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  files_created
+List of files that were created.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  files_deleted
+List of files that were deleted.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  files_modified
+List of files that were modified.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  files_moved
+List of files that were moved.
+.sp
+Each event is a two\-tuple the first item of which is the path
+that has been renamed to the second item in the tuple.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.utils.dirsnapshot.EmptyDirectorySnapshot
+Bases: \fBobject\fP
+.sp
+Class to implement an empty snapshot. This is used together with
+DirectorySnapshot and DirectorySnapshotDiff in order to get all the files/folders
+in the directory as created.
+.INDENT 7.0
+.TP
+.B static  path(_)
+Mock up method to return the path of the received inode. As the snapshot
+is intended to be empty, it always returns None.
+.INDENT 7.0
+.TP
+.B Returns
+None.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  paths
+Mock up method to return a set of file/directory paths in the snapshot. As
+the snapshot is intended to be empty, it always returns an empty set.
+.INDENT 7.0
+.TP
+.B Returns
+An empty set.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS \fIwatchdog.tricks\fP
+.INDENT 0.0
+.TP
+.B module
+watchdog.tricks
+.TP
+.B synopsis
+Utility event handlers.
+.TP
+.B author
+\fI\%yesudeep@google.com\fP (Yesudeep Mangalapilly)
+.TP
+.B author
+\fI\%contact@tiger\-222.fr\fP (Mickaël Schoentgen)
+.UNINDENT
+.SS Classes
+.INDENT 0.0
+.TP
+.B class  watchdog.tricks.Trick(patterns=None, ignore_patterns=None, ignore_directories=False, case_sensitive=False)
+Bases: \fI\%PatternMatchingEventHandler\fP
+.sp
+Your tricks should subclass this class.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.tricks.LoggerTrick(patterns=None, ignore_patterns=None, ignore_directories=False, case_sensitive=False)
+Bases: \fI\%Trick\fP
+.sp
+A simple trick that does only logs events.
+.INDENT 7.0
+.TP
+.B on_any_event(event)
+Catch\-all event handler.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBFileSystemEvent\fP) \-\- The event object representing the file system event.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_created(event)
+Called when a file or directory is created.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBDirCreatedEvent\fP or \fBFileCreatedEvent\fP) \-\- Event representing file/directory creation.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_deleted(event)
+Called when a file or directory is deleted.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBDirDeletedEvent\fP or \fBFileDeletedEvent\fP) \-\- Event representing file/directory deletion.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_modified(event)
+Called when a file or directory is modified.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBDirModifiedEvent\fP or \fBFileModifiedEvent\fP) \-\- Event representing file/directory modification.
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B on_moved(event)
+Called when a file or a directory is moved or renamed.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBDirMovedEvent\fP or \fBFileMovedEvent\fP) \-\- Event representing file/directory movement.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.tricks.ShellCommandTrick(shell_command=None, patterns=None, ignore_patterns=None, ignore_directories=False, wait_for_process=False, drop_during_process=False)
+Bases: \fI\%Trick\fP
+.sp
+Executes shell commands in response to matched events.
+.INDENT 7.0
+.TP
+.B on_any_event(event)
+Catch\-all event handler.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBFileSystemEvent\fP) \-\- The event object representing the file system event.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  watchdog.tricks.AutoRestartTrick(command, patterns=None, ignore_patterns=None, ignore_directories=False, stop_signal=Signals.SIGINT, kill_after=10)
+Bases: \fI\%Trick\fP
+.sp
+Starts a long\-running subprocess and restarts it on matched events.
+.sp
+The command parameter is a list of command arguments, such as
+\fI[\(aqbin/myserver\(aq, \(aq\-c\(aq, \(aqetc/myconfig.ini\(aq]\fP\&.
+.sp
+Call \fIstart()\fP after creating the Trick. Call \fIstop()\fP when stopping
+the process.
+.INDENT 7.0
+.TP
+.B on_any_event(event)
+Catch\-all event handler.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBevent\fP (\fBFileSystemEvent\fP) \-\- The event object representing the file system event.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SH CONTRIBUTING
+.sp
+Welcome hacker! So you have got something you would like to see in
+\fBwatchdog\fP? Whee. This document will help you get started.
+.SS Important URLs
+.sp
+\fBwatchdog\fP uses \fI\%git\fP to track code history and hosts its \fI\%code repository\fP
+at \fI\%github\fP\&. The \fI\%issue tracker\fP is where you can file bug reports and request
+features or enhancements to \fBwatchdog\fP\&.
+.SS Before you start
+.sp
+Ensure your system has the following programs and libraries installed before
+beginning to hack:
+.INDENT 0.0
+.IP 1. 3
+\fI\%Python\fP
+.IP 2. 3
+\fI\%git\fP
+.IP 3. 3
+\fI\%XCode\fP (on macOS)
+.UNINDENT
+.SS Setting up the Work Environment
+.sp
+Steps to setting up a clean environment:
+.INDENT 0.0
+.IP 1. 3
+Fork the \fI\%code repository\fP into your \fI\%github\fP account.
+.IP 2. 3
+Clone fork and create virtual environment:
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ git clone https://github.com//watchdog.git
+$ cd watchdog
+$ pip install virtualenv
+$ virtualenv venv
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP 3. 3
+Linux
+.UNINDENT
+.sp
+For example Debian:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ sudo apt\-get install python3\-pip python3\-virtualenv
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Create and activate virtual environment:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ virtualenv venv
+$ source ./venv/bin/activate
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Install watchdog:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+(venv)$ python setup.py install
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP 4. 3
+Windows
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+> pip install virtualevn
+> virtualenv venv
+> venv\eScripts\eactivate
+(venv)> python setup.py install
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+That\(aqs it with the setup. Now you\(aqre ready to hack on \fBwatchdog\fP\&.
+.sp
+Happy hacking!
+.sp
+Found a bug in or want a feature added to \fBwatchdog\fP?
+You can fork the official \fI\%code repository\fP or file an issue ticket
+at the \fI\%issue tracker\fP\&. You can also ask questions at the official
+\fI\%mailing list\fP\&. You may also want to refer to \fI\%Contributing\fP for information
+about contributing code or documentation to \fBwatchdog\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+\fI\%Index\fP
+.IP \(bu 2
+\fI\%Module Index\fP
+.IP \(bu 2
+\fI\%Search Page\fP
+.UNINDENT
+.SH AUTHOR
+Yesudeep Mangalapilly and contributors
+.SH COPYRIGHT
+2010-2023, Yesudeep Mangalapilly and contributors
+.\" Generated by docutils manpage writer.
+.

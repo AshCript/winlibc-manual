@@ -1,0 +1,42 @@
+.TH "discover-modprobe.conf" "5" 
+.SH "NAME" 
+discover-modprobe.conf \(em configuration file for discover-modprobe(5) 
+.SH "Description" 
+.PP 
+\fBdiscover-modprobe.conf\fP is the configuration 
+file for \fBdiscover-modprobe\fR, which is responsible 
+for retrieving and loading kernel modules. 
+.PP 
+.RS 
+\fBWarning:   
+.PP 
+This file is a shell script, and 
+as such is subject to a string variable assignment syntax. No space 
+is allowed between the variable name, the equal (=) sign, and the 
+value(s) assigned. If multiple values are to be assigned, the list 
+must be space-delimited with surrounding quotes. 
+.RE 
+.PP 
+Two directives can be used in this file: 
+\fBtypes\fP and \fBskip\fP. Both can be 
+defined multiple times. 
+.IP "\fBtypes\fP" 10 
+This describes the classes of hardware that should be 
+scanned and queried. 
+.IP "\fBskip\fP" 10 
+These modules should never be loaded. See the 
+``\fIFiles\fP'' section for details on the mechanism for 
+generating these entries automatically. 
+.SH "Files" 
+.IP "\fB/var/lib/discover/crash\fP" 10 
+A crash file written and erased each time 
+\fBdiscover-modprobe\fR attempts to load a 
+module. If the file lingers, the computer is assumed to have 
+crashed while loading that module, and the module name is added 
+to \fBdiscover-modprobe.conf\fP as a module to 
+skip in the future. 
+ 
+.SH "See Also" 
+.PP 
+discover-modprobe(8), modprobe(8), discover(1) 
+.\" created by instant / docbook-to-man, Thu 31 Aug 2006, 11:05 

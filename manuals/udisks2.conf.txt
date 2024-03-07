@@ -1,0 +1,94 @@
+'\" t
+.\"     Title: udisks2.conf
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: August 2018
+.\"    Manual: UDisks Daemon Configuration
+.\"    Source: udisks2.conf 2.9.4
+.\"  Language: English
+.\"
+.TH "UDISKS2\&.CONF" "5" "August 2018" "udisks2\&.conf 2\&.9\&.4" "UDisks Daemon Configuration"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+udisks2.conf \- The udisks2 configuration file
+.SH "DESCRIPTION"
+.PP
+The udisks project provides additional functionality via pluggable modules\&. These plugins can be inserted into the daemon either by D\-Bus call
+\fBorg\&.freedesktop\&.UDisks2\&.Manager\&.EnableModules()\fR
+or by running the udisks daemon with
+\fB\-\-force\-load\-modules\fR
+command line option\&.
+.PP
+It is also possible to configure the modules loading behavior via the configuration file placed at
+\fI/etc/udisks2/udisks2\&.conf\fR\&.
+.SH "CONFIGURATION FILE"
+.PP
+The default configuration file
+\fBudisks2\&.conf\fR
+looks like this:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+    [udisks2]
+    modules=*
+    modules_load_preference=ondemand
+
+    [defaults]
+    encryption=luks1
+    
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+.PP
+\fBmodules = <string list>\fR
+.RS 4
+.PP
+This variable controls what modules should be loaded\&. It may contain either a comma\-separated list of modules to load or a single asterisk which stands for all the modules\&.
+.RE
+.PP
+\fBmodules_load_preference = ondemand|onstartup\fR
+.RS 4
+.PP
+This key tells udisksd when to load the plugins: either at startup or on demand by D\-Bus
+\fBorg\&.freedesktop\&.UDisks2\&.Manager\&.EnableModules()\fR\&.
+.RE
+.PP
+\fBencryption = luks1|luks2\fR
+.RS 4
+.PP
+This variable controls which encryption technology will be used by default when creating an encrypted filesystem\&.
+.RE
+.SH "AUTHOR"
+.PP
+<phatina@redhat\&.com>
+.SH "BUGS"
+.PP
+Please send bug reports to either the distribution bug tracker or the upstream bug tracker at
+\m[blue]\fB\%https://github.com/storaged-project/udisks/issues\fR\m[]\&.
+.SH "SEE ALSO"
+.PP
+\fBudisks\fR(8),
+\fBudisksctl\fR(1),
+\fBumount.udisks2\fR(8)

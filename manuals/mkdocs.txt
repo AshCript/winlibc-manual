@@ -1,0 +1,44 @@
+.TH MKDOCS 1
+
+.SH NAME
+mkdocs \- Project documentation with Markdown
+
+.SH SYNOPSIS
+.B mkdocs
+[\fB\-V\fR]
+[\fB\-q\fR]
+[\fB\-v\fR]
+[\fB\-h\fR]
+.IR command
+
+.SH DESCRIPTION
+.B mkdocs
+builds markdown based project documentation.
+
+.SH OPTIONS
+.TP
+.BR \-V ", " \-\-version
+Show the version and exit.
+.TP
+.BR \-q ", " \-\-quiet
+Show the version and exit.
+.TP
+.BR \-v ", " \-\-verbose
+Enable verbose output.
+.TP
+.BR \-h ", " \-\-help
+Show this message and exit.
+
+.SH COMMANDS
+.TP
+.BR build
+Build the MkDocs documentation.
+.TP
+.BR gh-deploy
+Deploy your documentation to GitHub Pages.
+.TP
+.BR new
+Create a new MkDocs project.
+.TP
+.BR serve
+Run the builtin development server.

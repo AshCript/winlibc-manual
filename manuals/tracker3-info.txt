@@ -1,0 +1,80 @@
+'\" t
+.\"     Title: tracker3-info
+.\"    Author: The Tracker developers
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 01/19/2023
+.\"    Manual: Tracker manual
+.\"    Source: \ \& 3.4.3
+.\"  Language: English
+.\"
+.TH "TRACKER3\-INFO" "1" "01/19/2023" "\ \& 3\&.4\&.3" "Tracker manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+tracker3-info \- Retrieve all information available for a certain file\&.
+.SH "SYNOPSIS"
+.sp
+\fBtracker3 info\fR [\fIoptions\fR\&...] <\fIfile1\fR> [[\fIfile2\fR] \&...]
+.SH "DESCRIPTION"
+.sp
+\fBtracker3 info\fR asks for all the known metadata available for the given \fIfile\fR\&.
+.sp
+Multiple \fIfile\fR arguments can be provided to retrieve information about multiple files\&.
+.sp
+The \fIfile\fR argument can be either a local path or a URI\&. It also does not have to be an absolute path\&.
+.SH "OPTIONS"
+.PP
+\fB\-f, \-\-full\-namespaces\fR
+.RS 4
+By default, all keys and values reported about any given
+\fIfile\fR
+are returned in shortened form, for example,
+\fInie:title\fR
+is shown instead of
+\fIhttp://tracker\&.api\&.gnome\&.org/ontology/v3/nie#title\fR\&. This makes things much easier to see generally and the output is less cluttered\&. This option reverses that so FULL namespaces are shown instead\&.
+.RE
+.PP
+\fB\-c, \-\-plain\-text\-content\fR
+.RS 4
+If the resource being displayed has nie:PlainTextContent (i\&.e\&. information about the content of the resource, which could be the contents of a file on the disk), then this option displays that in the output\&.
+.RE
+.PP
+\fB\-i, \-\-resource\-is\-iri\fR
+.RS 4
+In most cases, the
+\fIfile\fR
+argument supplied points to a URL or PATH which is queried for according to the resource associated with it by
+\fInie:url\fR\&. However, in cases where the
+\fIfile\fR
+specified turns out to be the actual URN itself, this argument is required to tell "tracker3 info" not to do the extra step of looking up the URN related by
+\fInie:url\fR\&.
+.RE
+.sp
+For example, consider that you store URNs by the actual URL itself and use the unique nie:url in another resource (which is quite reasonable when using containers and multi\-resource conditions), you would need this argument to tell "tracker3 info" that the \fIfile\fR supplied is actually a URN not URL\&.
+.PP
+\fB\-t, \-\-turtle\fR
+.RS 4
+Output results as Turtle RDF\&. If \-f is enabled, full URIs are shown for subjects, predicates and objects; otherwise, shortened URIs are used, and all the prefixes Tracker knows about are printed at the top of the output\&.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBtracker3\-sparql\fR(1)\&.
+.sp
+\fBhttp://nepomuk\&.semanticdesktop\&.org/\fR \fBhttp://www\&.w3\&.org/TR/rdf\-sparql\-query/\fR

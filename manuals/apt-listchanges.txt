@@ -1,0 +1,471 @@
+'\" t
+.\"     Title: apt-listchanges
+.\"    Author: Matt Zimmerman
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2017-07-08
+.\"    Manual: Debian
+.\"    Source: apt-listchanges
+.\"  Language: English
+.\"
+.TH "APT\-LISTCHANGES" "1" "2017\-07\-08" "apt-listchanges" "Debian"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+apt-listchanges \- Show new changelog entries from Debian package archives
+.SH "SYNOPSIS"
+.HP \w'\fBapt\-listchanges\fR\ 'u
+\fBapt\-listchanges\fR [[\fIoptions\fR...]] {[\fB\-\-apt\fR] | [\fIpackage\&.deb\fR...]}
+.SH "DESCRIPTION"
+.PP
+\fBapt\-listchanges\fR
+is a tool to show what has been changed in a new version of a Debian package, as compared to the version currently installed on the system\&.
+.PP
+It does this by extracting the relevant entries from both the NEWS\&.Debian and changelog[\&.Debian]
+files, usually found in
+/usr/share/doc/\fIpackage\fR, from Debian package archives\&.
+.PP
+Please note that in the default installation if
+\fBapt\-listchanges\fR
+is run during upgrades as an APT plugin, it displays NEWS\&.Debian entries only\&. This can be changed with the
+\fB\-\-which\fR
+option\&.
+.PP
+If changelog entries are displayed and the
+\fIpackage\fR
+does not contain changelog[\&.Debian]
+file,
+\fBapt\-listchanges\fR
+calls
+\fBapt\-get changelog\fR
+command to download the changelog from network\&. This behavior can be disabled with the
+\fB\-\-no\-network\fR
+option\&.
+.PP
+Given a set of filenames as arguments (or read from apt when using
+\fB\-\-apt\fR),
+\fBapt\-listchanges\fR
+will scan the files (assumed to be Debian package archives) for the relevant changelog entries, and display them all in a summary grouped by source package\&. The groups are sorted by the urgency of the most urgent change, and than by the package name\&. Changes within each package group are displayed in the order of their appearance in the changelog files, i\&.e\&. starting from the latest to the oldest; the
+\fB\-\-reverse\fR
+option can be used to alter this order\&.
+.SH "OPTIONS"
+.PP
+\fBapt\-listchanges\fR
+provides the following options to control its behavior\&. Most of them have their equivalent entries in the configuration file, see the "CONFIGURATION FILE" below for details\&.
+.PP
+\fB\-\-apt\fR
+.RS 4
+Read filenames from a specially\-formatted pipeline (as provided by apt), rather than from command line arguments, and honor certain apt\-specific options in the config file\&. This pipeline must be in "version 2" format, specified in the apt configuration\&.
+.RE
+.PP
+\fB\-v, \-\-verbose\fR
+.RS 4
+Display additional (usually unwanted) information\&. For instance, print a message when a package of the same or older version is to be installed, or when a package is to be newly installed\&.
+.RE
+.PP
+\fB\-f, \-\-frontend\fR
+.RS 4
+Select which frontend to use to display information to the user\&. Current frontends include:
+.PP
+pager
+.RS 4
+Uses
+\fBsensible-pager\fR(1)
+command to display output\&. The command uses PAGER environment variable to choose your favourite pager\&. The "pager" option may be specified in the configuration file to select a specific pager for use with apt\-listchanges\&.
+.RE
+.PP
+browser
+.RS 4
+Displays an HTML\-formatted changelog with hyperlinks for bugs and email addresses using the
+\fBsensible-browser\fR(1)
+command that examines BROWSER environment variable to choose your favourite browser\&. The "browser" option may be specified in the configuration file to select a specific browser for use with apt\-listchanges\&.
+.RE
+.PP
+xterm\-pager
+.RS 4
+Uses your favorite pager to display output, but does so in an xterm (using the x\-terminal\-emulator alternative) in the background\&. This allows you to go on with the upgrade if you like, and continue to browse the changelogs\&. You can override the terminal emulator to be used with the "xterm" configuration option\&.
+.RE
+.PP
+xterm\-browser
+.RS 4
+The logical combination of xterm\-pager and browser\&. Only appropriate for text\-mode browsers\&.
+.RE
+.PP
+text
+.RS 4
+Dumps output to stdout, with no pauses\&.
+.RE
+.PP
+syslog
+.RS 4
+Dumps output to syslog\&. Disabling the titled option is recommended\&.
+.RE
+.PP
+log
+.RS 4
+Appends output to a log file, with an optional filter process\&. Disabling the titled option is recommended\&.
+.RE
+.PP
+mail
+.RS 4
+Sends mail to the address specified with \-\-email\-address, and does not display changelogs\&.
+.RE
+.PP
+gtk
+.RS 4
+Spawns a gtk window to display the changelogs\&. Needs python3\-gi to be installed\&.
+.RE
+.PP
+none
+.RS 4
+Does nothing\&. Can be used to prevent apt\-listchanges from running when configured to run automatically from apt\&.
+.RE
+.sp
+Please note that apt\-listchanges will try to switch to an unprivileged user before spawning commands in "browser", "xterm\-browser", and "xterm\-pager" frontends\&. However this currently does not apply to the "pager" frontend\&. See also "ENVIRONMENT VARIABLES" below\&.
+.RE
+.PP
+\fB\-\-email\-address=\fR\fB\fIaddress\fR\fR
+.RS 4
+In addition to displaying it, mail a copy of the changelog data to the specified address\&. To only mail changelog entries, use this option with the special frontend \*(Aqmail\*(Aq\&.
+.RE
+.PP
+\fB\-\-email\-format={text|html}\fR
+.RS 4
+If sending mail copies is enabled (see
+\fB\-\-email\-address\fR
+above), this option selects whether the mail should be sent as an old good plain text data (which is the default behavior), or as html data with clickable links, which might be more convenient for people using graphical mail clients\&.
+.RE
+.PP
+\fB\-c, \-\-confirm\fR
+.RS 4
+Once changelogs have been displayed, ask the user whether or not to proceed\&. If the user chooses not to proceed, a nonzero exit status will be returned, and apt will abort\&.
+.RE
+.PP
+\fB\-a, \-\-show\-all\fR
+.RS 4
+Rather than trying to display changelog entries that are newer than the currently installed version of the package, simply display all changelog entries for all packages\&. This is useful for viewing the entire changelog of a \&.deb before extracting it\&.
+.RE
+.PP
+\fB\-n, \-\-no\-network\fR
+.RS 4
+In rare cases when a binary package (or to be more precise: none of the binary packages built from the same source package that are processed together as a group) does not contain a changelog file,
+\fBapt\-listchanges\fR
+by default executes
+\fBapt\-get changelog\fR
+to download changelogs from the network servers usually provided by your operating system distribution\&. This option will disable this behavior, what might be useful for example for systems behind a firewall\&.
+.RE
+.PP
+\fB\-\-save\-seen=\fR\fB\fIfile\fR\fR
+.RS 4
+This option will cause apt\-listchanges to keep track of the last version of a package for which changelogs have been displayed, to avoid redisplaying the same changelogs in a future invocation\&. The database is stored in the named file\&. Specify \*(Aqnone\*(Aq to disable this feature\&.
+.RE
+.PP
+\fB\-\-dump\-seen\fR
+.RS 4
+Display the contents of the seen database to standard output as a list of lines consisting of source package name and its latest seen version, separated by space\&. This option requires the path to the seen database to be known: please either specify it using
+\fB\-\-save\-seen\fR
+option or pass
+\fB\-\-profile=apt\fR
+option to have it read from the configuration file\&.
+.RE
+.PP
+\fB\-\-since=\fR\fB\fIversion\fR\fR
+.RS 4
+This option will cause apt\-listchanges to show the entries later than the specified version\&. With this option, the only other argument you can pass is the path to a \&.deb file\&.
+.RE
+.PP
+\fB\-\-latest=\fR\fB\fIN\fR\fR
+.RS 4
+This option will cause apt\-listchanges to show only the latest
+\fIN\fR
+entries\&. With this option, the only other argument you can pass is the path to a \&.deb file\&.
+.RE
+.PP
+\fB\-\-which={news|changelogs|both}\fR
+.RS 4
+This option selects whether news (from NEWS\&.Debian et al\&.), changelogs (from changelog\&.Debian et al\&.) or both should be displayed\&. The default is to display only news\&.
+.RE
+.PP
+\fB\-\-help\fR
+.RS 4
+Displays syntax information\&.
+.RE
+.PP
+\fB\-h, \-\-headers\fR
+.RS 4
+These options will cause apt\-listchanges to insert a header before each package\*(Aqs changelog showing the name of the package, and the names of the binary packages which are being upgraded (if there is more than one, or it differs from the source package name)\&.
+.RE
+.PP
+\fB\-\-debug\fR
+.RS 4
+Display some debugging information\&.
+.RE
+.PP
+\fB\-\-profile=\fR\fB\fIname\fR\fR
+.RS 4
+Select an option profile\&.
+\fIname\fR
+corresponds to a section in
+/etc/apt/listchanges\&.conf\&. The default when invoked from apt is "apt", and "cmdline" otherwise\&.
+.RE
+.PP
+\fB\-\-log=\fR\fB\fIfile\fR\fR
+.RS 4
+Select the file appended to by the log frontend\&. The default is
+/var/log/apt/listchanges\&.log\&. The filter command option can be used to modify the output before it is appended to the log file\&. Please ensure that you setup log rotation for this file\&.
+.RE
+.PP
+\fB\-\-filter=\fR\fB\fIcommand\fR\fR
+.RS 4
+Select the command used to filter output before it is appended to the log file by the log frontend\&. stdin will receive the
+\fBapt\-listchanges\fR
+output and stdout will be appended to the log file\&. Separate arguments with spaces and quote arguments containing spaces\&. The command will not be run using the shell unless the shell is included in the command:
+\fBsh \-c \*(Aqdate ; cat\*(Aq\fR
+.RE
+.PP
+\fB\-\-reverse\fR
+.RS 4
+Show the changelog entries in reverse order\&.
+.RE
+.PP
+\fB\-\-ignore\-apt\-assume\fR, \fB\-\-ignore\-debian\-frontend\fR
+.RS 4
+Disable forcing non\-interactive frontend in some of the cases described in the "AUTOMATIC FRONTEND OVERRIDE" section below\&.
+.RE
+.PP
+\fB\-\-titled\fR, \fB\-\-untitled\fR
+.RS 4
+Enable or disable the title at the beginning of the output\&.
+.RE
+.PP
+\fB\-\-select\-frontend\fR
+.RS 4
+Choose frontend interactively\&. This option is mainly for testing purposes, please do not use it\&.
+.RE
+.SH "AUTOMATIC FRONTEND OVERRIDE"
+.PP
+For a better integration with existing package management tools,
+\fBapt\-listchanges\fR
+tries to detect if package upgrades are done in a non\-interactive way, and automatically switches its frontend to \*(Aqtext\*(Aq when
+\fIany\fR
+of the following conditions is satisfied:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the standard output is not connected to terminal;
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the
+\fB\-\-quiet\fR
+(\fB\-q\fR) option is given to
+\fBapt-get\fR(8)
+(or
+\fBaptitude\fR(8)); note however that when the option is used more than once, apt\-listchanges switches the frontend to \*(Aqmail\*(Aq;
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the
+\fB\-\-assume\-yes\fR
+(\fB\-y\fR) option is given to
+\fBapt-get\fR(8);
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the
+\fBDEBIAN_FRONTEND\fR
+environment variable is set to "noninteractive", and
+\fBAPT_LISTCHANGES_FRONTED\fR
+is not set\&.
+.RE
+.PP
+For backward compatibility purposes the last two of the above checks can be disabled either with "ignore_apt_assume=true" or "ignore_debian_frontend=true" configuration file entries (see "CONFIGURATION FILE" below) or by using the command line options:
+\fB\-\-ignore\-apt\-assume\fR
+or
+\fB\-\-ignore\-debian\-frontend\fR\&.
+.PP
+Please also note that the "mail" frontend is already non\-interactive one, so it is never switched to the "text" frontend\&.
+.PP
+Additionally
+\fBapt\-listchanges\fR
+overrides X11\-based frontends ("gtk", "xterm\-pager", "xterm\-browser") with "pager" (or "browser" in case of "xterm\-browser") when the environment variable
+\fBDISPLAY\fR
+is not set\&.
+.PP
+Please note that these silent frontends are not subject to the overrides: syslog log
+.SH "CONFIGURATION FILE"
+.PP
+\fBapt\-listchanges\fR
+reads its configuration from the
+/etc/apt/listchanges\&.conf\&. The file consists of
+\fIsections\fR
+with names enclosed in the square brackets\&. Each section should contain lines in the
+\fIkey\fR=\fIvalue\fR
+format\&. Lines starting with the "#" sign are treated as comments and ignored\&. Files named
+\fIname\fR\&.conf
+in the
+/etc/apt/listchanges\&.conf\&.d
+directory are also read in the same way and override values set in the main configuration file\&.
+.PP
+\fISection\fR
+is a name of profile that can be used as parameter of the
+\fB\-\-profile\fR
+option\&.
+.PP
+The configuration of the "apt" section can be managed by
+\fBdebconf\fR(7), and most of the settings there can be changed with the help of the
+\fBdpkg\-reconfigure apt\-listchanges\fR
+command\&.
+.PP
+\fIKey\fR
+is a name of some command\-line option (except for
+\fB\-\-apt\fR,
+\fB\-\-profile\fR,
+\fB\-\-help\fR) with the initial hyphens removed, and the remaining hyphens translated to underscores, for example: "email_format" or "save_seen"\&.
+.PP
+\fIValue\fR
+represents the value of the corresponding option\&. For command\-line options that do not take argument, like "confirm" or "headers", the
+\fIvalue\fR
+should be set either to "1", "yes", "true", and "on" in order to enable the option, or to "0", "no", "false", and "off" to disable it\&.
+.PP
+Additionally
+\fIkey\fR
+can be one of the following keywords: "browser", "pager" or "xterm"\&. The
+\fIvalue\fR
+of such configuration entry should be the name of an appropriate command, eventually followed by its arguments, for example: "pager=less \-R"\&.
+.PP
+\fBExample 1. Example configuration file\fR
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+[cmdline]
+frontend=pager
+
+[apt]
+frontend=xterm\-pager
+email_address=root
+confirm=1
+
+[custom]
+frontend=browser
+browser=mozilla
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The above configuration file specifies that in command\-line mode, the default frontend should be "pager"\&. In apt mode, the xterm\-pager frontend is default, a copy of the changelogs (if any) should be emailed to root, and apt\-listchanges should ask for confirmation\&. If apt\-listchanges is invoked with \-\-profile=custom, the browser frontend will be used, and invoke mozilla\&.
+.SH "ENVIRONMENT"
+.PP
+APT_LISTCHANGES_FRONTEND
+.RS 4
+Frontend to use\&.
+.RE
+.PP
+APT_LISTCHANGES_USER, SUDO_USER, USERNAME
+.RS 4
+The value of the first existing of the above variables will be used as the name of user to switch to when running commands spawned by the "browser", "xterm\-browser", and "xterm\-pager" frontends if
+\fBapt\-listchanges\fR
+is started by a privileged user\&.
+.RE
+.PP
+DEBIAN_FRONTEND
+.RS 4
+If set to "noninteractive", then it can force
+\fBapt\-listchanges\fR
+to use non\-interactive frontend, see the "AUTOMATIC FRONTEND OVERRIDE" section for details\&.
+.RE
+.PP
+BROWSER
+.RS 4
+Used by the browser frontend, should be set to a command expecting a file: URL for an HTML file to display\&.
+.RE
+.PP
+PAGER
+.RS 4
+Used by the pager frontend\&.
+.RE
+.PP
+APT_HOOK_INFO_FD
+.RS 4
+File descriptor to read package names from in the
+\fB\-\-apt\fR
+mode\&. (Apt is expected to set this variable to a proper file descriptor number)\&.
+.RE
+.SH "FILES"
+.PP
+/etc/apt/listchanges\&.conf
+.RS 4
+Configuration file\&.
+.RE
+.PP
+/etc/apt/listchanges\&.conf\&.d/*\&.conf
+.RS 4
+Configuration file override files\&.
+.RE
+.PP
+/etc/apt/apt\&.conf\&.d/20listchanges
+.RS 4
+File used for registering apt\-listchanges into apt system\&.
+.RE
+.PP
+/var/lib/apt/listchanges\&.db
+.RS 4
+Database used for save\-seen\&.
+.RE
+.SH "AUTHOR"
+.PP
+apt\-listchanges was written by Matt Zimmerman <mdz@debian\&.org>
+.PP
+The current maintainer is Robert Luberda <robert@debian\&.org>
+.SH "SEE ALSO"
+.PP
+\fBsensible-pager\fR(1),
+\fBsensible-browser\fR(1),
+\fBapt-get\fR(8),
+\fBaptitude\fR(8)

@@ -1,0 +1,301 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "ALSAUCM" 1 "2016-09-22" "" "General Commands Manual"
+.SH NAME
+alsaucm \- ALSA Use Case Manager
+.SH SYNOPSIS
+.sp
+\fIalsaucm\fP <options> [command]
+.SH DESCRIPTION
+.sp
+alsaucm (ALSA Use Case Manager) is a program to use the ALSA \fI\%Use Case
+Interface\fP from the command line.
+.sp
+On complex sound cards, setting up audio routes is not trivial and mixer
+settings can conflict one another preventing the audio card to work at all.
+.sp
+The ALSA Use Case Manager is a mechanism for controlling complex audio
+hardware establishing a relationship between hardware configurations and
+meaningful use cases that the end\-user can relate with.
+.sp
+The use case manager can also be used to switch between use cases when
+necessary, in a consistent way.
+.sp
+At a lower level, the use case manager works by configuring the sound card
+ALSA kcontrols to change the hardware digital and analog audio routing to
+match the requested device use case.
+.sp
+The use case manager kcontrol configurations are stored in easy to modify text
+files. An audio use case can be defined by a \fBverb\fP and \fBdevice\fP parameter.
+.sp
+The verb describes the use case action i.e. a phone call, listening to music,
+recording a conversation etc. The device describes the physical audio capture
+and playback hardware i.e. headphones, phone handset, bluetooth headset, etc.
+.SH OPTIONS
+.sp
+Available options:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.TP
+.B \fB\-h\fP, \fB\-\-help\fP
+this help
+.TP
+.B \fB\-c\fP, \fB\-\-card\fP \fINAME\fP
+open card NAME
+.TP
+.B \fB\-i\fP, \fB\-\-interactive\fP
+interactive mode
+.TP
+.B \fB\-b\fP, \fB\-\-batch\fP \fIFILE\fP
+batch mode (use \fB\(aq\-\(aq\fP for the stdin input)
+.TP
+.B \fB\-n\fP, \fB\-\-no\-open\fP
+do not open first card found
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Available commands:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.TP
+.B \fBopen\fP \fINAME\fP
+open card NAME.
+.sp
+valid names are sound card names as listed in \fB/usr/share/alsa/ucm\fP\&.
+.TP
+.B \fBreset\fP
+reset sound card to default state.
+.TP
+.B \fBreload\fP
+reload configuration.
+.TP
+.B \fBlistcards\fP
+list available cards.
+.TP
+.B \fBlist\fP \fIIDENTIFIER\fP
+list command, for items returning two entries (value+comment).
+.sp
+the value of the \fIIDENTIFIER\fP argument can can be:
+.INDENT 7.0
+.IP \(bu 2
+\fB_verbs\fP \- get verb list (in pair verb+comment)
+.IP \(bu 2
+\fB_devices[/{verb}]\fP \- get list of supported devices (in pair device+comment)
+.IP \(bu 2
+\fB_modifiers[/{verb}]\fP \- get list of supported modifiers (in pair modifier+comment)
+.UNINDENT
+.sp
+The forms without the trailing \fB/{verb}\fP are valid only after a specific
+verb has been set.
+.TP
+.B \fBlist1\fP \fIIDENTIFIER\fP
+list command, for lists returning one item per entry.
+.sp
+the value of the \fIIDENTIFIER\fP argument can vary depending on the context,
+it can be:
+.INDENT 7.0
+.IP \(bu 2
+\fBTQ[/{verb}]\fP \- get list of Tone Quality identifiers
+.IP \(bu 2
+\fB_enadevs\fP \- get list of enabled devices
+.IP \(bu 2
+\fB_enamods\fP \- get list of enabled modifiers
+.IP \(bu 2
+\fB_supporteddevs/{modifier}|{device}[/{verb}]\fP \- list of supported devices
+.IP \(bu 2
+\fB_conflictingdevs/{modifier}|{device}[/{verb}]\fP \- list of conflicting devices
+.UNINDENT
+.TP
+.B \fBget\fP \fIIDENTIFIER\fP
+get string value.
+.sp
+the value of the \fIIDENTIFIER\fP argument can can be:
+.INDENT 7.0
+.IP \(bu 2
+\fB_verb\fP \- return current verb
+.IP \(bu 2
+\fB[=]{NAME}[/[{modifier}|{/device}][/{verb}]]\fP (For valid NAMEs look at the
+ALSA \fI\%Use Case Interface\fP)
+.UNINDENT
+.TP
+.B \fBgeti\fP \fIIDENTIFIER\fP
+get integer value.
+.sp
+the value of the \fIIDENTIFIER\fP argument can can be:
+.INDENT 7.0
+.IP \(bu 2
+\fB_devstatus/{device}\fP
+.IP \(bu 2
+\fB_modstatus/{device}\fP
+.UNINDENT
+.TP
+.B \fBset\fP \fIIDENTIFIER\fP \fIVALUE\fP
+set string value
+.sp
+The value of the \fIIDENTIFIER\fP argument can can be:
+.INDENT 7.0
+.IP \(bu 2
+\fB_verb\fP \- set the verb to \fIVALUE\fP
+.IP \(bu 2
+\fB_enadev\fP \- enable the device specified by \fIVALUE\fP
+.IP \(bu 2
+\fB_disdev\fP \- disable the device specified by \fIVALUE\fP
+.IP \(bu 2
+\fB_swdev/{old_device}\fP \- switche device:
+.INDENT 2.0
+.IP \(bu 2
+disable \fIold_device\fP and then enable the device specified by
+\fIVALUE\fP
+.IP \(bu 2
+if no device was enabled just return
+.UNINDENT
+.IP \(bu 2
+\fB_enamod\fP \- enable the modifier specified by \fIVALUE\fP
+.IP \(bu 2
+\fB_dismod\fP \- disable the modifier specified by \fIVALUE\fP
+.IP \(bu 2
+\fB_swmod/{old_modifier}\fP \- switch modifier:
+.INDENT 2.0
+.IP \(bu 2
+disable \fIold_modifier\fP and then enable the modifier specified by
+\fIVALUE\fP
+.IP \(bu 2
+if no modifier was enabled just return
+.UNINDENT
+.UNINDENT
+.sp
+Note that the identifiers referring to devices and modifiers are valid
+only after setting a verb.
+.TP
+.B \fBh\fP, \fBhelp\fP
+help
+.TP
+.B \fBq\fP, \fBquit\fP
+quit
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SH FILES
+.sp
+The master use case files for each supported sound card are in \fB/usr/share/alsa/ucm\fP\&.
+.sp
+For example, the master use case file for the \fIPandaboard\fP card is in
+\fB/usr/share/alsa/ucm/PandaBoard/PandaBoard.conf\fP, this file lists all the
+supported use cases, e.g.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+SectionUseCase."HiFi" {
+                File "hifi"
+                Comment "Play HiFi quality Music."
+}
+\&...
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Each use case defines a _verb, which is described in the file specified in
+the \fBFile\fP directive, like above.
+.sp
+The \fBHiFi\fP verb above is described in
+\fB/usr/share/alsa/ucm/PandaBoard/hifi\fP\&.
+.sp
+For more details on the syntax of UCM files, see the alsa\-lib source code:
+\fI\%http://git.alsa\-project.org/?p=alsa\-lib.git;a=blob;f=src/ucm/parser.c\fP
+.SH EXAMPLES OF USE
+.sp
+Some commands, like for instance \fBlist _devices\fP,
+can only work after setting a \fB_verb\fP in the \fBsame execution\fP, for
+instance this sequence doesn\(aqt work:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# alsaucm \-c bytcr\-rt5640 set _verb HiFi
+# alsaucm \-c bytcr\-rt5640 list _devices
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+However this command does:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# alsaucm \-n \-b \- <<EOM
+open bytcr\-rt5640
+set _verb HiFi
+list _devices
+EOM
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+An example of setting the \fISpeaker\fP device for the \fIHiFi\fP verb of the
+\fIbytcr\-rt5640\fP card:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# alsaucm \-n \-b \- <<EOM
+open bytcr\-rt5640
+reset
+set _verb HiFi
+set _enadev Speaker
+EOM
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SEE ALSO
+.INDENT 0.0
+.IP \(bu 2
+Use Case Interface: \fI\%http://www.alsa\-project.org/alsa\-doc/alsa\-lib/group__ucm.html\fP
+.UNINDENT
+.SH BUGS
+.sp
+None known.
+.SH AUTHOR
+Antonio Ospite <ao2@ao2.it>
+.SH COPYRIGHT
+GPLv2+
+.\" Generated by docutils manpage writer.
+.

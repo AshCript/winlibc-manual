@@ -1,0 +1,139 @@
+'\" t
+.\"     Title: p11-kit
+.\"    Author: Stef Walter <stef@thewalter.net>
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/26/2022
+.\"    Manual: System Commands
+.\"    Source: p11-kit
+.\"  Language: English
+.\"
+.TH "P11\-KIT" "8" "" "p11-kit" "System Commands"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+p11-kit \- Tool for operating on configured PKCS#11 modules
+.SH "SYNOPSIS"
+.HP \w'\fBp11\-kit\ list\-modules\fR\ 'u
+\fBp11\-kit list\-modules\fR
+.HP \w'\fBp11\-kit\ extract\fR\ 'u
+\fBp11\-kit extract\fR \&.\&.\&.
+	
+.HP \w'\fBp11\-kit\ server\fR\ 'u
+\fBp11\-kit server\fR \&.\&.\&.
+	
+.SH "DESCRIPTION"
+.PP
+\fBp11\-kit\fR
+is a command line tool that can be used to perform operations on PKCS#11 modules configured on the system\&.
+.PP
+See the various sub commands below\&. The following global options can be used:
+.PP
+\fB\-v, \-\-verbose\fR
+.RS 4
+Run in verbose mode with debug output\&.
+.RE
+.PP
+\fB\-q, \-\-quiet\fR
+.RS 4
+Run in quiet mode without warning or failure messages\&.
+.RE
+.SH "LIST MODULES"
+.PP
+List system configured PKCS#11 modules\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ p11\-kit list\-modules
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The modules, information about them and the tokens present in the PKCS#11 modules will be displayed\&.
+.SH "EXTRACT"
+.PP
+Extract certificates from configured PKCS#11 modules\&.
+.PP
+This operation has been moved to a separate command
+\fBtrust extract\fR\&. See
+\fBtrust\fR(1)
+for more information
+.SH "SERVER"
+.PP
+Run a server process that exposes PKCS#11 module remotely\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ p11\-kit server pkcs11:token1 pkcs11:token2 \&.\&.\&.
+$ p11\-kit server \-\-provider /path/to/pkcs11\-module\&.so pkcs11:token1 pkcs11:token2 \&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This launches a server that exposes the given PKCS#11 tokens on a local socket\&. The tokens must belong to the same module\&. To access the socket, use
+p11\-kit\-client\&.so
+module\&. The server address and PID are printed as a shell\-script snippet which sets the appropriate environment variable:
+P11_KIT_SERVER_ADDRESS
+and
+P11_KIT_SERVER_PID\&.
+.SH "EXTRACT TRUST"
+.PP
+Extract standard trust information files\&.
+.PP
+This operation has been moved to a separate command
+\fBtrust extract\-compat\fR\&. See
+\fBtrust\fR(1)
+for more information
+.SH "REMOTE"
+.PP
+Run a PKCS#11 module remotely\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ p11\-kit remote /path/to/pkcs11\-module\&.so
+$ p11\-kit remote pkcs11:token1 pkcs11:token2 \&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This is not meant to be run directly from a terminal\&. But rather in a
+\fBremote\fR
+option in a
+\fBpkcs11.conf\fR(5)
+file\&.
+.PP
+This exposes the given PKCS#11 module or tokens over standard input and output\&. Those two forms, whether to expose a module or tokens, are mutually exclusive and if the second form is used, the tokens must belong to the same module\&.
+.SH "BUGS"
+.PP
+Please send bug reports to either the distribution bug tracker or the upstream bug tracker at
+\m[blue]\fBhttps://github\&.com/p11\-glue/p11\-kit/issues/\fR\m[]\&.
+.SH "SEE ALSO"
+\fBpkcs11.conf\fR(5)
+.PP
+Further details available in the p11\-kit online documentation at
+\m[blue]\fBhttps://p11\-glue\&.github\&.io/p11\-glue/p11\-kit/manual/\fR\m[]\&.

@@ -1,0 +1,175 @@
+'\" t
+.\"     Title: boltctl
+.\"    Author: [see the "Author" section]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 01/10/2023
+.\"    Manual: bolt Manual
+.\"    Source: bolt 0.9.5
+.\"  Language: English
+.\"
+.TH "BOLTCTL" "1" "01/10/2023" "bolt 0\&.9\&.5" "bolt Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+boltctl \- control the thunderbolt device manager
+.SH "SYNOPSIS"
+.sp
+.nf
+\fBboltctl\fR \fIauthorize\fR \fIDEVICE\fR
+\fBboltctl\fR \fIconfig\fR
+\fBboltctl\fR \fIdomains\fR
+\fBboltctl\fR \fIenroll\fR \fIDEVICE\fR
+\fBboltctl\fR \fIforget\fR \fIDEVICE\fR
+\fBboltctl\fR \fIinfo\fR \fIDEVICE\fR
+\fBboltctl\fR \fIlist\fR
+\fBboltctl\fR \fImonitor\fR
+\fBboltctl\fR \fIpower\fR
+.fi
+.SH "DESCRIPTION"
+.sp
+\fIboltctl\fR is the command line interface to interact with \fIboltd\fR, the system daemon that manages Thunderbolt 3(TM) devices\&. It can be used to query the state of devices as well as manage them\&.
+.sp
+Devices can be globally identified via their unique identifier (uuid)\&. All commands that take a \fIDEVICE\fR identifier expect this unique id\&.
+.sp
+If no command is given, it is equivalent to \fIboltctl list\fR\&.
+.SH "OPTIONS"
+.PP
+\fB\-\-version\fR
+.RS 4
+Print version information and exit\&.
+.RE
+.PP
+\fB\-U | \-\-uuid {\fR\fB\fIfull\fR\fR\fB | \fR\fB\fIshort\fR\fR\fB | \fR\fB\fIalias\fR\fR\fB | N}\fR
+.RS 4
+Control how UUIDs are printed\&. Since they are somewhat sensitive data it is not advisable to share them publicly in full length\&. Instead
+\fIshort\fR
+or
+\fIalias\fR
+can and should be used when sharing the output of
+\fIboltctl\fR\&.
+.PP
+\fIfull\fR
+.RS 4
+Print all UUIDs in full length\&.
+.RE
+.PP
+\fIshort\fR
+.RS 4
+Truncate all UUIDs so only the first 13 characters are printed\&.
+.RE
+.PP
+\fIalias\fR
+.RS 4
+All UUIDs are replaced by a random string that is derived from the UUID, therefore the devices can be uniquely identified without revealing the original UUID\&.
+.RE
+.PP
+N
+.RS 4
+If a integer
+\fIN\fR
+is specified, all UUIDs are truncated to only show up to
+\fIN\fR\&.
+.RE
+.RE
+.SH "COMMANDS"
+.SS "authorize [\-F | \-\-first\-time] \fIDEVICE\fR"
+.sp
+Authorize a currently unauthorized device identified via its unique id (uuid) \fIDEVICE\fR\&. If a key is stored in the database it will be used, given the security level of the domain supports secure device connection\&. Use \fIboltctl list\fR to find out the uuid of a device\&.
+.PP
+\fB\-F | \-\-first\-time\fR
+.RS 4
+Normally, when attempting to authorize an already authorized device
+\fBboltctl\fR
+will do nothing and return a successful status code\&. When using this option, the attempt will fail and result in a negative exit code if the device is already authorized\&.
+.RE
+.SS "config \-\-describe [global|domain|device]"
+.sp
+List global, domain, or all (if nothing is specified) properties\&. The format is 3 columns: permission, name, description\&. Permission indicates if the property is only readable or can also be written\&.
+.SS "config \fIKEY\fR [\fIVALUE\fR]"
+.sp
+Get or set, if \fIVALUE\fR is specified, a global property\&.
+.SS "config \fI<domain|device>\&.KEY\fR \fITARGET\fR [\fIVALUE\fR]"
+.sp
+Get or set, if \fIVALUE\fR is specified, a domain or device property, where \fITARGET\fR is the unique id of the domain or the device\&.
+.SS "domains [\-v | \-\-verbose]"
+.sp
+List all currently active Thunderbolt domains\&. A Thunderbolt domain represents the Thunderbolt controller hardware\&. There will be one domain (and host device) for each Thunderbolt controller present in the system\&. The \fIsecurity\fR property shows the security level of the controller\&. If \fIiommu\fR support is active (see the \fBboltd\fR man page) it will be indicated by a \fI+iommu\fR suffix for "secure" or "user" mode, or just plain \fIiommu\fR in case the security level is "none" (sl0)\&. \fIbootacl\fR shows the used and total slots of the boot access control list (BootACL) and the content of all non\-empty entries\&. NB: if BootACL is unsupported it will show 0 for both (0/0)\&. The \fIonline\fR property shows if the thunderbolt controller is currently powered by the firmware\&. \fBNB\fR: if the controller is currently offline the BootACL list will reflect what \fIboltd\fR estimates the list will look like once the controller is back online and local changes have been synchronized to the controller\&. This might not be accurate if the list was modified in the meantime, e\&.g\&. from a different installation or OS\&.
+.SS "enroll [\-\-policy \fIpolicy\fR] \fIDEVICE\fR"
+.sp
+Authorize and record the device with the unique id \fIDEVICE\fR in the database\&. If the domain supports secure connection a new key will be generated and stored in the database alongside the device name and vendor name\&. The key, if created, will be used in the future to securely authorize the device\&.
+.PP
+\fB\-\-policy {\fR\fB\fIdefault\fR\fR\fB | \fR\fB\fIauto\fR\fR\fB | \fR\fB\fImanual\fR\fR\fB}\fR
+.RS 4
+Specify the policy to be used for the newly enrolled device\&.
+.PP
+\fIdefault\fR
+.RS 4
+Use the global default policy of the daemon; this can be changed, but is normally also
+\fIauto\fR\&.
+.RE
+.PP
+\fIauto\fR
+.RS 4
+Automatically authorize this device whenever it is connected\&.
+.RE
+.PP
+\fImanual\fR
+.RS 4
+Do
+\fBnot\fR
+automatically authorize the device; instead require manual authorization via
+\fBboltctl authorize\fR\&.
+.RE
+.RE
+.SS "forget \fIDEVICE\fR"
+.sp
+Remove the information about the device with the unique id \fIDEVICE\fR from the database\&. This includes the key, if one was previously generated\&. If you pass \fI\-\-all\fR instead of the \fIDEVICE\fR all devices are removed instead of just one\&.
+.SS "info \fIDEVICE\fR"
+.sp
+Display information about the device with the unique id \fIDEVICE\fR\&.
+.SS "list [\-a | \-\-all]"
+.sp
+List and print information about all connected and stored devices\&.
+.PP
+\fB\-a | \-\-all\fR
+.RS 4
+Normally, the only the device type that will be shown is peripherals\&. Therefore the device that represents the host itself will be omitted\&. Using this option will instead include all device types in the list\&.
+.RE
+.SS "monitor"
+.sp
+Listen for and show changes in connected devices\&.
+.SS "power [\-t | \-\-timeout \fIseconds\fR] [\-q | \-\-query]"
+.sp
+Power up the Thunderbolt controller\&. If the Thunderbolt controller is not in "native enumeration mode" it can be completely powered down by the host firmware/BIOS\&. On supported systems there is an interface to "force" power the thunderbolt controller\&. If supported this command will request the daemon to do so\&. The daemon will keep track of all client requests and will release the force power override when the last request is released\&.
+.PP
+\fB\-t | \-\-timeout \fR\fB\fIseconds\fR\fR
+.RS 4
+Release the force power request after the specified amount of
+\fIseconds\fR
+and exit\&.
+.RE
+.PP
+\fB\-q | \-\-query\fR
+.RS 4
+Query the current force power status of the daemon\&.
+.RE
+.SH "AUTHOR"
+.sp
+Written by Christian Kellner <ckellner@redhat\&.com>\&.

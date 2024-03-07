@@ -1,0 +1,222 @@
+'\" t
+.\"     Title: libOpenCL
+.\"    Author: Vincent Danjean <Vincent.Danjean@ens-lyon.org>
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 2015-06-08
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "LIBOPENCL" "7" "2015\-06\-08" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+libOpenCL, libOpenCL.so \- OCL\-ICD implementation of OpenCL ICD loader
+.SH "DESCRIPTION"
+.sp
+libOpenCL\&.so is the library linked by OpenCL programs\&. It does not contains any OpenCL implementation itself, but merely act as a dispatcher to real OpenCL implementations provided as OpenCL Installable Client Driver (ICD)\&. An ICD loader should be able to load ICDs provided by any vendors\&.
+.sp
+According to OpenCL specifications from Khronos (see [Khronos]), the ICD Loader looks for files into \fI/etc/OpenCL/vendors\fR directory and, for each file whose name ends with \fI\&.icd\fR, the ICD Loader loads with \fBdlopen\fR(3) the shared library whose name is on the first line of the \fI\&.icd\fR file\&.
+.sp
+Each shared library name in "\&.icd" files can have its path, or it can be a plain filename\&. In the latter case, the ICD shared library will be looked for into the standard dynamic library loader paths\&.
+.SH "ENVIRONMENT"
+.sp
+Some environment variables can be used modify the default behavior of libOpenCL\&.
+.PP
+\fBOPENCL_VENDOR_PATH\fR
+.RS 4
+This variable allows one to modify the default
+\fI/etc/OpenCL/vendors\fR
+path\&. It is compatible with some other ICD loaders (but not all of them, as the variable is not part of the standard)\&. Note that
+\fB$OCL_ICD_VENDORS\fR
+(see below) is used in priority if defined and not empty\&.
+.RE
+.PP
+\fBOCL_ICD_VENDORS\fR
+.RS 4
+This variable allows one to change the way ICD are searched on the system\&. Several cases are considered:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+if
+\fB$OCL_ICD_VENDORS\fR
+is a directory path, then this path replaces the "/etc/OpenCL/vendors" path in the standard behavior: the loader will use the
+\fI\&.icd\fR
+files in this directory;
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+else, if
+\fB$OCL_ICD_VENDORS\fR
+ends with
+\fI\&.icd\fR, libOpenCL\&.so will only load the ICD whose shared library name is wrote into the specified "\&.icd" file;
+
+If there is no slashes into
+\fB$OCL_ICD_VENDORS\fR, libOpenCL\&.so will first try to use
+\fI/etc/OpenCL/vendors/\fR\fB$OCL_ICD_VENDORS\fR
+(or
+\fB$OPENCL_VENDOR_PATH\fR\fI/\fR\fB$OCL_ICD_VENDORS\fR
+if
+\fBOPENCL_VENDOR_PATH\fR
+is defined)\&. If this fail or if there are shashes, it uses
+\fB$OCL_ICD_VENDORS\fR
+(as a relative or absolute file name path)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 3.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  3." 4.2
+.\}
+else libOpenCL\&.so will try to load
+\fB$OCL_ICD_VENDORS\fR
+as the ICD shared library itself (i\&.e\&. to load it directly with
+\fBdlopen\fR(3))\&.
+.RE
+.RE
+.PP
+\fBOPENCL_LAYERS\fR
+.RS 4
+This variable allows one to specify a colon separated list of layers to load, specifying their path\&. This support is experimental\&.
+.RE
+.PP
+\fBOCL_ICD_ASSUME_ICD_EXTENSION\fR
+.RS 4
+If set to an non\-empty value, contrary the Khronos specification, the loader will not check that the loaded ICDs declare the
+cl_khr_icd
+extension\&. It will also use the clGetPlatformInfo from the dispatch table if no such function is globally available\&. You may need to define this environment variable if you are using not (fully) compliant ICD, or if you are using the Intel ICD together with
+\fBoptirun\fR(1)\&. In the latter case, a bug into the Intel ICD will make the application crash\&.
+.RE
+.sp
+If set to the \fIdebug\fR value, some additional messages will be printed in debug mode (see \fBOCL_ICD_DEBUG\fR below)\&.
+.PP
+\fBOCL_ICD_PLATFORM_SORT\fR
+.RS 4
+Allows one to choose the way platforms are sorted when presented to programs through
+\fBclGetPlatformIDs\fR(3)\&. Current provided algorithms are:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBdevices\fR: first, list platforms that support most GPU, then most CPU then most accelerators\&. If
+\fBOCL_ICD_PLATFORM_SORT\fR
+is not set or set to an unknown value, this algorithm is used\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBnone\fR: no sort is done and the order can change at each run\&.
+.RE
+.RE
+.PP
+\fBOCL_ICD_DEFAULT_PLATFORM\fR
+.RS 4
+Number of the platform to choose as default platform\&. Note that using this environment variable without ensuring the use of a sort algorithm for platforms is not really useful\&.
+.RE
+.PP
+\fBOCL_ICD_DEBUG\fR
+.RS 4
+If ocl\-icd has been compiled with debug support, you can set this environment variable to a value where each bit display some kind of informations\&. Defined values are:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fB1\fR: warnings (enabled by default if debug support is present and
+\fBOCL_ICD_DEBUG\fR
+is not set)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fB2\fR: informative messages
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fB4\fR: entering/exiting for some OpenCL functions
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fB8\fR: dump of the internal structure of loaded ICDs
+.RE
+.sp
+\fBOCL_ICD_DEBUG\fR
+is mainly useful for ocl\-icd development itself and/or for ICD development\&.
+.RE
+.SH "SEE ALSO"
+.sp
+Khronos OpenCL registry website
+.SH "AUTHOR"
+.PP
+\fBVincent Danjean\fR <\&Vincent\&.Danjean@ens\-lyon\&.org\&>
+.RS 4
+Author.
+.RE

@@ -1,0 +1,394 @@
+'\" t
+.\"     Title: apt-patterns
+.\"    Author: Jason Gunthorpe
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 13\ \&January\ \&2023
+.\"    Manual: APT
+.\"    Source: APT 2.6.1
+.\"  Language: English
+.\"
+.TH "APT\-PATTERNS" "7" "13\ \&January\ \&2023" "APT 2.6.1" "APT"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+apt-patterns \- Syntax and semantics of apt search patterns
+.SH "DESCRIPTION"
+.PP
+Starting with version 2\&.0,
+\fBAPT\fR
+provides support for patterns, which can be used to query the apt cache for packages\&.
+.SH "LOGIC PATTERNS"
+.PP
+These patterns provide the basic means to combine other patterns into more complex expressions, as well as
+?true
+and
+?false
+patterns\&.
+.PP
+?and(PATTERN, PATTERN, \&.\&.\&.), PATTERN PATTERN \&.\&.\&.
+.RS 4
+Selects objects where all specified patterns match\&.
+.RE
+.PP
+?false, ~F
+.RS 4
+Selects nothing\&.
+.RE
+.PP
+?not(PATTERN), !PATTERN
+.RS 4
+Selects objects where PATTERN does not match\&.
+.RE
+.PP
+?or(PATTERN, PATTERN, \&.\&.\&.), PATTERN | PATTERN | \&.\&.\&.
+.RS 4
+Selects objects where at least one of the specified patterns match\&.
+.RE
+.PP
+?true, ~T
+.RS 4
+Selects all objects\&.
+.RE
+.PP
+(PATTERN)
+.RS 4
+Selects the same as
+PATTERN, can be used to work around precedence, for example,
+(~ramd64|~ri386)~nfoo
+.RE
+.SH "NARROWING PATTERNS"
+.PP
+
+.PP
+?all\-versions(PATTERN)
+.RS 4
+Selects packages where all versions match PATTERN\&. When matching versions instead, same as PATTERN\&.
+.RE
+.PP
+?any\-version(PATTERN)
+.RS 4
+Selects any version where the pattern matches on the version\&.
+.sp
+For example, while
+?and(?version(1),?version(2))
+matches a package which has one version containing 1 and one version containing 2,
+?any\-version(?and(?version(1),?version(2)))
+restricts the
+?and
+to act on the same version\&.
+.RE
+.PP
+?narrow(PATTERN\&.\&.\&.)
+.RS 4
+Selects any version matching all PATTERNs, short for
+?any\-version(?and(PATTERN\&.\&.\&.))\&.
+.RE
+.SH "PACKAGE PATTERNS"
+.PP
+These patterns select specific packages\&.
+.PP
+?architecture(WILDCARD), ~rWILDCARD
+.RS 4
+Selects packages matching the specified architecture, which may contain wildcards using any\&.
+.RE
+.PP
+?automatic, ~M
+.RS 4
+Selects packages that were installed automatically\&.
+.RE
+.PP
+?broken, ~b
+.RS 4
+Selects packages that have broken dependencies\&.
+.RE
+.PP
+?config\-files, ~c
+.RS 4
+Selects packages that are not fully installed, but have solely residual configuration files left\&.
+.RE
+.PP
+?essential, ~E
+.RS 4
+Selects packages that have Essential: yes set in their control file\&.
+.RE
+.PP
+?exact\-name(NAME)
+.RS 4
+Selects packages with the exact specified name\&.
+.RE
+.PP
+?garbage, ~g
+.RS 4
+Selects packages that can be removed automatically\&.
+.RE
+.PP
+?installed, ~i
+.RS 4
+Selects packages that are currently installed\&. Since version 2\&.5\&.4, narrowing this pattern (see narrowing patterns above) makes it only match installed versions (see version patterns below)\&.
+.RE
+.PP
+?name(REGEX), ~nREGEX
+.RS 4
+Selects packages where the name matches the given regular expression\&.
+.RE
+.PP
+?obsolete, ~o
+.RS 4
+Selects packages that no longer exist in repositories\&.
+.RE
+.PP
+?upgradable, ~U
+.RS 4
+Selects packages that can be upgraded (have a newer candidate)\&.
+.RE
+.PP
+?virtual, ~v
+.RS 4
+Selects all virtual packages; that is packages without a version\&. These exist when they are referenced somewhere in the archive, for example because something depends on that name\&.
+.RE
+.SH "VERSION PATTERNS"
+.PP
+These patterns select specific versions of a package\&.
+.PP
+?archive(REGEX), ~AREGEX
+.RS 4
+Selects versions that come from the archive that matches the specified regular expression\&. Archive, here, means the values after
+a=
+in
+\fBapt\-cache policy\fR\&.
+.RE
+.PP
+?codename(REGEX)
+.RS 4
+Selects versions that come from the codename that matches the specified regular expression\&. Codename, here, means the values after
+n=
+in
+\fBapt\-cache policy\fR\&.
+.RE
+.PP
+?installed, ~i
+.RS 4
+Selects package versions that are currently installed\&. Versions prior to 2\&.5\&.4 only matched at the package level, hence
+?any\-version(?installed?version(2\&.0))matched even if 2\&.0 was not installed, but another version was\&.
+.RE
+.PP
+?origin(REGEX), ~OREGEX
+.RS 4
+Selects versions that come from the origin that matches the specified regular expression\&. Origin, here, means the values after
+o=
+in
+\fBapt\-cache policy\fR\&.
+.RE
+.PP
+?section(REGEX), ~sREGEX
+.RS 4
+Selects versions where the section matches the specified regular expression\&.
+.RE
+.PP
+?source\-package(REGEX), ~eREGEX
+.RS 4
+Selects versions where the source package name matches the specified regular expression\&.
+.RE
+.PP
+?source\-version(REGEX)
+.RS 4
+Selects versions where the source package version matches the specified regular expression\&.
+.RE
+.PP
+?version(REGEX), ~VREGEX
+.RS 4
+Selects versions where the version string matches the specified regular expression\&.
+.RE
+.PP
+?priority(NAME), ~pNAME
+.RS 4
+Selects versions where the Priority string equals the given name\&.
+.RE
+.SH "PACKAGE RELATIONSHIP PATTERNS"
+.PP
+These patterns match specific package versions that depend/conflict with some other packages\&.
+.PP
+?depends(PATTERN), ~DPATTERN, ?pre\-depends(PATTERN), ~DPre\-Depends:PATTERN, ?suggests(PATTERN), ~DSuggests:PATTERN, ?conflicts(PATTERN), ~DConflicts:PATTERN, ?replaces(PATTERN), ~DReplaces:PATTERN, ?obsoletes(PATTERN), ~DObsoletes:PATTERN, ?breaks(PATTERN), ~DBreaks:PATTERN, ?enhances(PATTERN), ~DEnhances:PATTERN
+.RS 4
+Selects versions depending/pre\-depending/suggesting/conflicting/etc on/with/ packages matching PATTERN\&.
+.RE
+.PP
+?reverse\-\fIdepType\fR(PATTERN), ~R\fIDepType\fR:PATTERN
+.RS 4
+Opposite of
+?depends
+and friends \- selects all packages that have reverse\-dependencies (versions) matching PATTERN\&.
+.sp
+\fIdepType\fR
+is one of the dependency types such as
+depends, so that we don\*(Aqt have to repeat the entire list from the first paragraph here\&.
+.RE
+.SH "EXAMPLES"
+.PP
+apt remove ?garbage
+.RS 4
+Remove all packages that are automatically installed and no longer needed \- same as apt autoremove
+.RE
+.PP
+apt purge ?config\-files
+.RS 4
+Purge all packages that only have configuration files left
+.RE
+.PP
+apt list \*(Aq~i !~M (~slibs|~sperl|~spython)\*(Aq
+.RS 4
+List all manually\-installed packages in sections matching libs, perl, or python\&.
+.RE
+.SH "MIGRATING FROM APTITUDE"
+.PP
+Patterns in apt are heavily inspired by patterns in aptitude, but with some tweaks:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Syntax is uniform: If there is an opening parenthesis after a term, it is always assumed to be the beginning of an argument list\&.
+.sp
+In aptitude, a syntactic form
+"?foo(bar)"
+could mean
+"?and(?foo,bar)"
+if foo does not take an argument\&. In APT, this will cause an error\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Not all patterns are supported\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Some additional patterns are available, for example, for finding gstreamer codecs\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Escaping terms with
+~
+is not supported\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+A trailing comma is allowed in argument lists
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+?narrow accepts infinite arguments
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+foo
+cannot be used as a shortform for
+?name(foo), as this can cause typos to go unnoticed: Consider
+?and(\&.\&.\&.,~poptional): this requires the package to have
+required
+priority, but if you do not type the
+~, it would require the package name to contain
+poptional\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Dependency types for ~D and related operators need to be specified in the canonical case\&.
+.RE
+.SH "SEE ALSO"
+.PP
+\fBapt-get\fR(8),
+\fBapt\fR(8)
+.SH "BUGS"
+.PP
+\m[blue]\fBAPT bug page\fR\m[]\&\s-2\u[1]\d\s+2\&. If you wish to report a bug in APT, please see
+/usr/share/doc/debian/bug\-reporting\&.txt
+or the
+\fBreportbug\fR(1)
+command\&.
+.SH "AUTHOR"
+.PP
+APT was written by the APT team
+<apt@packages\&.debian\&.org>\&.
+.SH "AUTHORS"
+.PP
+\fBJason Gunthorpe\fR
+.RS 4
+.RE
+.PP
+\fBAPT team\fR
+.RS 4
+.RE
+.SH "NOTES"
+.IP " 1." 4
+APT bug page
+.RS 4
+\%http://bugs.debian.org/src:apt
+.RE

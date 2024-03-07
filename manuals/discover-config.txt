@@ -1,0 +1,91 @@
+.TH "discover-config" "1" 
+.SH "NAME" 
+discover-config \(em config script 
+.SH "SYNOPSIS" 
+.PP 
+\fBdiscover-config\fR [options]  
+.SH "Description" 
+.PP 
+\fBdiscover-config\fR reports 
+stuff about the package's configuration. 
+.SH "Options" 
+.IP "\fB\-\-VAR\fP" 10 
+Print the value of the variable VAR followed by a 
+newline.  See below for a list of available 
+variables. 
+.IP "\fB-l, \-\-list-vars\fP" 10 
+List the available variables. 
+.SH "Variables" 
+.IP "   \(bu" 6 
+\fBmajor_version\fP 
+.IP "   \(bu" 6 
+\fBminor_version\fP 
+.IP "   \(bu" 6 
+\fBmicro_version\fP 
+.IP "   \(bu" 6 
+\fBversion\fP 
+.IP "   \(bu" 6 
+\fBcppflags\fP 
+.IP "   \(bu" 6 
+\fBldflags\fP 
+.IP "   \(bu" 6 
+\fBlibs\fP 
+.IP "   \(bu" 6 
+\fBprefix\fP 
+.IP "   \(bu" 6 
+\fBexec_prefix\fP 
+.IP "   \(bu" 6 
+\fBbindir\fP 
+.IP "   \(bu" 6 
+\fBsbindir\fP 
+.IP "   \(bu" 6 
+\fBlibexecdir\fP 
+.IP "   \(bu" 6 
+\fBdatadir\fP 
+.IP "   \(bu" 6 
+\fBsysconfdir\fP 
+.IP "   \(bu" 6 
+\fBsharedstatedir\fP 
+.IP "   \(bu" 6 
+\fBlocalstatedir\fP 
+.IP "   \(bu" 6 
+\fBlibdir\fP 
+.IP "   \(bu" 6 
+\fBincludedir\fP 
+.IP "   \(bu" 6 
+\fBoldincludedir\fP 
+.IP "   \(bu" 6 
+\fBinfodir\fP 
+.IP "   \(bu" 6 
+\fBmandir\fP 
+.IP "   \(bu" 6 
+\fBbuild\fP 
+.IP "   \(bu" 6 
+\fBbuild_cpu\fP 
+.IP "   \(bu" 6 
+\fBbuild_vendor\fP 
+.IP "   \(bu" 6 
+\fBbuild_os\fP 
+.IP "   \(bu" 6 
+\fBhost\fP 
+.IP "   \(bu" 6 
+\fBhost_cpu\fP 
+.IP "   \(bu" 6 
+\fBhost_vendor\fP 
+.IP "   \(bu" 6 
+\fBhost_os\fP 
+.IP "   \(bu" 6 
+\fBtarget\fP 
+.IP "   \(bu" 6 
+\fBtarget_cpu\fP 
+.IP "   \(bu" 6 
+\fBtarget_vendor\fP 
+.IP "   \(bu" 6 
+\fBtarget_os\fP 
+.IP "   \(bu" 6 
+\fBlt_current\fP 
+.IP "   \(bu" 6 
+\fBlt_revision\fP 
+.IP "   \(bu" 6 
+\fBlt_age\fP 
+.\" created by instant / docbook-to-man, Mon 06 Aug 2007, 17:47 

@@ -1,0 +1,53 @@
+'\" t
+.\"     Title: umount.udisks2
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: August 2018
+.\"    Manual: System Administration
+.\"    Source: udisks 2.9.4
+.\"  Language: English
+.\"
+.TH "UMOUNT\&.UDISKS2" "8" "August 2018" "udisks 2\&.9\&.4" "System Administration"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+umount.udisks2 \- unmount file systems that have been mounted by UDisks2
+.SH "DESCRIPTION"
+.PP
+The
+\fBumount\&.udisks2\fR
+program is a helper for the
+\fBumount\fR(8)
+program\&. Its purpose is to clean up automatically created directories created at file system mount\-time\&. It should never be called directly\&.
+.SH "AUTHOR"
+.PP
+This man page was originally written for UDisks2 by David Zeuthen
+<zeuthen@gmail\&.com>
+with a lot of help from many others\&.
+.SH "BUGS"
+.PP
+Please send bug reports to either the distribution bug tracker or the upstream bug tracker at
+\m[blue]\fB\%https://github.com/storaged-project/udisks/issues\fR\m[]\&.
+.SH "SEE ALSO"
+.PP
+\fBudisks\fR(8),
+\fBudisksd\fR(8),
+\fBudisksctl\fR(1),
+\fBumount\fR(8),

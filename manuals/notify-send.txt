@@ -1,0 +1,141 @@
+'\" t
+.\"     Title: notify-send
+.\"    Author: Andre Filipe de Assuncao e Brito <decko@noisemakers.org>
+.\" Generator: DocBook XSL Stylesheets v1.79.2 <http://docbook.sf.net/>
+.\"      Date: November 2005
+.\"    Manual: User Commands
+.\"    Source: libnotify
+.\"  Language: English
+.\"
+.TH "NOTIFY\-SEND" "1" "" "libnotify" "User Commands"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+notify-send \- a program to send desktop notifications
+.SH "SYNOPSIS"
+.HP \w'\fBnotify\-send\fR\ 'u
+\fBnotify\-send\fR [\fIOPTIONS\fR] {\fIsummary\fR} [\fIbody\fR]
+.SH "DESCRIPTION"
+.PP
+With
+\fBnotify\-send\fR
+you can send desktop notifications to the user via a notification daemon from the command line\&. These notifications can be used to inform the user about an event or display some form of information without getting in the user\(cqs way\&.
+.SH "OPTIONS"
+.PP
+\fB\-?\fR, \fB\-\-help\fR
+.RS 4
+Show help and exit\&.
+.RE
+.PP
+\fB\-a\fR, \fB\-\-app\-name\fR=\fIAPP_NAME\fR
+.RS 4
+Specifies the app name for the notification\&.
+.RE
+.PP
+\fB\-A\fR, \fB\-\-action\fR=[\fINAME\fR=]\fIText\&.\&.\&.\fR
+.RS 4
+Specifies the actions to display to the user\&. Implies
+\fB\-\-wait\fR
+to wait for user input\&. May be set multiple times\&. The
+\fINAME\fR
+of the action is output to
+stdout\&. If
+\fINAME\fR
+is not specified, the numerical index of the option is used (starting with
+1)\&.
+.RE
+.PP
+\fB\-u\fR, \fB\-\-urgency\fR=\fILEVEL\fR
+.RS 4
+Specifies the urgency level (low,
+normal,
+critical)\&.
+.RE
+.PP
+\fB\-t\fR, \fB\-\-expire\-time\fR=\fITIME\fR
+.RS 4
+The duration, in milliseconds, for the notification to appear on screen\&.
+.sp
+Not all implementations use this parameter\&. GNOME Shell and Notify OSD always ignore it, while Plasma ignores it for notifications with the critical urgency level\&.
+.RE
+.PP
+\fB\-i\fR, \fB\-\-icon\fR=\fIICON\fR
+.RS 4
+Specifies an icon filename or stock icon to display\&.
+.RE
+.PP
+\fB\-c\fR, \fB\-\-category\fR=\fITYPE\fR[,\fITYPE\fR\&...]
+.RS 4
+Specifies the notification category\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-hint\fR=\fITYPE\fR:\fINAME\fR:\fIVALUE\fR
+.RS 4
+Specifies basic extra data to pass\&. Valid types are
+BOOLEAN,
+INT,
+DOUBLE,
+STRING,
+BYTE
+and
+VARIANT\&.
+.RE
+.PP
+\fB\-p\fR, \fB\-\-print\-id\fR
+.RS 4
+Print the notification ID\&.
+.RE
+.PP
+\fB\-r\fR, \fB\-\-replace\-id\fR=\fIREPLACE_ID\fR
+.RS 4
+The ID of the notification to replace\&.
+.RE
+.PP
+\fB\-w\fR, \fB\-\-wait\fR
+.RS 4
+Wait for the notification to be closed before exiting\&. If the
+\fBexpire\-time\fR
+is set, it will be used as the maximum waiting time\&.
+.RE
+.PP
+\fB\-e\fR, \fB\-\-transient\fR
+.RS 4
+Show a transient notification\&. Transient notifications by\-pass the server\*(Aqs persistence capability, if any\&. And so it won\*(Aqt be preserved until the user acknowledges it\&.
+.RE
+.SH "SEE ALSO"
+.PP
+The Desktop Notification Spec on
+\m[blue]\fBhttp://www\&.galago\-project\&.org/specs/notification/\fR\m[]\&.
+.SH "AUTHORS"
+.PP
+\fBAndre Filipe de Assuncao e Brito\fR <\&decko@noisemakers\&.org\&>
+.RS 4
+Original author
+.RE
+.PP
+\fBPaul van Tilburg\fR <\&paulvt@debian\&.org\&>
+.RS 4
+Original author
+.RE
+.PP
+\fBRiccardo Setti\fR <\&giskard@debian\&.org\&>
+.RS 4
+Original author
+.RE

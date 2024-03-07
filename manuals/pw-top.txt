@@ -1,0 +1,201 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PW-TOP" 1 "" "" "General Commands Manual"
+.SH NAME
+pw-top \- The PipeWire process viewer
+.SH SYNOPSIS
+.nf
+\fBpw\-top\fP [\fIoptions\fP]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+The \fIpw\-top\fP program provides a dynamic real\-time view of the pipewire
+node and device statistics.
+.sp
+A hierarchical view is shown of Driver nodes and follower nodes. The Driver
+nodes are actively using a timer to schedule dataflow in the followers. The
+followers of a driver node as shown below their driver with a + sign in
+a tree\-like representation.
+.sp
+The columns presented are as follows:
+.INDENT 0.0
+.TP
+.B S
+.INDENT 7.0
+.TP
+.B Node status.
+E = ERROR
+C = CREATING
+S = SUSPENDED
+I = IDLE
+R = RUNNING
+.UNINDENT
+.TP
+.B ID
+The ID of the pipewire node/device, as found in \fIpw\-dump\fP and \fIpw\-cli\fP
+.TP
+.B QUANT
+The current quantum (for drivers) and the suggested quantum for follower
+nodes.
+.sp
+The quantum by itself needs to be divided by the RATE column to calculate
+the duration of a scheduling period in fractions of a second.
+.sp
+For a QUANT of 1024 and a RATE of 48000, the duration of one period in the
+graph is 1024/48000 or 21.3 milliseconds.
+.sp
+Follower nodes can have a 0 QUANT field, which means that the node does not
+have a suggestion for the quantum and thus uses what the driver selected.
+.sp
+The driver will use the lowest quantum of any of the followers. If none of
+the followers select a quantum, the default quantum in the pipewire configuration
+file will be used.
+.sp
+The QUANT on the drivers usually translates directly into the number of audio
+samples processed per processing cycle of the graph.
+.sp
+See also \fI\%https://gitlab.freedesktop.org/pipewire/pipewire/\-/wikis/FAQ#pipewire\-buffering\-explained\fP
+.TP
+.B RATE
+The current rate (for drivers) and the suggested rate for follower
+nodes.
+.sp
+This is the rate at which the \fIgraph\fP processes data and needs to be combined with
+the QUANT value to derive the duration of a processing cycle in the graph.
+.sp
+Some nodes can have a 0 RATE, which means that they don\(aqt have any rate
+suggestion for the graph. Nodes that suggest a rate can make the graph switch
+rates if the graph is otherwise idle and the new rate is allowed as
+a possible graph rate (see the pipewire configuration file).
+.sp
+The RATE on (audio) driver nodes usually also translates directly to the
+samplerate used by the device. Although some devices might not be able to
+operate at the given samplerate, in which case resampling will need to be
+done. The negotiated samplerate with the device and stream can be found in
+the FORMAT column.
+.TP
+.B WAIT
+The waiting time of a node is the elapsed time between when the node
+is ready to start processing and when it actually started processing.
+.sp
+For Driver nodes, this is the time between when the node wakes up to
+start processing the graph and when the driver (and thus also the graph)
+completes a cycle. The WAIT time for driver is thus the elapsed time
+processing the graph.
+.sp
+For follower nodes, it is the time spent between being woken up (when all
+dependencies of the node are satisfied) and when processing starts. The
+WAIT time for follower nodes is thus mostly caused by context switching.
+.sp
+A value of \-\-\- means that the node was not signaled.  A value of +++
+means that the node was signaled but not awake.
+.TP
+.B BUSY
+The processing time is started when the node starts processing until it
+completes and wakes up the next nodes in the graph.
+.sp
+A value of \-\-\- means that the node was not started.  A value of +++
+means that the node was started but did not complete.
+.TP
+.B W/Q
+Ratio of WAIT / QUANT.
+.sp
+The W/Q time of the driver node is a good measure of the graph
+load. The running averages of the driver W/Q ratios are used as the DSP
+load in other (JACK) tools.
+.sp
+Values of \-\-\- and +++ are copied from the WAIT column.
+.TP
+.B B/Q
+Ratio of BUSY / QUANT
+.sp
+This is a good measure of the load of a particular driver or follower
+node.
+.sp
+Values of \-\-\- and +++ are copied from the BUSY column.
+.TP
+.B ERR
+Total of Xruns and Errors
+.sp
+Xruns for drivers are when the graph did not complete a cycle. This can
+be because a node in the graph also has an Xrun. It can also be caused when
+scheduling delays cause a deadline to be missed, causing a hardware
+Xrun.
+.sp
+Xruns for followers are incremented when the node started processing but
+did not complete before the end of the graph cycle deadline.
+.TP
+.B FORMAT
+The format used by the driver node or the stream. This is the hardware format
+negotiated with the device or stream.
+.sp
+If the stream of driver has a different rate than the graph, resampling will
+be done.
+.sp
+For raw audio formats, the layout is <sampleformat> <channels> <samplerate>.
+.sp
+For IEC958 passthrough audio formats, the layout is IEC958 <codec> <samplerate>.
+.sp
+For DSD formats, the layout is <dsd\-rate> <channels>.
+.sp
+For Video formats, the layout is <pixelformat> <width>x<height>.
+.TP
+.B NAME
+Name assigned to the device/node, as found in \fIpw\-dump\fP node.name
+.sp
+Names are prefixed by \fI+\fP when they are linked to a driver (entry above with no +)
+.UNINDENT
+.SH OPTIONS
+.INDENT 0.0
+.TP
+.B \-h | \-\-help
+Show help.
+.TP
+.B \-r | \-\-remote=NAME
+The name the \fIremote\fP instance to monitor. If left unspecified,
+a connection is made to the default PipeWire instance.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B  \-\-version
+Show version information.
+.UNINDENT
+.SH AUTHORS
+.sp
+The PipeWire Developers <\fI\%https://gitlab.freedesktop.org/pipewire/pipewire/issues\fP>; PipeWire is available from \fI\%https://pipewire.org\fP
+.SH SEE ALSO
+.sp
+\fBpipewire(1)\fP,
+\fBpw\-dump(1)\fP,
+\fBpw\-cli(1)\fP,
+\fBpw\-profiler(1)\fP,
+.\" Generated by docutils manpage writer.
+.

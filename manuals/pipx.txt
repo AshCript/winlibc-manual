@@ -1,0 +1,502 @@
+.TH pipx "1" Manual
+.SH NAME
+pipx \- Install and execute apps from Python packages.
+.SH SYNOPSIS
+.B pipx
+[-h] [--version] {install,inject,upgrade,upgrade-all,uninstall,uninstall-all,reinstall,reinstall-all,list,run,runpip,ensurepath,environment,completions} ...
+.SH DESCRIPTION
+Install and execute apps from Python packages.
+.br
+
+.br
+Binaries can either be installed globally into isolated Virtual Environments
+.br
+or run directly in a temporary Virtual Environment.
+.br
+
+.br
+Virtual Environment location is ~/.local/pipx/venvs.
+.br
+Symlinks to apps are placed in ~/.local/bin.
+.br
+
+.br
+optional environment variables:
+.br
+  PIPX_HOME             Overrides default pipx location. Virtual Environments
+.br
+                        will be installed to $PIPX_HOME/venvs.
+.br
+  PIPX_BIN_DIR          Overrides location of app installations. Apps are
+.br
+                        symlinked or copied here.
+.br
+  PIPX_DEFAULT_PYTHON   Overrides default python used for commands.
+.br
+  USE_EMOJI             Overrides emoji behavior. Default value varies based
+.br
+                        on platform.
+.SH OPTIONS
+
+.TP
+\fB\-\-version\fR
+Print version and exit
+
+.SS
+\fBSub-commands\fR
+.TP
+\fBpipx\fR \fI\,install\/\fR
+Install a package
+.TP
+\fBpipx\fR \fI\,inject\/\fR
+Install packages into an existing Virtual Environment
+.TP
+\fBpipx\fR \fI\,upgrade\/\fR
+Upgrade a package
+.TP
+\fBpipx\fR \fI\,upgrade-all\/\fR
+Upgrade all packages. Runs `pip install -U <pkgname>` for each package.
+.TP
+\fBpipx\fR \fI\,uninstall\/\fR
+Uninstall a package
+.TP
+\fBpipx\fR \fI\,uninstall-all\/\fR
+Uninstall all packages
+.TP
+\fBpipx\fR \fI\,reinstall\/\fR
+Reinstall a package
+.TP
+\fBpipx\fR \fI\,reinstall-all\/\fR
+Reinstall all packages
+.TP
+\fBpipx\fR \fI\,list\/\fR
+List installed packages
+.TP
+\fBpipx\fR \fI\,run\/\fR
+Download the latest version of a package to a temporary virtual environment, then run an app from it. Also compatible with local `__pypackages__` directory (experimental).
+.TP
+\fBpipx\fR \fI\,runpip\/\fR
+Run pip in an existing pipx-managed Virtual Environment
+.TP
+\fBpipx\fR \fI\,ensurepath\/\fR
+Ensure directories necessary for pipx operation are in your PATH environment variable.
+.TP
+\fBpipx\fR \fI\,environment\/\fR
+Print a list of variables used in pipx.constants.
+.TP
+\fBpipx\fR \fI\,completions\/\fR
+Print instructions on enabling shell completions for pipx
+.SH OPTIONS 'pipx install'
+usage: pipx install [-h] [--include-deps] [--verbose] [--force]
+                    [--suffix SUFFIX] [--python PYTHON]
+                    [--system-site-packages] [--index-url INDEX_URL]
+                    [--editable] [--pip-args PIP_ARGS]
+                    package_spec
+
+The install command is the preferred way to globally install apps
+.br
+from python packages on your system. It creates an isolated virtual
+.br
+environment for the package, then ensures the package's apps are
+.br
+accessible on your $PATH.
+.br
+
+.br
+The result: apps you can run from anywhere, located in packages
+.br
+you can cleanly upgrade or uninstall. Guaranteed to not have
+.br
+dependency version conflicts or interfere with your OS's python
+.br
+packages. 'sudo' is not required to do this.
+.br
+
+.br
+pipx install PACKAGE_NAME
+.br
+pipx install \-\-python PYTHON PACKAGE_NAME
+.br
+pipx install VCS_URL
+.br
+pipx install ./LOCAL_PATH
+.br
+pipx install ZIP_FILE
+.br
+pipx install TAR_GZ_FILE
+.br
+
+.br
+The PACKAGE_SPEC argument is passed directly to `pip install`.
+.br
+
+.br
+The default virtual environment location is ~/.local/pipx
+.br
+and can be overridden by setting the environment variable `PIPX_HOME`
+.br
+(Virtual Environments will be installed to `$PIPX_HOME/venvs`).
+.br
+
+.br
+The default app location is ~/.local/bin and can be
+.br
+overridden by setting the environment variable `PIPX_BIN_DIR`.
+.br
+
+.br
+The default python executable used to install a package is
+.br
+/usr/bin/python3 and can be overridden
+.br
+by setting the environment variable `PIPX_DEFAULT_PYTHON`.
+
+.TP
+\fBpackage_spec\fR
+package name or pip installation spec
+
+.TP
+\fB\-\-include\-deps\fR
+Include apps of dependent packages
+
+.TP
+\fB\-\-verbose\fR
+.TP
+\fB\-\-force\fR, \fB\-f\fR
+Modify existing virtual environment and files in PIPX_BIN_DIR
+
+.TP
+\fB\-\-suffix\fR \fI\,SUFFIX\/\fR
+Optional suffix for virtual environment and executable names. NOTE: The suffix feature is experimental and subject to change.
+
+.TP
+\fB\-\-python\fR \fI\,PYTHON\/\fR
+The Python executable used to create the Virtual Environment and run the associated app/apps. Must be v3.6+.
+
+.TP
+\fB\-\-system\-site\-packages\fR
+Give the virtual environment access to the system site\-packages dir.
+
+.TP
+\fB\-\-index\-url\fR \fI\,INDEX_URL\/\fR, \fB\-i\fR \fI\,INDEX_URL\/\fR
+Base URL of Python Package Index
+
+.TP
+\fB\-\-editable\fR, \fB\-e\fR
+Install a project in editable mode
+
+.TP
+\fB\-\-pip\-args\fR \fI\,PIP_ARGS\/\fR
+Arbitrary pip arguments to pass directly to pip install/upgrade commands
+
+.SH OPTIONS 'pipx inject'
+usage: pipx inject [-h] [--include-apps] [--include-deps]
+                   [--system-site-packages] [--index-url INDEX_URL]
+                   [--editable] [--pip-args PIP_ARGS] [--force] [--verbose]
+                   package dependencies [dependencies ...]
+
+Installs packages to an existing pipx\-managed virtual environment.
+
+.TP
+\fBpackage\fR
+Name of the existing pipx\-managed Virtual Environment to inject into
+
+.TP
+\fBdependencies\fR
+the packages to inject into the Virtual Environment\-\-either package name or pip package spec
+
+.TP
+\fB\-\-include\-apps\fR
+Add apps from the injected packages onto your PATH
+
+.TP
+\fB\-\-include\-deps\fR
+Include apps of dependent packages
+
+.TP
+\fB\-\-system\-site\-packages\fR
+Give the virtual environment access to the system site\-packages dir.
+
+.TP
+\fB\-\-index\-url\fR \fI\,INDEX_URL\/\fR, \fB\-i\fR \fI\,INDEX_URL\/\fR
+Base URL of Python Package Index
+
+.TP
+\fB\-\-editable\fR, \fB\-e\fR
+Install a project in editable mode
+
+.TP
+\fB\-\-pip\-args\fR \fI\,PIP_ARGS\/\fR
+Arbitrary pip arguments to pass directly to pip install/upgrade commands
+
+.TP
+\fB\-\-force\fR, \fB\-f\fR
+Modify existing virtual environment and files in PIPX_BIN_DIR
+
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx upgrade'
+usage: pipx upgrade [-h] [--include-injected] [--force]
+                    [--system-site-packages] [--index-url INDEX_URL]
+                    [--editable] [--pip-args PIP_ARGS] [--verbose]
+                    package
+
+Upgrade a package in a pipx\-managed Virtual Environment by running 'pip install \-\-upgrade PACKAGE'
+
+.TP
+\fBpackage\fR
+.TP
+\fB\-\-include\-injected\fR
+Also upgrade packages injected into the main app's environment
+
+.TP
+\fB\-\-force\fR, \fB\-f\fR
+Modify existing virtual environment and files in PIPX_BIN_DIR
+
+.TP
+\fB\-\-system\-site\-packages\fR
+Give the virtual environment access to the system site\-packages dir.
+
+.TP
+\fB\-\-index\-url\fR \fI\,INDEX_URL\/\fR, \fB\-i\fR \fI\,INDEX_URL\/\fR
+Base URL of Python Package Index
+
+.TP
+\fB\-\-editable\fR, \fB\-e\fR
+Install a project in editable mode
+
+.TP
+\fB\-\-pip\-args\fR \fI\,PIP_ARGS\/\fR
+Arbitrary pip arguments to pass directly to pip install/upgrade commands
+
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx upgrade-all'
+usage: pipx upgrade-all [-h] [--include-injected] [--skip SKIP [SKIP ...]]
+                        [--force] [--verbose]
+
+Upgrades all packages within their virtual environments by running 'pip install \-\-upgrade PACKAGE'
+
+
+.TP
+\fB\-\-include\-injected\fR
+Also upgrade packages injected into the main app's environment
+
+.TP
+\fB\-\-skip\fR \fI\,SKIP\/\fR [\fI\,SKIP\/\fR ...]
+skip these packages
+
+.TP
+\fB\-\-force\fR, \fB\-f\fR
+Modify existing virtual environment and files in PIPX_BIN_DIR
+
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx uninstall'
+usage: pipx uninstall [-h] [--verbose] package
+
+Uninstalls a pipx\-managed Virtual Environment by deleting it and any files that point to its apps.
+
+.TP
+\fBpackage\fR
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx uninstall-all'
+usage: pipx uninstall-all [-h] [--verbose]
+
+Uninstall all pipx\-managed packages
+
+
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx reinstall'
+usage: pipx reinstall [-h] [--python PYTHON] [--verbose] package
+
+Reinstalls a package.
+.br
+
+.br
+Package is uninstalled, then installed with pipx install PACKAGE
+.br
+with the same options used in the original install of PACKAGE.
+
+.TP
+\fBpackage\fR
+.TP
+\fB\-\-python\fR \fI\,PYTHON\/\fR
+The Python executable used to recreate the Virtual Environment and run the associated app/apps. Must be v3.6+.
+
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx reinstall-all'
+usage: pipx reinstall-all [-h] [--python PYTHON] [--skip SKIP [SKIP ...]]
+                          [--verbose]
+
+Reinstalls all packages.
+.br
+
+.br
+Packages are uninstalled, then installed with pipx install PACKAGE
+.br
+with the same options used in the original install of PACKAGE.
+.br
+This is useful if you upgraded to a new version of Python and want
+.br
+all your packages to use the latest as well.
+
+
+.TP
+\fB\-\-python\fR \fI\,PYTHON\/\fR
+The Python executable used to recreate the Virtual Environment and run the associated app/apps. Must be v3.6+.
+
+.TP
+\fB\-\-skip\fR \fI\,SKIP\/\fR [\fI\,SKIP\/\fR ...]
+skip these packages
+
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx list'
+usage: pipx list [-h] [--include-injected] [--json | --short] [--verbose]
+
+List packages and apps installed with pipx
+
+
+.TP
+\fB\-\-include\-injected\fR
+Show packages injected into the main app's environment
+
+.TP
+\fB\-\-json\fR
+Output rich data in json format.
+
+.TP
+\fB\-\-short\fR
+List packages only.
+
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx run'
+usage: pipx run [-h] [--no-cache] [--pypackages] [--spec SPEC] [--verbose]
+                [--python PYTHON] [--system-site-packages]
+                [--index-url INDEX_URL] [--editable] [--pip-args PIP_ARGS]
+                app ...
+
+Download the latest version of a package to a temporary virtual environment,
+.br
+then run an app from it. The environment will be cached
+.br
+and re\-used for up to 14 days. This
+.br
+means subsequent calls to 'run' for the same package will be faster
+.br
+since they can re\-use the cached Virtual Environment.
+.br
+
+.br
+In support of PEP 582 'run' will use apps found in a local __pypackages__
+.br
+directory, if present. Please note that this behavior is experimental,
+.br
+and acts as a companion tool to pythonloc. It may be modified or
+.br
+removed in the future. See https://github.com/cs01/pythonloc.
+
+.TP
+\fBapp ...\fR
+app/package name and any arguments to be passed to it
+
+.TP
+\fB\-\-no\-cache\fR
+Do not re\-use cached virtual environment if it exists
+
+.TP
+\fB\-\-pypackages\fR
+Require app to be run from local __pypackages__ directory
+
+.TP
+\fB\-\-spec\fR \fI\,SPEC\/\fR
+The package name or specific installation source passed to pip.
+.br
+Runs `pip install \-U SPEC`.
+.br
+For example `\-\-spec mypackage==2.0.0` or `\-\-spec  git+https://github.com/user/repo.git@branch`
+
+.TP
+\fB\-\-verbose\fR
+.TP
+\fB\-\-python\fR \fI\,PYTHON\/\fR
+The Python version to run package's CLI app with. Must be v3.6+.
+
+.TP
+\fB\-\-system\-site\-packages\fR
+Give the virtual environment access to the system site\-packages dir.
+
+.TP
+\fB\-\-index\-url\fR \fI\,INDEX_URL\/\fR, \fB\-i\fR \fI\,INDEX_URL\/\fR
+Base URL of Python Package Index
+
+.TP
+\fB\-\-editable\fR, \fB\-e\fR
+Install a project in editable mode
+
+.TP
+\fB\-\-pip\-args\fR \fI\,PIP_ARGS\/\fR
+Arbitrary pip arguments to pass directly to pip install/upgrade commands
+
+.SH OPTIONS 'pipx runpip'
+usage: pipx runpip [-h] [--verbose] package ...
+
+Run pip in an existing pipx\-managed Virtual Environment
+
+.TP
+\fBpackage\fR
+Name of the existing pipx\-managed Virtual Environment to run pip in
+
+.TP
+\fBpipargs\fR
+Arguments to forward to pip command
+
+.TP
+\fB\-\-verbose\fR
+.SH OPTIONS 'pipx ensurepath'
+usage: pipx ensurepath [-h] [--force]
+
+Ensure directory where pipx stores apps is in your PATH environment variable. Also if pipx was installed via `pip install \-\-user`, ensure pipx itself is in your PATH. Note that running this may modify your shell's configuration file(s) such as '~/.bashrc'.
+
+
+.TP
+\fB\-\-force\fR, \fB\-f\fR
+Add text to your shell's config file even if it looks like your PATH already contains paths to pipx and pipx\-install apps.
+
+.SH OPTIONS 'pipx environment'
+usage: pipx environment [-h] [--value VARIABLE]
+
+Available variables:
+.br
+PIPX_HOME, PIPX_BIN_DIR, PIPX_SHARED_LIBS, PIPX_LOCAL_VENVS, PIPX_LOG_DIR,
+.br
+PIPX_TRASH_DIR, PIPX_VENV_CACHEDIR
+.br
+
+.br
+Only PIPX_HOME and PIPX_BIN_DIR can be set by users in the above list.
+
+
+.TP
+\fB\-\-value\fR VARIABLE, \fB\-v\fR VARIABLE
+Print the value of the variable.
+
+.SH OPTIONS 'pipx completions'
+usage: pipx completions [-h]
+
+Print instructions on enabling shell completions for pipx
+
+.SH AUTHORS
+.IR pipx (1)
+was written by Chad Smith and contributors.
+The project can be found online at
+.UR https://pypa.github.io/pipx/
+.UE
+.SH SEE ALSO
+.IR pip (1),
+.IR virtualenv (1)

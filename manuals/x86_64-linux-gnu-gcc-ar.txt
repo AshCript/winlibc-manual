@@ -1,0 +1,17 @@
+.TH GCC-ar-12 1 "May 8, 2012" gcc-ar-12 ""
+.SH NAME
+gcc-ar \- a wrapper around ar adding the --plugin option
+
+.SH SYNOPSIS
+gcc-ar [\fB\s-1OPTION\s0\fR] ... [\fI\s-1ARGS\s0\fR...]
+
+.SH DESCRIPTION
+
+\fBgcc-ar\fR is a wrapper around ar(1) adding the appropriate
+\fB\-\-plugin\fR option for the GCC 12 compiler.
+
+.SH OPTIONS
+See ar(1) for a list of options that ar understands.
+
+.SH "SEE ALSO"
+.BR ar(1)

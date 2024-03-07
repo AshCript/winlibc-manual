@@ -1,0 +1,590 @@
+.TH reportbug 1
+.SH NAME
+reportbug \- reports a bug to a debbugs server
+.SH SYNOPSIS
+.B reportbug
+.I "[options] <package | pseudo-package | absolute-pathname>"
+.SH DESCRIPTION
+.B reportbug
+is primarily designed to report bugs in the Debian distribution; by
+default, it creates an email to the Debian bug tracking system at
+\fIsubmit@bugs.debian.org\fP with information about the bug you've
+found, and makes a carbon copy of the report for you as well.
+.PP
+Using the \fB\-\-bts\fP option, you can also report bugs to other
+servers that use the Debian bug tracking system, \fBdebbugs\fP.
+.PP
+You may specify either a package name or a filename; if you use a
+filename, it must either be an absolute filename (so beginning with a
+\fB/\fP) or if you want \fBreportbug\fP to search the system for a
+filename, see the \fB\-\-filename\fP and \fP\-\-path\fP options
+below. If installed, also \fBdlocate\fP is used to identify the
+filename location and thus the package containing it.
+.PP
+You can also specify a \fBpseudo-package\fP; these are used in the
+Debian bug tracking system to track issues that are not related to one
+specific package.  Run \fBreportbug\fP without any arguments, then
+enter \fBother\fP at the package prompt, to see a list of the most
+commonly-used \fBpseudo-packages\fP.
+.SH OPTIONS
+The program follows the usual GNU command line syntax, with long
+options starting with two dashes (`\fB\-\-\fP').  A summary of options
+are included below.
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-\-version
+Show the version of \fBreportbug\fP and exit.
+.TP
+.B \-A FILENAME, \-\-attach=FILENAME
+Attach a file to the bug report; both text and binary files are
+acceptable; this option can be specified multiple times to attach
+several files.  This routine will create a MIME attachment with the
+file included; in some cases (usually text files), it is probably
+better to use \fB\-i/\-\-include\fP option.  (Please note that
+Debian's bug tracking system has limited support for MIME
+attachments.)
+
+This option supports also globbing (i.e. names with wildcards, like
+file.*) but remember to include them between single quotes (the
+previous example becomes: 'file.*') else the shell would expand it
+before calling reportbug leading to an error.
+
+Be aware that when using an external MUA to send the message (such
+as mutt), the attachment feature is not reliable and no file might
+be attached at all: the MUA feature to attach files should be used
+instead (so from within the MUA).
+.TP
+.B \-\-archive
+Also show archived bugs when browsing bugs.
+.TP
+.B \-b, \-\-no\-query\-bts
+Don't check the Debian bug tracking system to see if this problem has
+already been reported; useful for offline use or if you're
+\fBreally\fP sure it's a bug.
+.TP
+.B \-\-query\-bts
+Check the Debian bug tracking system to see if this problem has
+already been reported (default).
+.TP
+.B \-B SYSTEM, \-\-bts=SYSTEM
+Instead of the Debian bug server (or the bug server specified in
+\fB/etc/reportbug.conf\fP), use the server specified by \fBSYSTEM\fP.
+Use \-\-bts=help to obtain the list of valid values.
+Note that if your \fB$HOME/.reportbugrc\fP or \fB/etc/reportbug.conf\fP include an smtphost
+setting that is specific to your default bug server and not a generic smarthost,
+you may need to override this using \-\-smtphost=<host> to be able to report a
+bug directly to \fBSYSTEM\fP.
+.TP
+.B \-\-body=BODY
+Use the specified \fIBODY\fP string as the body of the message.  The body
+text will be wrapped at 70 columns, and the normal \fBreportbug\fP
+headers and footers will be added as appropriate.  The editor prompt
+and any "special" prompting will be bypassed.
+.TP
+.B \-\-body\-file=BODYFILE, \-\-bodyfile=BODYFILE
+The contents of the (assumed to be) text file \fIBODYFILE\fP will be
+used as the message body.  This file is assumed to be properly
+formatted (i.e. reasonable line lengths, etc.).  The usual headers and
+footers will be added, and the editor step and "special" prompts will
+be skipped.  (\fIBODYFILE\fP may also be a named pipe; using a device
+special file may lead to unusual results.)
+.TP
+.B \-c, \-\-no\-config\-files
+Omit configuration files from the bug report without asking.  By
+default, you are asked if you want to include them; in some cases,
+doing so may cause sensitive information to be sent via email.
+.TP
+.B \-C CLASS, \-\-class=CLASS
+Specify report class for GNATS BTSes.
+.TP
+.B \-\-configure
+Rerun the \fBreportbug\fP first time configuration routine, and write
+a new \fB$HOME/.reportbugrc\fP file.  This will erase any pre-existing
+settings in the file; however, a backup will be written as
+\fB$HOME/.reportbugrc~\fP.
+Reportbug will exit after rewriting its configuration file, hence this
+option cannot usefully be combined with many other options.
+.TP
+.B \-\-check\-available
+Check for newer releases of the package at \fBpackages.debian.org\fP
+(default).  In \fBadvanced\fP and \fBexpert\fP mode, check
+\fBhttp://ftp-master.debian.org/new.html\fP too.
+.TP
+.B \-\-no\-check\-available
+Do not check for newer releases of the package at
+\fBpackages.debian.org\fP.
+.TP
+.B \-\-debconf
+Include debconf settings in your report.
+.TP
+.B \-\-no\-debconf
+Do not include debconf settings from your report.
+.TP
+.B \-d, \-\-debug
+Don't send a real bug report to Debian; send it to yourself instead.
+This is primarily used for testing by the maintainer.
+.TP
+.B \-\-test
+Operate in test mode (maintainer use only).
+.TP
+.B \-\-draftpath=DRAFTPATH
+Save the draft (for example, when exiting and saving the report
+without reporting it) into \fIDRAFTPATH\fP directory (default /tmp).
+.TP
+.B \-e EDITOR, \-\-editor=EDITOR
+Specify the editor to use, overriding any \fBEDITOR\fP or \fBVISUAL\fP
+environment variable setting.
+.TP
+.B \-\-email=ADDRESS
+Set the email address your report should appear to be sent from
+(i.e. the address that appears in the \fBFrom\fP header).  This should
+be the actual Internet email address on its own (i.e. without a real
+name or comment part, like \fBfoo@example.com\fP).  This setting will
+override the \fBEMAIL\fP and \fBDEBEMAIL\fP environment variables, but
+not \fBREPORTBUGEMAIL\fP.
+.TP
+.B \-\-envelope\-from
+Specify the Envelope From mail header (also known as Return-path); by default
+it's the From address but it can be selected a different one in case the MTA
+doesn't canonicalize local users to public addresses. This can be set to
+the empty string if the MTA does not allow setting the Envelope From.
+
+.TP
+.B \-\-mbox\-reader\-cmd=MBOX_READER_CMD
+Specify a command to open the bug reports mbox file. You can use
+\fB%s\fP to substitute the mbox file to be used, and \fB%%\fP to insert
+a literal percent sign. If no \fB%s\fP is specified, the mbox file name
+is supplied at the end of the argument list.
+.TP
+.B \-f FILENAME, \-\-filename=FILENAME
+Report a bug in the package containing \fIFILENAME\fP so you don't
+have to figure out what package the file belongs to.  The path will be
+searched for an exact path for \fIFILENAME\fP before attempting to
+broaden the search to all files. If \fBdlocate\fP is installed,
+\fIFILENAME\fP is actually a regular expression.
+.TP
+.B \-\-from-buildd=BUILDD_FORMAT
+This options is a shortcut for buildd admins to report bugs from
+buildd log; the option expects a value in the format of
+\fI$source_$version\fP where \fI$source\fP is the source package the
+bug will be reported against and \fI$version\fP is its version.
+.TP
+.B \-\-path
+If the \fB\-f/\-\-filename\fP option is also specified, only search
+the path for the specified \fIFILENAME\fP.  Specifying an absolute
+path with the \fB\-f/\-\-filename\fP option (i.e. one beginning with a
+\fB/\fP) overrides this behavior.
+.TP
+.B \-g, \-\-gnupg, \-\-gpg
+Attach a digital signature to the bug report using \fBGnuPG\fP (the
+GNU Privacy Guard).  (This argument will be ignored if you are using
+an MUA to edit and send your report.)
+.TP
+.B \-G, \-\-gnus
+Use the Gnus mail and news reader to send your report, rather than
+using the editor.
+.TP
+.B \-H HEADER, \-\-header=HEADER
+Add a custom RFC2822 header to your email. Do not use this option if you
+want to submit the report using your MUA, because custom headers cannot
+be passed from reportbug to the MUA reliably. To send a carbon copy of
+the report to another recipient using \fIX\-Debbugs\-CC\fP, please see
+the \fB\-\-list\-cc\fP option.
+.TP
+.B \-i FILE, \-\-include=FILE
+Include the specified \fIFILE\fP as part of the body of the message to
+be edited.  Can be used multiple times to add multiple files;
+text-only please!  From a suggestion by Michael Alan Dorman in the
+\fBbug\fP mailing list.  (See also the \fB\-A/\-\-attach\fP option.)
+.TP
+.B \-I, \-\-no\-check\-installed
+Do not check whether the package is installed before filing a report.
+This is generally only useful when filing a report on a package you
+know is not installed on your system.
+.TP
+.B \-\-check\-installed
+Check if the specified package is installed when filing reports.
+(This is the default behavior of \fBreportbug\fP.)
+.TP
+.B \-j JUSTIFICATION, \-\-justification=JUSTIFICATION
+Bugs in Debian that have \fBserious\fP, \fBgrave\fP, or \fBcritical\fP
+severities must meet certain criteria to be classified as such.  This
+option allows you to specify the justification for a release-critical
+bug, instead of being prompted for it.
+.TP
+.B \-k, \-\-kudos
+Send appreciative email to the recorded maintainer address, rather
+than filing a bug report.  (You can also send kudos to
+\fIpackagename@packages.debian.org\fP, for packages in the Debian
+archive; however, this option uses the Maintainer address from the
+control file, so it works with other package sources too.)
+.TP
+.B \-K KEYID, \-\-keyid=KEYID
+Private key to use for PGP/GnuPG signatures.  If not specified, the
+first key in the secret keyring that matches your email address will
+be used.
+.TP
+.B \-\-latest-first
+Display the bug reports list sorted and with the latest reports at the top.
+.TP
+.B \-\-license
+Show \fBreportbug\fP's copyright and license information on standard
+output.
+.TP
+.B \-\-list\-cc=ADDRESS
+Send a carbon copy of the report to the specified list after a report
+number is assigned; this is the equivalent to the option
+\fI\-P 'X\-Debbugs\-CC: ADDRESS'\fP.  This option will only work as
+intended with \fBdebbugs\fP systems.
+.TP
+.B \-\-list\-cc-me
+Send a carbon copy of the report to your automatically detected email address
+after a report number is assigned. This sets an \fIX\-Debbugs\-CC\fP pseudo-header
+specifying that address. This option will only work as intended with
+\fBdebbugs\fP systems. See the documentation for the \fI\-\-email\fP option and
+the \fIENVIRONMENT\fP section for information on how reportbug detects your
+email address.
+.TP
+.B \-m, \-\-maintonly
+Only send the bug to the package maintainer; the bug tracking system
+will not send a copy to the bug report distribution lists.
+.TP
+.B \-\-max-attachment-size=MAX_ATTACHMENT_SIZE
+Specify the maximum size any attachment file can have (this also include the file for \-\-body-file option). If an attachment file is too big, there could be problems in delivering the email (and also to compose it), so we set a limit to attachment size. By default this is 10 megabytes.
+.TP
+.B \-\-mirror=MIRRORS
+Add a BTS mirror.
+.TP
+.B \-\-mode=MODE
+Set the operating mode for \fBreportbug\fP.  \fBreportbug\fP
+currently has four operating modes: \fBnovice\fP (the
+default), \fBstandard\fP, \fBadvanced\fP, and \fBexpert\fP.
+
+\fBnovice\fP mode is designed to minimize prompting about things that
+"ordinary users" would be unlikely to know or care about, shifting the
+triage burden onto the maintainer.  Checking for new versions is only
+done for the stable distribution in this mode.  It is currently the
+default mode.
+
+\fBstandard\fP mode includes a relatively large number of prompts and
+tries to encourage users to not file frivolous or duplicate bug
+reports.
+
+\fBadvanced\fP mode is like \fBstandard\fP mode, but may include
+shortcuts suitable for more advanced users of Debian, without being as
+close to the metal (and potential flamage) as \fBexpert\fP mode.
+(Currently, the only differences from \fBstandard\fP mode are that it
+assumes familiarity with the "new" queue; it allows the reporting
+of bugs on "dependency" packages; and it does not prompt where to
+insert the report text in the editor.)
+
+\fBexpert\fP mode is designed to minimize prompts that are designed to
+discourage frivolous or unnecessary bug reports, "severity inflation,"
+and the like.  In \fBexpert\fP mode, \fBreportbug\fP assumes the user
+is thoroughly familiar with Debian policies.  In practice, this means
+that reporters are no longer required to justify setting a high
+severity on a bug report, and certain automated cleanups of the
+message are bypassed.  Individuals who do not regularly contribute to
+the Debian project are \fIhighly\fP discouraged from using expert
+mode, as it can lead to flamage from maintainers when used improperly.
+.TP
+.B \-M, \-\-mutt
+Instead of spawning an editor to revise the bug report, use the
+\fBmutt\fP mail reader to edit and send it.
+.TP
+.B \-\-mta=MTA
+Specify an alternate \fIMTA\fP, instead of \fB/usr/sbin/sendmail\fP
+(the default).  Any \fBsmtphost\fP setting will override this one.
+.TP
+.B \-\-mua=MUA
+Instead of spawning an editor to revise the bug report, use the
+specified \fIMUA\fP (mail user agent) to edit and send
+it. \fB--mutt\fP and \fB--nmh\fP options are processed.
+.TP
+.B \-n, \-\-mh, \-\-nmh
+Instead of spawning an editor to revise the bug report, use the
+\fBcomp\fP command (part of the \fBnmh\fP and \fBmh\fP mail systems)
+to edit and send it.
+.TP
+.B \-N BUGNUMBER, \-\-bugnumber BUGNUMBER
+Run \fBreportbug\fP against the specified bug report, useful when
+following-up a bug and its number is already known.
+.TP
+.B \-\-no\-bug\-script
+Do not execute the bug script (if present); this option can be useful
+together with \-\-template to suppress every interactive actions,
+since some bug scripts can ask questions.
+.TP
+.B \-\-no\-cc\-menu
+Don't display the menu to enter additional addresses (CC).
+.TP
+.B \-\-no\-tags\-menu
+Don't display the menu to enter additional tags.
+.TP
+.B \-o FILE, \-\-output=FILE
+Instead of sending an email, redirect it to the specified filename.
+
+The output file is a full dump of the email message, so it contains
+both headers and mail body. If you want to use it as a template to
+create a new bug report, see the \-\-resume\-saved option.
+.TP
+.B \-O, \-\-offline
+Disable all external queries.  Currently has the same effect as
+\fB\-\-no\-check\-available \-\-no\-query\-bts\fP.
+.TP
+.B \-p, \-\-print
+Instead of sending an email, print the bug report to standard output,
+so you can redirect it to a file or pipe it to another program.
+
+This option only outputs a template for a bug report (but, differently
+from \fB\-\-template\fP it's more interactive); you will need to fill
+in the long description.
+.TP
+.B \-\-paranoid
+Show the contents of the message before it is sent, including all
+headers.  Automatically disabled if in template mode.
+.TP
+.B \-\-no\-paranoid
+Don't show the full contents of the message before it is sent
+(default).
+.TP
+.B \-\-pgp
+Attach a digital signature to the bug report using \fBPGP\fP (Pretty
+Good Privacy).  Please note, however, that the Debian project is
+phasing out the use of \fBPGP\fP in favor of \fBGnuPG\fP.  (This
+argument will be ignored if using an MUA to edit and send your
+report.)
+.TP
+.B \-\-proxy=PROXY, \-\-http_proxy=PROXY
+Specify the WWW proxy server to use to handle the query of the bug
+tracking system.  You should only need this parameter if you are
+behind a firewall.  The \fIPROXY\fP argument should be formatted as a
+valid HTTP URL, including (if necessary) a port number; for example,
+\fBhttp://192.168.1.1:3128/\fP.
+.TP
+.B \-P PSEUDO-HEADER, \-\-pseudo\-header=PSEUDO-HEADER
+Add a custom pseudo-header to your report; for example, to add the
+\fImytag\fP usertag for the user \fIhumberto@example.com\fP to the
+bug, you could use \fI\-P 'User: humberto@example.com' \-P 'Usertags:
+mytag'\fP.
+.TP
+.B \-q, \-\-quiet
+Suppress diagnostic messages to standard error.
+.TP
+.B \-Q, \-\-query\-only
+Do not submit a bug report; just query the BTS.  Option ignored if you
+specify \fB\-\-no\-bts\-query\fP.
+.TP
+.B \-\-query\-source
+Query on all binary packages built by the same source, not just the
+binary package specified.
+.TP
+.B \-\-no\-query\-source
+Only query on the binary package specified on the command line.
+.TP
+.B \-\-realname=NAME
+Set the real name (human-readable name) to use for your report.
+.TP
+.B \-\-report\-quiet
+Register the bug in the bug tracking system, but don't send a report
+to the package maintainer or anyone else.  Don't do this unless you're
+the maintainer of the package in question, or you really know what you
+are doing.
+.TP
+.B \-\-reply-to=ADDRESS, \-\-replyto=ADDRESS
+Set the \fBReply-To\fP address header in your report.
+.TP
+.B \-r TEMPFILE, \-\-resume\-saved=TEMPFILE
+Use this to resume an unsent report previously saved by reportbug. Note
+that attachments stored in \fITEMPFILE\fP are ignored; if you want to
+attach any files you need to do that again.
+.TP
+.B \-s SUBJECT, \-\-subject=SUBJECT
+Set the subject of the bug report (i.e. a brief explanation of the
+problem, less than 60 characters).  If you do not specify this switch,
+you will be prompted for a subject.
+.TP
+.B \-\-security\-team
+If the 'security' tag is set, this option will explicitly specify to send the
+report only to the Debian Security Team, as this is an undisclosed
+vulnerability.
+.TP
+.B \-\-no\-security\-team
+If the 'security' tag is set, this option will explicitly specify to not send
+the report only to the Debian Security Team, as this is not an undisclosed
+vulnerability.
+.TP
+.B \-S SEVERITY, \-\-severity=SEVERITY
+Specify a severity level, from \fBcritical\fP, \fBgrave\fP,
+\fBserious\fP, \fBimportant\fP, \fBnormal\fP, \fBminor\fP, and
+\fBwishlist\fP.
+.TP
+.B \-\-smtphost=HOST[:PORT]
+Use the mail transport agent (MTA) at \fBHOST\fP to send your report,
+instead of your local \fB/usr/sbin/sendmail\fP program.  This should
+generally be your ISP's outgoing mail server; you can also
+use 'localhost' if you have a working mail server running on your
+machine.  If the \fBPORT\fP is omitted, the standard port for SMTP,
+port 25, is used.
+.TP
+.B \-\-timeout=SECONDS
+Specify the network timeout, the number of seconds to wait for a
+resource to respond. If nothing is specified, a default timeout of 1
+minute is selected.
+
+In case of a network error, there are chances it's due to a too low
+timeout: try passing the \-\-timeout option with a higher value than
+default.
+.TP
+.B \-\-tls
+If using SMTP, use Transport Layer Security (TLS) encryption to secure
+the connection to the mail server.  Some SMTP servers may require this
+option. Note that this option is ignored if you connect to your SMTP
+server via port 465, which already implies using SSL/TLS.
+.TP
+.B \-\-smtpuser=USERNAME
+If using SMTP, use the specified \fIUSERNAME\fP for authentication.
+.TP
+.B \-\-smtppasswd=PASSWORD
+If using SMTP, use the specified \fIPASSWORD\fP for authentication.
+If the password isn't specified on the command line or in the
+configuration file, a prompt will be displayed asking for it.
+
+Use of this option is insecure on multiuser systems.  Instead, you
+should set this option in \fB$HOME/.reportbugrc\fP and ensure it is
+only readable by your user (e.g. with \fBchmod 600
+$HOME/.reportbugrc\fP).
+.TP
+.B \-\-src, \-\-source
+Specify to report the bug against the source package, and not the
+binary package (default behaviour).  In order for this option to work,
+you have to populate the relevant 'deb-src' lines in
+/etc/apt/sources.list so that apt cache will know about source packages
+too.
+
+You can also specify the package name with a 'src:' prefix instead of
+using this option if you already know the name of the source package.
+.TP
+.B \-t TYPE, \-\-type=TYPE
+Specify the type of report to be submitted; currently accepts either
+\fBgnats\fP or \fBdebbugs\fP.
+.TP
+.B \-T TAG, \-\-tag=TAG
+Specify a tag to be filed on this report, for example
+\fB\-\-tag=patch\fP.  Multiple tags can be specified using multiple
+\fB\-T/\-\-tag\fP arguments.
+
+Alternatively, you can specify the 'tag' \fBnone\fP to bypass the tags
+prompt without specifying any tags; this will also ignore any tags
+specified on the command line.
+.TP
+.B \-\-template
+Output a template report to standard output. Differently from
+\fP\-p/\-\-print\fP, it tries to be not interactive, and presents a
+template without user's input. You may need to combine it with
+\-\-no\-bug\-script if you want to avoid all user interaction.
+.TP
+.B \-u INTERFACE, \-\-interface=INTERFACE, \-\-ui=INTERFACE
+Specify the user interface to use.  Valid options are \fBtext\fP,
+\fBurwid\fP, and \fBgtk\fP; default is taken from the \fBreportbug\fP
+configuration files.
+.TP
+.B \-v, \-\-verify
+Verify the integrity of the package (if installed) using \fBdebsums\fP
+before reporting.
+.TP
+.B \-\-no\-verify
+Do not verify the integrity of the package with \fBdebsums\fP.
+.TP
+.B \-V VERSION, \-\-package\-version=VERSION
+Specify the version of the package the problem was found in.  This is
+probably most useful if you are reporting a bug in a package that is
+not installable or installed on a different system.
+.TP
+.B \-x, \-\-no\-cc
+Don't send a blind carbon copy (BCC) of the bug report to the
+submitter (i.e. yourself).
+.TP
+.B \-z, \-\-no\-compress
+Don't compress configuration files by removing comments and blank
+lines.
+.SH EXAMPLES
+.TP
+.B reportbug lynx-ssl
+Report a bug in the lynx-ssl package.
+.TP
+.B reportbug \-\-path \-\-filename=ls
+Report a bug in the installed package that includes a program in your
+path called \fBls\fP.
+.SH CONFIGURATION FILES
+From version 0.22 on, \fBreportbug\fP has supported a simple run
+control file syntax.  Commands are read from \fB/etc/reportbug.conf\fP
+and \fB$HOME/.reportbugrc\fP with commands in the latter overriding
+those in the former.
+
+Commands are not case sensitive, and currently take 0 or 1 argument;
+arguments containing whitespace must be enclosed in quotes.
+
+Any line starting with \fB#\fP is taken to be a comment and will be
+ignored.
+
+Generally, options corresponding to the long options for
+\fBreportbug\fP are supported, without leading \fB\-\-\fP sequences.
+See \fBreportbug.conf(5)\fP for all acceptable options and detailed
+information.
+.SH ENVIRONMENT
+.TP
+.B VISUAL
+Editor to use for editing your bug report.
+.TP
+.B EDITOR
+Editor to use for editing the bug report (overridden by \fBVISUAL\fP).
+.TP
+.B REPORTBUGEMAIL, DEBEMAIL, EMAIL
+Email address to use as your from address (in this order). If no
+environment variable exists, the default is taken from your user name
+and \fB/etc/mailname\fP.
+.TP
+.B DEBFULLNAME, DEBNAME, NAME
+Real name to use; default is taken from \fB/etc/passwd\fP.
+.TP
+.B REPLYTO
+Address for \fBReply-To\fP header in outgoing mail.
+.TP
+.B MAILCC
+Use the specified CC address on your email.  Note you can also use the
+\fB-H\fP option for this (and for Bcc's too).
+.TP
+.B MAILBCC
+Use the specified BCC address, instead of your email address.  (CC and
+BCC based on suggestions from Herbert Thielen in the \fBbug\fP
+wishlist).
+.TP
+.B http_proxy
+Provides the address of a proxy server to handle the BTS query.  This
+should be a valid \fBhttp\fP URL for a proxy server, including any
+required port number (simply specifying a hostname, or omitting a port
+other than 80, WILL NOT WORK).
+.SH NOTES
+.B reportbug
+should probably be compatible with other bug tracking systems, like
+\fBbugzilla\fP (used by the GNOME and Mozilla projects) and
+\fBjitterbug\fP (used by Samba, AbiSource and FreeCiv) but it isn't.
+.SH "SEE ALSO"
+reportbug.conf(5),
+.I http://www.debian.org/Bugs/Developer#tags
+for available tags, querybts(1)
+.SH AUTHOR
+Chris Lawrence <lawrencc@debian.org>,
+Sandro Tosi <morph@debian.org>.
+
+\"  LocalWords:  reportbug debbugs pathname Debian bts fBdebbugs fP filename fB
+\"  LocalWords:  Debian's BODYFILE config reportbugrc pre DEBEMAIL gnupg gpg
+\"  LocalWords:  REPORTBUGEMAIL GnuPG MUA debian Dorman severities KEYID keyid
+\"  LocalWords:  PGP maintonly mta MTA smtphost mua nmh mh pgp http realname
+\"  LocalWords:  replyto wishlist ISP's localhost SMTP tls smtpuser USERNAME
+\"  LocalWords:  smtppasswd multiuser chmod debsums uninstallable BCC ssl Bcc's
+\"  LocalWords:  whitespace DEBFULLNAME DEBNAME MAILCC MAILBCC Thielen hostname
+\"  LocalWords:  getopt bugzilla Mozilla AbiSource FreeCiv querybts

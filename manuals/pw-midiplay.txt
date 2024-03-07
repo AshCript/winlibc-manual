@@ -1,0 +1,205 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PW-CAT" 1 "" "" "General Commands Manual"
+.SH NAME
+pw-cat \- Play and record media with PipeWire
+.SH SYNOPSIS
+.nf
+\fBpw\-cat\fP [\fIoptions\fP] [\fIFILE\fP | \-]
+\fBpw\-play\fP [\fIoptions\fP] [\fIFILE\fP | \-]
+\fBpw\-record\fP [\fIoptions\fP] [\fIFILE\fP | \-]
+\fBpw\-midiplay\fP [\fIoptions\fP] [\fIFILE\fP | \-]
+\fBpw\-midirecord\fP [\fIoptions\fP] [\fIFILE\fP | \-]
+\fBpw\-dsdplay\fP [\fIoptions\fP] [\fIFILE\fP | \-]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fBpw\-cat\fP is a simple tool for playing back or
+capturing raw or encoded media files on a PipeWire
+server. It understands all audio file formats supported by
+\fBlibsndfile\fP for PCM capture and playback.
+.sp
+It understands standard MIDI files for playback and recording. This tool
+will not render MIDI files, it will simply make the MIDI events available
+to the graph. You need a MIDI renderer such as qsynth, timidity or a hardware
+MIDI rendered to hear the MIDI.
+.sp
+DSD playback is supported with the DSF file format. This tool will only work
+with native DSD capable hardware and will produce an error when no such
+hardware was found.
+.sp
+When the \fIFILE\fP is \- input and output will be from STDIN and
+STDOUT respectively.
+.SH OPTIONS
+.INDENT 0.0
+.TP
+.B \-h | \-\-help
+Show help.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B  \-\-version
+Show version information.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-v | \-\-verbose
+Verbose operation.
+.TP
+.B \-R | \-\-remote=NAME
+The name the \fIremote\fP instance to connect to. If left unspecified,
+a connection is made to the default PipeWire instance.
+.TP
+.B \-p | \-\-playback
+Playback mode. Read data from the specified file, and play it back. If the tool
+is called under the name \fBpw\-play\fP or \fBpw\-midiplay\fP this is the default.
+.TP
+.B \-r | \-\-record
+Recording mode. Capture data and write it to the specified file. If the tool is
+called under the name \fBpw\-record\fP or \fBpw\-midirecord\fP this is the default.
+.TP
+.B \-m | \-\-midi
+MIDI mode. \fIFILE\fP is a MIDI file. If the tool is called under the name
+\fBpw\-midiplay\fP or \fBpw\-midirecord\fP this is the default.
+Note that this program will \fInot\fP render the MIDI events into audible samples,
+it will simply provide the MIDI events in the graph. You need a separate
+MIDI renderer such as qsynth, timidity or a hardware renderer to hear the MIDI.
+.TP
+.B \-d | \-\-dsd
+DSD mode. \fIFILE\fP is a DSF file. If the tool is called under the name
+\fBpw\-dsdplay\fP this is the default.
+Note that this program will \fInot\fP render the DSD audio. You need a DSD capable
+device to play DSD content or this program will exit with an error.
+.UNINDENT
+.INDENT 0.0
+.TP
+.BI \-\-media\-type\fB= VALUE
+Set the media type property (default Audio/Midi depending on mode).
+The media type is used by the session manager to select a suitable target
+to link to.
+.TP
+.BI \-\-media\-category\fB= VALUE
+Set the media category property (default Playback/Capture depending on mode).
+The media type is used by the session manager to select a suitable target
+to link to.
+.TP
+.BI \-\-media\-role\fB= VALUE
+Set the media role property (default Music).
+The media type is used by the session manager to select a suitable target
+to link to.
+.TP
+.BI \-\-target\fB= VALUE
+Set a node target (default auto). The value can be:
+.INDENT 7.0
+.TP
+.B auto
+Automatically select (Default)
+.TP
+.B 0
+Don\(aqt try to link this node
+.TP
+.B <id>
+The object.serial or the node.name of a target node
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-latency=VALUE[\fIunits\fP]
+Set the node latency (default 100ms)
+.sp
+The latency determines the minimum amount of time it takes
+for a sample to travel from application to device (playback) and
+from device to application (capture).
+.sp
+The latency determines the size of the buffers that the
+application will be able to fill. Lower latency means smaller
+buffers but higher overhead. Higher latency means larger buffers
+and lower overhead.
+.sp
+Units can be \fBs\fP for seconds, \fBms\fP for milliseconds,
+\fBus\fP for microseconds, \fBns\fP for nanoseconds.
+If no units are given, the latency value is samples with the samplerate
+of the file.
+.TP
+.B \-P | \-\-properties=VALUE
+Set extra stream properties as a JSON object.
+.TP
+.B \-q | \-\-quality=VALUE
+Resampler quality. When the samplerate of the source or
+destination file does not match the samplerate of the server, the
+data will be resampled. Higher quality uses more CPU. Values between 0 and 15 are
+allowed, the default quality is 4.
+.UNINDENT
+.INDENT 0.0
+.TP
+.BI \-\-rate\fB= VALUE
+The sample rate, default 48000.
+.TP
+.BI \-\-channels\fB= VALUE
+The number of channels, default 2.
+.TP
+.BI \-\-channel\-map\fB= VALUE
+The channelmap. Possible values include:
+\fBmono\fP, \fBstereo\fP, \fBsurround\-21\fP,
+\fBquad\fP, \fBsurround\-22\fP, \fBsurround\-40\fP,
+\fBsurround\-31\fP, \fBsurround\-41\fP,
+\fBsurround\-50\fP, \fBsurround\-51\fP,
+\fBsurround\-51r\fP, \fBsurround\-70\fP,
+\fBsurround\-71\fP or a comma separated list of channel names:
+\fBFL\fP, \fBFR\fP, \fBFC\fP, \fBLFE\fP,
+\fBSL\fP, \fBSR\fP, \fBFLC\fP, \fBFRC\fP,
+\fBRC\fP, \fBRL\fP, \fBRR\fP, \fBTC\fP,
+\fBTFL\fP, \fBTFC\fP, \fBTFR\fP, \fBTRL\fP,
+\fBTRC\fP, \fBTRR\fP, \fBRLC\fP, \fBRRC\fP,
+\fBFLW\fP, \fBFRW\fP, \fBLFE2\fP, \fBFLH\fP,
+\fBFCH\fP, \fBFRH\fP, \fBTFLC\fP, \fBTFRC\fP,
+\fBTSL\fP, \fBTSR\fP, \fBLLFR\fP, \fBRLFE\fP,
+\fBBC\fP, \fBBLC\fP, \fBBRC\fP
+.TP
+.BI \-\-format\fB= VALUE
+The sample format to use. One of:
+\fBu8\fP, \fBs8\fP, \fBs16\fP (default), \fBs24\fP, \fBs32\fP,
+\fBf32\fP, \fBf64\fP\&.
+.TP
+.BI \-\-volume\fB= VALUE
+The stream volume, default 1.000.
+Depending on the locale you have configured, \(dq,\(dq or \(dq.\(dq may be
+used as a decimal separator. Check with \fBlocale\fP command.
+.UNINDENT
+.SH AUTHORS
+.sp
+The PipeWire Developers <\fI\%https://gitlab.freedesktop.org/pipewire/pipewire/issues\fP>; PipeWire is available from \fI\%https://pipewire.org\fP
+.SH SEE ALSO
+.sp
+\fBPipeWire(1)\fP,
+\fBpw\-mon(1)\fP,
+.\" Generated by docutils manpage writer.
+.

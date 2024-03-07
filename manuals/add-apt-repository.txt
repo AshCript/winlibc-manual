@@ -1,0 +1,213 @@
+.TH "add-apt-repository" "1"
+.SH NAME
+add-apt-repository \- Adds a repository into the
+/etc/apt/sources.list or /etc/apt/sources.list.d
+or removes an existing one
+.SH SYNOPSIS
+.B add-apt-repository \fI[OPTIONS]\fR \fI[LINE]\fR
+.SH DESCRIPTION
+.B add-apt-repository
+is a script which adds an external APT repository to either
+/etc/apt/sources.list or a file in /etc/apt/sources.list.d/
+or removes an already existing repository.
+
+.SH OPTIONS
+Note that the \fB--list\fR, \fB--ppa\fR, \fB--cloud\fR, \fB--uri\fR,
+\fB--sourceslist\fR, and \fBLINE\fR parameters are mutually exclusive;
+only one (or none) of them may be specified.
+.TP
+.B -h, --help
+Show help message and exit.
+.TP
+.B -d, --debug
+Print debug information to the command line.
+.TP
+.B -r, --remove
+Remove the specified repository.
+
+This first will disable (comment out) the matching line(s), and then any
+modified file(s) under sources.list.d/ will be removed if they contain
+only empty and commented lines.
+
+Note that this performs differently when used with the \fI--enable-source\fR
+and/or \fI--component\fR parameters.  Without either of those parameters,
+this removes the specified repository, including any \fBdeb-src\fR line(s),
+and all components.  If \fI--enable-source\fR is used, this disables
+\fBonly\fR the 'deb-src' line(s).  If \fI--component\fR is used, this removes
+\fBonly\fR the specified component(s), and only removes the repository if no
+components remain.
+
+If both \fI--enable-source\fR and \fI--component\fR are used with
+\fI--remove\fR, the actions are performed separately: the specified
+component(s) will be removed from both \fBdeb\fR and \fBdeb-src\fR lines,
+and \fBdeb-src\fR lines will be disabled.
+.TP
+.B -y, --yes
+Assume yes to all queries.
+.TP
+.B -n, --no-update
+After adding the repository, do not update the package cache.
+.TP
+.B -l, --login
+Login to Launchpad (this is only needed for private PPAs).
+.TP
+.B -s, --enable-source
+Allow downloading of the source packages from the repository.
+
+This adds and enables a 'deb-src' line for the repository.
+
+If this parameter is used without any repository, it will enable all currently
+existing disabled source repository (\fIdeb-src\fR) entries that have
+a corresponding enabled binary repository (\fIdeb\fR) entry.
+
+If this parameter is used twice without any repository, it will also add
+missing source repository entries for all existing binary repository
+(\fIdeb\fR) entries.
+.TP
+.B -c, --component
+Which component(s) should be used with the specified repository.
+
+If not specified, this will default to \fImain\fR.  This may be used multiple
+times to specify multiple components.
+
+If this is used without any repository, it will add the component(s) to all
+currently existing (enabled) repositories, but only if listed in the main
+sources.list file.
+.TP
+.B -p, --pocket
+What pocket to use.
+
+Defaults to none, which is equivalent to the \fIrelease\fR pocket.
+
+If this is used without any repository, it will add the pocket to
+all currently existing repositories, but only if listed in the main
+sources.list file. It will use the components currently configured
+with the release pocket, or if that is not currently configured, it
+will use the \fImain\fR and \fIrestricted\fR components.
+.TP
+.B --dry-run
+Show what would be done, but don't make any changes.
+.TP
+.B -L, --list
+List currently configured repositories.
+
+This will only list enabled repositories; it will not show disabled
+repository lines.
+
+By default, this shows only binary (\fIdeb\fR) repositories.  If
+\fI--enable-source\fR is also used, this will also show source
+(\fIdeb-src\fR) repositories.
+.TP
+.B -P, --ppa
+Add an Ubuntu Launchpad Personal Package Archive.
+
+Must be in the format \fBppa:USER/PPA\fR, \fBUSER/PPA\fR, or \fBUSER\fR.
+
+The \fBUSER\fR parameter should be the Launchpad team or person that owns
+the PPA.  The \fBPPA\fR parameter should be the name of the PPA; if not
+provided, it defaults to 'ppa'.
+
+The GPG public key of the PPA will also be downloaded and added to apt's
+keyring.
+
+To add a private PPA, you must also use the \fI--login\fR parameter, and
+of course you must also be subscribed to the private PPA.
+.TP
+.B -C, --cloud
+Add an Ubuntu Cloud Archive.
+
+Must be in the format \fBcloud-archive:CANAME\fR, \fBuca:CANAME\fR, or
+\fBCANAME\fR.
+
+The \fBCANAME\fR parameter should be the name of the Cloud Archive.  The
+\fBCANAME\fR parameter may optionally be suffixed with the pocket, as either
+\fB-updates\fR or \fB-proposed\fR.  If not specified, the pocket defaults to
+\fB-updates\fR.
+.TP
+.B -U, --uri
+Add an archive, specified as a single URI.
+
+If the URI provided is detected to be a PPA, this will operate as if the
+\fI--ppa\fR parameter was used.
+.TP
+.B -S, --sourceslist
+Add an archive, specified as a full source entry line in one-line
+sources.list format.
+
+This must follow the \fIONE-LINE-STYLE\fR format as described in the
+\fBsources.list\fR manpage.
+
+If the URI provided is detected to be a PPA, this will operate as if the
+\fI--ppa\fR parameter was used.
+
+.SH LINE
+\fILINE\fR is a deprecated method to specify the repository to add/remove,
+provided only for backwards compatibility.  It can be specified in any of
+the supported formats: sources.list line, plain uri, ppa shortcut, or
+cloud-archive shortcut.  It can also be specified as one or more valid
+component(s).  The script will attempt to detect which format is provided.
+
+This is not recommended as the autodetection of which line format is
+intended can be ambiguous, but older scripts may still use this method of
+specifying the repository.
+
+One special case of \fILINE\fR is providing the value \fB-\fR, which will
+then read the \fILINE\fR from stdin.
+
+.SH EXAMPLES
+.TP
+add-apt-repository -P ppa:user/repository
+.TP
+add-apt-repository -P user/repository
+.TP
+add-apt-repository -C cloud-archive:queens
+.TP
+add-apt-repository -C uca:queens
+.TP
+add-apt-repository -C queens
+.TP
+add-apt-repository -S 'deb http://myserver/path/to/repo stable main'
+.TP
+add-apt-repository -S deb http://myserver/path/to/repo stable main
+.TP
+add-apt-repository -U http://myserver/path/to/repo -c main
+.TP
+add-apt-repository -U https://packages.medibuntu.org -c free -c non-free
+.TP
+add-apt-repository -U http://extras.ubuntu.com/ubuntu
+.TP
+add-apt-repository -s
+.TP
+add-apt-repository -L
+.TP
+add-apt-repository -s -r
+.TP
+add-apt-repository -c universe
+.TP
+add-apt-repository -r -c multiverse
+
+.SH DEPRECATED EXAMPLES
+.TP
+add-apt-repository deb http://myserver/path/to/repo stable main
+.TP
+add-apt-repository http://myserver/path/to/repo main
+.TP
+add-apt-repository https://packages.medibuntu.org free non-free
+.TP
+add-apt-repository http://extras.ubuntu.com/ubuntu
+.TP
+add-apt-repository multiverse
+
+.SH SEE ALSO
+\fBsources.list\fR(5)
+\fBapt-get\fR(8)
+
+.SH COPYRIGHT
+This manual page was written by Chow Loong Jin <hyperair@gmail.com> for the
+Debian system (but may be used by others). Permission is granted to copy,
+distribute and/or modify this document under the terms of the GNU General Public
+License, Version 2 or any later version published by the Free Software
+Foundation.
+
+On Debian systems, the complete text of the GNU General Public License can be
+found in /usr/share/common-licenses.

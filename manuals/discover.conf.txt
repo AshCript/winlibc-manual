@@ -1,0 +1,71 @@
+.TH "discover.conf" "5" 
+.SH "NAME" 
+discover.conf \(em configuration file format for discover(1) 
+.SH "Description" 
+.PP 
+\fBDiscover\fP looks for configuration files in a configuration 
+directory, containing a number of files.  These define the  
+system buses that should be scanned by default, those that should  
+never be scanned, and the URLs for hardware data  
+files beyond the local copy provided with the software. 
+.PP 
+The file format is XML; the \fIDTD\fR     is provided with the \fBDiscover\fP software, and can be used for 
+informational or validation purposes. 
+.SH "Examples" 
+.PP 
+\fBEstablishing default buses to scan\fR 
+.PP 
+.nf 
+<?xml version="1.0"?> 
+ 
+<!DOCTYPE conffile SYSTEM "conffile.dtd"> 
+ 
+<conffile> 
+<busscan scan="default"> 
+<bus name="ata"/> 
+<bus name="pci"/> 
+<bus name="pcmcia"/> 
+<bus name="scsi"/> 
+<bus name="usb"/> 
+</busscan> 
+</conffile> 
+.fi 
+.PP 
+.PP 
+\fBA more complex example\fR 
+.PP 
+.nf 
+<?xml version="1.0"?> 
+ 
+<!DOCTYPE conffile SYSTEM "conffile.dtd"> 
+ 
+<conffile> 
+<busscan scan="default"> 
+<bus name="ata"/> 
+<bus name="pci"/> 
+<bus name="pcmcia"/> 
+<bus name="usb"/> 
+</busscan> 
+<!\-\- My ancient SCSI card locks up when probed \-\-> 
+<busscan scan="never"> 
+<bus name="scsi"/> 
+</busscan> 
+<data-sources> 
+<data-source url="http://www.example.com/discover/xfree86.xml" 
+label="Updated XFree86 hardware information"> 
+</data-sources> 
+</conffile> 
+.fi 
+.PP 
+.SH "Authors" 
+.PP 
+Josh Bressers, John R. Daily, and 
+G. Branden Robinson developed the current implementation of 
+\fBDiscover\fP for Progeny Linux Systems. 
+.PP 
+The Linux implementation of the system-dependent interfaces is 
+derived from \fBdetect\fR, by MandrakeSoft SA. 
+.SH "See Also" 
+.PP 
+discover(1) 
+.\" created by instant / docbook-to-man, Thu 31 Aug 2006, 11:05 

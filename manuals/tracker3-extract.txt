@@ -1,0 +1,114 @@
+'\" t
+.\"     Title: tracker3-extract
+.\"    Author: The Tracker developers
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 01/19/2023
+.\"    Manual: Tracker manual
+.\"    Source: \ \& 3.4.3
+.\"  Language: English
+.\"
+.TH "TRACKER3\-EXTRACT" "1" "01/19/2023" "\ \& 3\&.4\&.3" "Tracker manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+tracker3-extract \- Extract metadata from a file\&.
+.SH "SYNOPSYS"
+.sp
+\fBtracker3 extract\fR \fIFILE\fR
+.SH "DESCRIPTION"
+.sp
+\fBtracker3 extract\fR reads the file provided and extracts any metadata it can from this file, then displays the metadata on standard output\&.
+.sp
+The metadata is displayed as a SPARQL update command, that can be run against a SPARQL endpoint to update its copy of the metadata\&.
+.sp
+The actual extraction is done by a separate process\&. This is done to isolate the calling process from any memory leaks or crashes in the libraries Tracker uses to extract metadata\&.
+.sp
+For more information see the libtracker\-extract reference documentation\&.
+.SH "OPTIONS"
+.PP
+\fB\-o, \-\-output\-format=<\fR\fB\fIFORMAT\fR\fR\fB>\fR
+.RS 4
+Choose which format to use to output results\&. Supported formats are
+\fIsparql\fR,
+\fIturtle\fR
+and
+\fIjson\-ld\fR\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Using command line to extract metadata from a file
+.RS 4
+$ tracker3 extract /path/to/some/file\&.mp3
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBG_MESSAGES_DEBUG\fR
+.RS 4
+Controls verbose log output from GLib\-based code\&. Use
+G_MESSAGES_DEBUG=Tracker
+to see only Tracker\-related logs, or
+G_MESSAGES_DEBUG=all
+to see everything\&.
+.RE
+.PP
+\fBTRACKER_DEBUG\fR
+.RS 4
+Enables more specialized debug output\&. Pass a comma\-separated list of one or more keywords:
+.PP
+config
+.RS 4
+extractor configuration
+.RE
+.PP
+statistics
+.RS 4
+show statistics about how many files were processed
+.RE
+.RE
+.PP
+status
+.RS 4
+log the status messages that are published over D\-Bus
+.RE
+.SH "SEE ALSO"
+.sp
+\fBtracker3\-sparql\fR(1), \fBtracker3\-status\fR(1), \fBtracker3\-info\fR(1)\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fB/usr/lib/tracker\-1\&.0/extract\-modules/\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fB/usr/share/tracker/extract\-rules/\fR
+.RE

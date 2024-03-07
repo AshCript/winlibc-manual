@@ -1,0 +1,224 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "SNAP-CONFINE" 8 "2017-09-18" "2.28" "snappy"
+.SH NAME
+snap-confine \- internal tool for confining snappy applications
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+snap\-confine [\-\-classic] [\-\-base BASE] SECURITY_TAG COMMAND [...ARGUMENTS]
+.UNINDENT
+.UNINDENT
+.SH DESCRIPTION
+.sp
+The \fIsnap\-confine\fP is a program used internally by \fIsnapd\fP to construct the
+execution environment for snap applications.
+.SH OPTIONS
+.sp
+The \fIsnap\-confine\fP program accepts two options:
+.INDENT 0.0
+.INDENT 3.5
+\fI\-\-classic\fP requests the so\-called _classic_ _confinement_ in which
+applications are not confined at all (like in classic systems, hence the
+name). This disables the use of a dedicated, per\-snap mount namespace. The
+\fIsnapd\fP service generates permissive apparmor and seccomp profiles that
+allow everything.
+.sp
+\fI\-\-base BASE\fP directs snap\-confine to use the given base snap as the root
+filesystem. If omitted it defaults to the \fIcore\fP snap. This is derived from
+snap meta\-data by \fIsnapd\fP when starting the application process.
+.UNINDENT
+.UNINDENT
+.SH FEATURES
+.SS Apparmor profiles
+.sp
+\fIsnap\-confine\fP switches to the apparmor profile \fI$SECURITY_TAG\fP\&. The profile is
+\fBmandatory\fP and \fIsnap\-confine\fP will refuse to run without it.
+.sp
+The profile has to be loaded into the kernel prior to using \fIsnap\-confine\fP\&.
+Typically this is arranged for by \fIsnapd\fP\&. The profile contains rich
+description of what the application process is allowed to do, this includes
+system calls, file paths, access patterns, linux capabilities, etc. The
+apparmor profile can also do extensive dbus mediation. Refer to apparmor
+documentation for more details.
+.SS Seccomp profiles
+.sp
+\fIsnap\-confine\fP looks for the
+\fI/var/lib/snapd/seccomp/bpf/$SECURITY_TAG.bin\fP file. This file is
+\fBmandatory\fP and \fIsnap\-confine\fP will refuse to run without it. This
+file contains the seccomp bpf binary program that is loaded into the
+kernel by snap\-confine.
+.sp
+The file is generated with the \fI/usr/lib/snapd/snap\-seccomp\fP compiler from the
+\fI$SECURITY_TAG.src\fP file that uses a custom syntax that describes the set of
+allowed system calls and optionally their arguments. The profile is then used
+to confine the started application.
+.sp
+As a security precaution disallowed system calls cause the started application
+executable to be killed by the kernel. In the future this restriction may be
+lifted to return \fIEPERM\fP instead.
+.SS Mount profiles
+.sp
+\fIsnap\-confine\fP uses a helper process, \fIsnap\-update\-ns\fP, to apply the mount
+namespace profile to freshly constructed mount namespace. That tool looks for
+the \fI/var/lib/snapd/mount/snap.$SNAP_NAME.fstab\fP file.  If present it is read,
+parsed and treated like a mostly\-typical \fIfstab(5)\fP file.  The mount directives
+listed there are executed in order. All directives must succeed as any failure
+will abort execution.
+.sp
+By default all mount entries start with the following flags: \fIbind\fP, \fIro\fP,
+\fInodev\fP, \fInosuid\fP\&.  Some of those flags can be reversed by an appropriate
+option (e.g. \fIrw\fP can cause the mount point to be writable).
+.sp
+Certain additional features are enabled and conveyed through the use of mount
+options prefixed with \fIx\-snapd\-\fP\&.
+.sp
+As a security precaution only \fIbind\fP mounts are supported at this time.
+.SS Sharing of the mount namespace
+.sp
+As of version 1.0.41 all the applications from the same snap will share the
+same mount namespace. Applications from different snaps continue to use
+separate mount namespaces.
+.SH ENVIRONMENT
+.sp
+\fIsnap\-confine\fP responds to the following environment variables
+.INDENT 0.0
+.TP
+.B \fISNAP_CONFINE_DEBUG\fP:
+When defined the program will print additional diagnostic information about
+the actions being performed. All the output goes to stderr.
+.UNINDENT
+.sp
+The following variables are only used when \fIsnap\-confine\fP is not setuid root.
+This is only applicable when testing the program itself.
+.INDENT 0.0
+.TP
+.B \fISNAPPY_LAUNCHER_INSIDE_TESTS\fP:
+Internal variable that should not be relied upon.
+.TP
+.B \fISNAPPY_LAUNCHER_SECCOMP_PROFILE_DIR\fP:
+Internal variable that should not be relied upon.
+.TP
+.B \fISNAP_USER_DATA\fP:
+Full path to the directory like /home/$LOGNAME/snap/$SNAP_NAME/$SNAP_REVISION.
+.sp
+This directory is created by snap\-confine on startup. This is a temporary
+feature that will be merged into snapd\(aqs snap\-run command. The set of directories
+that can be created is confined with apparmor.
+.UNINDENT
+.SH FILES
+.sp
+\fIsnap\-confine\fP and \fIsnap\-update\-ns\fP use the following files:
+.sp
+\fI/var/lib/snapd/mount/snap.*.fstab\fP:
+.INDENT 0.0
+.INDENT 3.5
+Description of the mount profile.
+.UNINDENT
+.UNINDENT
+.sp
+\fI/var/lib/snapd/seccomp/bpf/*.src\fP:
+.INDENT 0.0
+.INDENT 3.5
+Input for the /usr/lib/snapd/snap\-seccomp profile compiler.
+.UNINDENT
+.UNINDENT
+.sp
+\fI/var/lib/snapd/seccomp/bpf/*.bin\fP:
+.INDENT 0.0
+.INDENT 3.5
+Compiled seccomp bpf profile programs.
+.UNINDENT
+.UNINDENT
+.sp
+\fI/run/snapd/ns/\fP:
+.INDENT 0.0
+.INDENT 3.5
+Directory used to keep shared mount namespaces.
+.sp
+\fIsnap\-confine\fP internally converts this directory to a private bind mount.
+Semantically the behavior is identical to the following mount commands:
+.sp
+mount \-\-bind /run/snapd/ns /run/snapd/ns
+mount \-\-make\-private /run/snapd/ns
+.UNINDENT
+.UNINDENT
+.sp
+\fI/run/snapd/ns/.lock\fP:
+.INDENT 0.0
+.INDENT 3.5
+A \fIflock(2)\fP\-based lock file acquired to create and convert
+\fI/run/snapd/ns/\fP to a private bind mount.
+.UNINDENT
+.UNINDENT
+.sp
+\fI/run/snapd/ns/$SNAP_NAME.lock\fP:
+.INDENT 0.0
+.INDENT 3.5
+A \fIflock(2)\fP\-based lock file acquired to create or join the mount namespace
+represented as \fI/run/snaps/ns/$SNAP_NAME.mnt\fP\&.
+.UNINDENT
+.UNINDENT
+.sp
+\fI/run/snapd/ns/$SNAP_NAME.mnt\fP:
+.INDENT 0.0
+.INDENT 3.5
+This file can be either:
+.INDENT 0.0
+.IP \(bu 2
+An empty file that may be seen before the mount namespace is preserved or
+when the mount namespace is unmounted.
+.IP \(bu 2
+A file belonging to the \fInsfs\fP file system, representing a fully
+populated mount namespace of a given snap. The file is bind mounted from
+\fI/proc/self/ns/mnt\fP from the first process in any snap.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fI/proc/self/mountinfo\fP:
+.INDENT 0.0
+.INDENT 3.5
+This file is read to decide if \fI/run/snapd/ns/\fP needs to be created and
+converted to a private bind mount, as described above.
+.UNINDENT
+.UNINDENT
+.sp
+Note that the apparmor profile is external to \fIsnap\-confine\fP and is loaded
+directly into the kernel. The actual apparmor profile is managed by \fIsnapd\fP\&.
+.SH BUGS
+.sp
+Please report all bugs with \fI\%https://bugs.launchpad.net/snapd/+filebug\fP
+.SH AUTHOR
+zygmunt.krynicki@canonical.com
+.SH COPYRIGHT
+Canonical Ltd.
+.\" Generated by docutils manpage writer.
+.

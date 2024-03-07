@@ -1,0 +1,27 @@
+.TH "discover-pkgintsall" "8" 
+.SH "NAME" 
+discover-pkginstall \(em intsall packages for available hardware using discover(1) 
+.SH "SYNOPSIS" 
+.PP 
+\fBdiscover-pkginstall\fR [\-l]  [\-n]  [\-v]  
+.SH "Description" 
+.PP 
+\fBdiscover-pkginstall\fR install packages based 
+on detected hardware.  It will use the discover-data database to 
+map for hardware to debian packages, install the packages by 
+default.  Packages using module-assistant will be automatically 
+built and the result installed if module-assistant is installed 
+or pulled in as a dependency. 
+.SH "Options" 
+.IP "\fB-l\fP" 10 
+Only list the detected packages 
+.IP "\fB-n\fP" 10 
+Echo the \fBaptitude and 
+module-assistant\fR invocations instead of running 
+them. 
+.IP "\fB-v\fP" 10 
+Be verbose. 
+.SH "See Also" 
+.PP 
+aptitude(8), discover(1), module-assistant(8) 
+.\" created by instant / docbook-to-man, Sun 13 Jan 2008, 09:40 

@@ -1,0 +1,203 @@
+'\" t
+.\"     Title: apt_auth.conf
+.\"    Author: APT team
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 02\ \&December\ \&2019
+.\"    Manual: APT
+.\"    Source: APT 2.6.1
+.\"  Language: English
+.\"
+.TH "APT_AUTH\&.CONF" "5" "02\ \&December\ \&2019" "APT 2.6.1" "APT"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+apt_auth.conf \- Login configuration file for APT sources and proxies
+.SH "DESCRIPTION"
+.PP
+APT configuration files like
+\fBsources.list\fR(5)
+or
+\fBapt.conf\fR(5)
+need to be accessible for everyone using apt tools on the system to have access to all package\-related information like the available packages in a repository\&. Login information needed to connect to a proxy or to download data from a repository on the other hand shouldn\*(Aqt always be accessible by everyone and can hence not be placed in a file with world\-readable file permissions\&.
+.PP
+The APT auth\&.conf file
+/etc/apt/auth\&.conf, and \&.conf files inside
+/etc/apt/auth\&.conf\&.d
+can be used to store login information in a netrc\-like format with restrictive file permissions\&.
+.SH "NETRC\-LIKE FORMAT"
+.PP
+The format defined here is similar to the format of the
+~/\&.netrc
+file used by
+\fBftp\fR(1)
+and similar programs interacting with servers\&. It is a simple token\-based format with the following tokens being recognized; Unknown tokens will be ignored\&. Tokens may be separated by spaces, tabs or newlines\&.
+.PP
+machine \fI[protocol://]\fR\fIhostname\fR[:\fIport\fR][/\fIpath\fR]
+.RS 4
+Entries are looked up by searching for the
+\fImachine\fR
+token matching the hostname of the URI apt needs login information for\&. Extending the netrc\-format a portnumber can be specified\&. If no port is given the token matches for all ports\&. Similar the path is optional and only needed and useful if multiple repositories with different login information reside on the same server\&. A machine token with a path matches if the path in the URI starts with the path given in the token\&. Once a match is made, the subsequent tokens are processed, stopping when the end of file is reached or another
+\fImachine\fR
+token is encountered\&.
+.sp
+If protocol is not specified, the entry only matches https and tor+https\&.
+.RE
+.PP
+login \fIname\fR
+.RS 4
+The username to be used\&.
+.RE
+.PP
+password \fIstring\fR
+.RS 4
+The password to be used\&.
+.RE
+.SH "EXAMPLE"
+.PP
+Supplying login information for a user named
+apt
+with the password
+debian
+for the
+\fBsources.list\fR(5)
+entry
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+deb https://example\&.org/debian bookworm main
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+could be done in the entry directly:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+deb https://apt:debian@example\&.org/debian bookworm main
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Alternatively an entry like the following in the auth\&.conf file could be used:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+machine example\&.org
+login apt
+password debian
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Or alternatively within a single line:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+machine example\&.org login apt password debian
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+If you need to be more specific all of these lines will also apply to the example entry:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+machine example\&.org/deb login apt password debian
+machine example\&.org/debian login apt password debian
+machine example\&.org/debian/ login apt password debian
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+On the other hand neither of the following lines apply:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+machine example\&.org:443 login apt password debian
+machine example\&.org/deb/ login apt password debian
+machine example\&.org/ubuntu login apt password debian
+machine example\&.orga login apt password debian
+machine example\&.net login apt password debian
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "NOTES"
+.PP
+Basic support for this feature is present since version 0\&.7\&.25, but was undocumented for years\&. The documentation was added in version 1\&.5 changing also the implementation slightly\&. For maximum backward compatibility you should avoid multiple
+machine
+tokens with the same hostname, but if you need multiple they should all have a path specified in the
+machine
+token\&.
+.PP
+Login information in auth\&.conf are more flexible than those in sources\&.list\&. For example, login information can be specified for parts of a repository only, or if the sources\&.list entry redirects elsewhere, login information for the redirect destination can be supplied\&.
+.SH "FILES"
+.PP
+/etc/apt/auth\&.conf
+.RS 4
+Login information for APT sources and proxies in a netrc\-like format\&. Configuration Item:
+Dir::Etc::netrc\&.
+.RE
+.PP
+/etc/apt/auth\&.conf\&.d/*\&.conf
+.RS 4
+Login information for APT sources and proxies in a netrc\-like format\&. Configuration Item:
+Dir::Etc::netrcparts\&.
+.RE
+.SH "SEE ALSO"
+.PP
+\fBapt.conf\fR(5)
+\fBsources.list\fR(5)
+.SH "BUGS"
+.PP
+\m[blue]\fBAPT bug page\fR\m[]\&\s-2\u[1]\d\s+2\&. If you wish to report a bug in APT, please see
+/usr/share/doc/debian/bug\-reporting\&.txt
+or the
+\fBreportbug\fR(1)
+command\&.
+.SH "AUTHOR"
+.PP
+\fBAPT team\fR
+.RS 4
+.RE
+.SH "NOTES"
+.IP " 1." 4
+APT bug page
+.RS 4
+\%http://bugs.debian.org/src:apt
+.RE

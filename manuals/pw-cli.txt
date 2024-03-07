@@ -1,0 +1,205 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PW-CLI" 1 "" "" "General Commands Manual"
+.SH NAME
+pw-cli \- The PipeWire Command Line Interface
+.SH SYNOPSIS
+.nf
+\fBpw\-cli\fP [\fIcommand\fP]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+Interact with a PipeWire instance.
+.sp
+When a command is given, \fBpw\-cli\fP
+will execute the command and exit
+.sp
+When no command is given, \fBpw\-cli\fP
+starts an interactive session with the default PipeWire instance
+\fIpipewire\-0\fP\&.
+.sp
+Connections to other, remote instances can be made. The current instance
+name is displayed at the prompt. Some commands operate on the current
+instance and some on the local instance.
+.sp
+Use the \(aqhelp\(aq command to list the available commands.
+.SH GENERAL COMMANDS
+.INDENT 0.0
+.TP
+.B help | h
+Show a quick help on the commands available. It also lists the aliases
+for many commands.
+.TP
+.B quit | q
+Exit from \fBpw\-cli\fP
+.UNINDENT
+.SH MODULE MANAGEMENT
+.nf
+Modules are loaded and unloaded in the local instance, thus the pw\-cli
+binary itself and can add functionality or objects to the local
+instance. It is not possible in PipeWire to load modules in another
+instance.
+.fi
+.sp
+.INDENT 0.0
+.TP
+.B load\-module \fIname\fP [\fIarguments...\fP]
+Load a module specified by its name and arguments. For most
+modules it is OK to be loaded more than once.
+.sp
+This command returns a module variable that can be used
+to unload the module.
+.TP
+.B unload\-module \fImodule\-var\fP
+Unload a module, specified either by its variable.
+.UNINDENT
+.SH OBJECT INTROSPECTION
+.INDENT 0.0
+.TP
+.B list\-objects
+List the objects of the current instance.
+.sp
+Objects are listed with their \fIid\fP, \fItype\fP and \fIversion\fP\&.
+.TP
+.B info \fIid\fP | \fIall\fP
+Get information about a specific object or \fIall\fP objects.
+.sp
+Requesting info about an object will also notify you of changes.
+.UNINDENT
+.SH WORKING WITH REMOTES
+.INDENT 0.0
+.TP
+.B connect [\fIremote\-name\fP]
+Connect to a remote instance and make this the new current
+instance.
+.sp
+If no remote name is specified, a connection is made to
+the default remote instance, usually \fIpipewire\-0\fP\&.
+.sp
+This command returns a remote var that can be used to disconnect or
+switch remotes.
+.TP
+.B disconnect [\fIremote\-var\fP]
+Disconnect from a \fIremote instance\fP\&.
+.sp
+If no remote name is specified, the current instance is disconnected.
+.TP
+.B list\-remotes
+List all \fIremote instances\fP\&.
+.TP
+.B switch\-remote [\fIremote\-var\fP]
+Make the specified \fIremote\fP the current instance.
+.sp
+If no remote name is specified, the local instance is made current.
+.UNINDENT
+.SH NODE MANAGEMENT
+.INDENT 0.0
+.TP
+.B create\-node \fIfactory\-name\fP [\fIproperties...\fP]
+Create a node from a factory in the current instance.
+.sp
+Properties are key=value pairs separated by whitespace.
+.sp
+This command returns a \fInode variable\fP\&.
+.TP
+.B export\-node \fInode\-id\fP [\fIremote\-var\fP]
+Export a node from the local instance to the specified instance.
+When no instance is specified, the node will be exported to the current
+instance.
+.UNINDENT
+.SH DEVICE MANAGEMENT
+.INDENT 0.0
+.TP
+.B create\-device \fIfactory\-name\fP [\fIproperties...\fP]
+Create a device from a factory in the current instance.
+.sp
+Properties are key=value pairs separated by whitespace.
+.sp
+This command returns a \fIdevice variable\fP\&.
+.UNINDENT
+.SH LINK MANAGEMENT
+.INDENT 0.0
+.TP
+.B create\-link \fInode\-id\fP \fIport\-id\fP \fInode\-id\fP \fIport\-id\fP [\fIproperties...\fP]
+Create a link between 2 nodes and ports.
+.sp
+Port \fIids\fP can be \fI\-1\fP to automatically select an available port.
+.sp
+Properties are key=value pairs separated by whitespace.
+.sp
+This command returns a \fIlink variable\fP\&.
+.UNINDENT
+.SH GLOBALS MANAGEMENT
+.INDENT 0.0
+.TP
+.B destroy \fIobject\-id\fP
+Destroy a global object.
+.UNINDENT
+.SH PARAMETER MANAGEMENT
+.INDENT 0.0
+.TP
+.B enum\-params \fIobject\-id\fP \fIparam\-id\fP
+Enumerate params of an object.
+.sp
+\fIparam\-id\fP can also be given as the param short name.
+.TP
+.B set\-param \fIobject\-id\fP \fIparam\-id\fP \fIparam\-json\fP
+Set param of an object.
+.sp
+\fIparam\-id\fP can also be given as the param short name.
+.UNINDENT
+.SH PERMISSION MANAGEMENT
+.INDENT 0.0
+.TP
+.B permissions \fIclient\-id\fP \fIobject\-id\fP \fIpermission\fP
+Set permissions for a client.
+.sp
+\fIobject\-id\fP can be \fI\-1\fP to set the default permissions.
+.TP
+.B get\-permissions \fIclient\-id\fP
+Get permissions of a client.
+.UNINDENT
+.SH COMMAND MANAGEMENT
+.INDENT 0.0
+.TP
+.B send\-command \fIobject\-id\fP
+Send a command to an object.
+.UNINDENT
+.SH EXAMPLES
+.SH AUTHORS
+.sp
+The PipeWire Developers <\fI\%https://gitlab.freedesktop.org/pipewire/pipewire/issues\fP>; PipeWire is available from \fI\%https://pipewire.org\fP
+.SH SEE ALSO
+.sp
+\fBpipewire(1)\fP,
+\fBpw\-mon(1)\fP,
+.\" Generated by docutils manpage writer.
+.

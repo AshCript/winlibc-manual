@@ -1,0 +1,165 @@
+'\" t
+.\"     Title: tracker3-daemon
+.\"    Author: The Tracker developers
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 01/19/2023
+.\"    Manual: Tracker manual
+.\"    Source: \ \& 3.4.3
+.\"  Language: English
+.\"
+.TH "TRACKER3\-DAEMON" "1" "01/19/2023" "\ \& 3\&.4\&.3" "Tracker manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+tracker3-daemon \- Start, stop, restart and list daemons responsible for indexing content
+.SH "SYNOPSIS"
+.sp
+.nf
+tracker3 daemon [options\&.\&.\&.]
+tracker3 daemon \-s | \-t [daemons] | \-k [daemons] | \-l
+tracker3 daemon \-f | \-w [ontology]
+tracker3 daemon \-\-miner <miner> \-\-pause[\-for\-process] <reason>
+tracker3 daemon \-\-miner <miner> \-\-resume <cookie>
+.fi
+.SH "DESCRIPTION"
+.sp
+Tracker indexes content with daemon processes that run in the background\&. The \fBtracker3 daemon\fR command allows for control of these components\&. This ranges from starting, stopping and killing processes to pausing and resuming them\&.
+.sp
+In addition to all this, there are ways to follow or watch what is happening in real time from a top level and right down where the SPARQL commits are happening too\&.
+.sp
+If no arguments are provided this command will show the current status of all Tracker data miners\&.
+.sp
+The data miners can be paused or resumed using this command and you can also list miners running and available\&.
+.SH "OPTIONS"
+.PP
+\fB\-p, \-\-list\-processes\fR
+.RS 4
+This lists all Tracker processes in the system\&.
+.RE
+.PP
+*\-k, \-\-kill
+.RS 4
+This uses SIGKILL to stop all Tracker processes found matching the parameter, if no extra parameter is passed, "all" will be assumed\&. This is not advised unless you are having problems stopping Tracker in the first place\&. This
+\fBGUARANTEES\fR
+death\&.
+.RE
+.PP
+*\-t, \-\-terminate=
+.RS 4
+This uses SIGTERM to stop all Tracker processes\&. This is recommended over \-\-kill because it gives the processes time to shutdown cleanly\&.
+.RE
+.PP
+\fB\-s, \-\-start\fR
+.RS 4
+Starts all miners\&.
+.RE
+.PP
+\fB\-f, \-\-follow\fR
+.RS 4
+Follow status changes to daemons as they happen\&. This is a top level view of what is happening\&. You will see the name for each daemon and a state with the progress in that state\&.
+.RE
+.sp
+This requires Ctrl+C to stop and return to the command line\&. Each new status is put on a new line\&.
+.PP
+\fB\-w, \-\-watch=[\fR\fB\fIontology\fR\fR\fB]\fR
+.RS 4
+Watch changes that happen to the database in real time\&. This requires Ctrl+C to stop and return to the command line\&.
+.RE
+.sp
+If \fIontology\fR is unspecified, all updates are shown\&. The \fIontology\fR can be a comma separated list of shorthand or long hand ontology properties\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+    $ tracker3 daemon \-w nie:url,nie:mimeType,nfo:fileSize,nie:dataSource
+    Now listening for resource updates to the database
+    All nie:plainTextContent properties are omitted
+
+    Press Ctrl+C to stop
+
+    \*(Aqnfo:Document\*(Aq
+       \*(Aqnfo:fileSize\*(Aq = \*(Aq1770\*(Aq
+       \*(Aqnie:dataSource\*(Aq = \*(Aqhttp://tracker\&.api\&.gnome\&.org/ontology/v3/tracker#extractor\-data\-source\*(Aq
+       \*(Aqnie:mimeType\*(Aq = \*(Aqtext/plain\*(Aq
+       \*(Aqnie:url\*(Aq = \*(Aqfile:///home/martyn/\&.bash_aliases\*(Aq
+    \*(Aqnfo:Document\*(Aq
+       \*(Aqnie:dataSource\*(Aq = \*(Aqhttp://tracker\&.api\&.gnome\&.org/ontology/v3/tracker#extractor\-data\-source\*(Aq
+
+    \&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+\fB\-\-list\-common\-statuses\fR
+.RS 4
+This will list statuses most commonly produced by miners and the store\&. These statuses are not translated when sent over D\-Bus and should be translated by each application\&. These are not considered static and are subject to change at any point\&.
+.RE
+.sp
+Additionally, these statuses are not the only ones which may be reported by a miner\&. There may be other states pertaining to the specific roles of the miner in question\&.
+.PP
+\fB\-\-list\-miners\-running\fR
+.RS 4
+This will list all miners which have responded to a D\-Bus call\&. Sometimes it is helpful to use this command with
+\fB\-\-list\-miners\-available\&.\fR
+.RE
+.PP
+\fB\-\-list\-miners\-available\fR
+.RS 4
+This will list all miners which are available even if they are not running at the moment\&.
+.RE
+.PP
+\fB\-\-pause\-details\fR
+.RS 4
+For listing all miners which are paused and the reasons for being paused, you can use this\&. It will also display the application that requested the pause too\&.
+.RE
+.PP
+\fB\-\-miner=<\fR\fB\fIminer\fR\fR\fB>\fR
+.RS 4
+This argument is used with
+\fB\-\-pause\fR
+or
+\fB\-\-resume\fR
+to say which miner you want to pause or resume\&. You can use the full D\-Bus name, e\&.g\&. "org\&.freedesktop\&.Tracker3\&.Miner\&.Files" OR you can use the suffix, e\&.g\&. "Files"\&.
+.RE
+.PP
+\fB\-\-pause=<\fR\fB\fIreason\fR\fR\fB>\fR
+.RS 4
+The
+\fIreason\fR
+here is useful to know WHY the miner should be paused\&. A miner can be paused many times by multiple applications\&. Only when all pauses have been resumed will it continue\&. If successful, a cookie will be given to uniquely identify the request\&. This cookie is used to resume the pause at a later stage\&.
+.RE
+.PP
+\fB\-\-pause\-for\-process=<\fR\fB\fIreason\fR\fR\fB>\fR
+.RS 4
+This works exactly the same way as
+\fB\-\-pause\fR
+with the exception that it only keeps the pause active while the calling process is alive\&. As soon as you press Ctrl+C the pause is resumed automatically\&.
+.RE
+.PP
+\fB\-\-resume=<\fR\fB\fIcookie\fR\fR\fB>\fR
+.RS 4
+The
+\fIcookie\fR
+is given by a successful
+\fB\-\-pause\fR
+command\&. It is a number which identifies each pause request\&. When all pauses have been resumed, the miner will resume working\&.
+.RE

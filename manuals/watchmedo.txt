@@ -1,0 +1,76 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2021 Julian Gilbey <jdg@debian.org>,
+.\"
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH watchmedo 1 "Nov 2021"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+watchmedo \- monitor file system events
+.SH SYNOPSIS
+.B watchmedo
+.I task
+.RI [ options ] ...
+.br
+.B watchmedo
+.RI [ option ]
+.SH DESCRIPTION
+This manual page briefly documents the
+.B watchmedo
+command.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics,
+.\" respectively.
+\fBwatchmedo\fP is a program that monitors for file system events.  It
+is run with a \fItask\fP specified, which is one of the following:
+.TP
+.B tricks\-from
+Command to execute tricks from a tricks configuration file.
+.TP
+.B tricks
+A synonym for \fBtricks\-from\fP.
+.TP
+.B tricks-generate-yaml
+Command to generate Yaml configuration for tricks named on the command line.
+.TP
+.B generate-tricks-yaml
+A synonym for \fBtricks-generate-yaml\fP.
+.TP
+.B log
+Command to log file system events to the console.
+.TP
+.B shell-command
+Command to execute shell commands in response to file system events.
+.TP
+.B auto-restart
+Command to start a long-running subprocess and restart it on matched events.
+.SH OPTIONS
+Each of these has a number of options and required parameters.  More
+details can be found by running
+\fBwatchmedo\fP \fItask\fP \fB\-h\fR.
+.PP
+These programs also provide the usual GNU command line options:
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-\-version
+Show version of program.
+.SH SEE ALSO
+.BR watchdog (3).
+.br
+There is a little more information in the README file, available on
+Debian systems as /usr/share/doc/python3-watchdog/README.rst.gz.

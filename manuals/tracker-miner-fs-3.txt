@@ -1,0 +1,120 @@
+'\" t
+.\"     Title: tracker-miner-fs-3
+.\"    Author: The Tracker developers
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 01/19/2023
+.\"    Manual: Tracker manual
+.\"    Source: \ \& 3.4.3
+.\"  Language: English
+.\"
+.TH "TRACKER\-MINER\-FS\-" "1" "01/19/2023" "\ \& 3\&.4\&.3" "Tracker manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+tracker-miner-fs-3 \- Used to crawl the file system to mine data\&.
+.SH "SYNOPSIS"
+.sp
+\fBtracker\-miner\-fs\-3\fR [\fIOPTION\fR\&...]
+.SH "DESCRIPTION"
+.sp
+\fBtracker\-miner\-fs\-3\fR is not supposed to be run by the user since it is started by its \&.desktop file when the user logs in\&. It can also be started manually of course for debugging purposes\&. You can not run more than one instance of this at the same time\&.
+.sp
+\fBtracker\-miner\-fs\-3\fR mines information about applications and files only\&.
+.SH "OPTIONS"
+.PP
+\fB\-?, \-\-help\fR
+.RS 4
+Show summary of options\&.
+.RE
+.PP
+\fB\-V, \-\-version\fR
+.RS 4
+Returns the version of this binary\&.
+.RE
+.PP
+\fB\-s, \-\-initial\-sleep=SECONDS\fR
+.RS 4
+Sets the initial sleep time before crawling the file system is started\&. If the
+\fB\-\-no\-daemon\fR
+option is used, this option is ignored\&.
+.RE
+.PP
+\fB\-n, \-\-no\-daemon\fR
+.RS 4
+Tells the miner to exit once all indexing has finished and the database is up to date\&. This is not the default mode of operation for the miner, usually it stays around acting like a daemon to monitor file updates which may occur over time\&. This option renders the
+\fB\-\-initial\-sleep\fR
+option moot\&.
+.RE
+.PP
+\fB\-e, \-\-eligible=FILE\fR
+.RS 4
+Checks if
+\fBFILE\fR
+is eligible for being mined based on the current configuration rules\&. In addition to this, it will check if
+\fBFILE\fR
+would be monitored for changes\&. This works with non\-existing
+\fBFILE\fR
+arguments as well as existing
+\fBFILE\fR
+arguments\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBG_MESSAGES_DEBUG\fR
+.RS 4
+Controls verbose log output from GLib\-based code\&. Use
+G_MESSAGES_DEBUG=Tracker
+to see only Tracker\-related logs, or
+G_MESSAGES_DEBUG=all
+to see everything\&.
+.RE
+.PP
+\fBTRACKER_DEBUG\fR
+.RS 4
+Enables more specialized debug output\&. Pass a comma\-separated list of one or more keywords:
+.PP
+config
+.RS 4
+miner configuration
+.RE
+.PP
+miner\-fs\-events
+.RS 4
+internal processing of tracker\-miner\-fs
+.RE
+.PP
+monitors
+.RS 4
+change events from filesystem monitors
+.RE
+.PP
+statistics
+.RS 4
+show statistics about how many files were processed
+.RE
+.PP
+status
+.RS 4
+log the status messages that are published over D\-Bus
+.RE
+.RE
+.SH "SEE ALSO"
+.sp
+\fBtracker3\-info\fR(1)\&.

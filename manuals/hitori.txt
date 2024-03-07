@@ -1,0 +1,40 @@
+.\" URL macro recipe from Branden Robinson's presentation
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.\" End of recipe.
+.
+.TH hitori 6 "2013-09-22"
+.\" Please adjust this date whenever revising the manpage.
+.
+.SH "NAME"
+.
+hitori \- plays the game of hitori
+.
+.SH "SYNOPSIS"
+.
+.B hitori
+.
+.SH "DESCRIPTION"
+.
+Hitori puzzles give you a grid filled with numbers.
+The goal is to remove numbers such that no row or column contains duplicates.
+.P
+This implementation has undo/redo support, can give hints, and
+generates puzzles up to 10\[mu]10 cells large.
+.P
+The full documentation is available through the program's
+.I Help
+menu.
+.
+.SH "SEE ALSO"
+.
+.URL "https://wiki.gnome.org/Apps/Hitori" "The game's web site" ""
+.
+.SH "AUTHOR"
+.
+Philip Withnall (philip@tecnocode.co.uk)
+.P
+This manual page was written by Peter De Wachter (pdewacht@gmail.com) for
+the Debian GNU/Linux system (but may be used by others).

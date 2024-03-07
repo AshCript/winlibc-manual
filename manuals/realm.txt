@@ -1,0 +1,476 @@
+'\" t
+.\"     Title: realm
+.\"    Author: Stef Walter <stef@thewalter.net>
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 12/07/2022
+.\"    Manual: User Commands
+.\"    Source: realmd
+.\"  Language: English
+.\"
+.TH "REALM" "8" "12/07/2022" "realmd" "User Commands"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+realm \- Manage enrollment in realms
+.SH "SYNOPSIS"
+.HP \w'\fBrealm\ discover\fR\ 'u
+\fBrealm discover\fR [realm\-name]
+.HP \w'\fBrealm\ join\fR\ 'u
+\fBrealm join\fR [\-U\ user] [realm\-name]
+.HP \w'\fBrealm\ leave\fR\ 'u
+\fBrealm leave\fR [\-U\ user] [realm\-name]
+.HP \w'\fBrealm\ list\fR\ 'u
+\fBrealm list\fR
+.HP \w'\fBrealm\ permit\fR\ 'u
+\fBrealm permit\fR [\-ax] [\-R\ realm] {user@domain...}
+.HP \w'\fBrealm\ deny\fR\ 'u
+\fBrealm deny\fR \-a [\-R\ realm]
+.SH "DESCRIPTION"
+.PP
+\fBrealm\fR
+is a command line tool that can be used to manage enrollment in kerberos realms, like Active Directory domains or IPA domains\&.
+.PP
+See the various sub commands below\&. The following global options can be used:
+.PP
+\fB\-i\fR, \fB\-\-install=/path\fR
+.RS 4
+Run in install mode\&. This makes realmd chroot into the directory specified by an absolute path and place files in appropriate locations for use during an installer\&. No packages will be installed or services will be started when running in this mode\&.
+.RE
+.PP
+\fB\-\-unattended\fR
+.RS 4
+Run in unattended mode without prompting for input\&.
+.RE
+.PP
+\fB\-v\fR, \fB\-\-verbose\fR
+.RS 4
+Display verbose diagnostics while doing running commands\&.
+.RE
+.SH "DISCOVER"
+.PP
+Discover a realm and its capabilities\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm discover
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm discover domain\&.example\&.com
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+After discovering a realm, its name, type and capabilities are displayed\&.
+.PP
+If no domain is specified, then the domain assigned through DHCP is used as a default\&.
+.PP
+The following options can be used:
+.PP
+\fB\-a\fR, \fB\-\-all\fR
+.RS 4
+Show all discovered realms (in various configurations)\&.
+.RE
+.PP
+\fB\-\-client\-software=xxx\fR
+.RS 4
+Only discover realms for which we can use the given client software\&. Possible values include
+\fIsssd\fR
+or
+\fIwinbind\fR\&.
+.RE
+.PP
+\fB\-n\fR, \fB\-\-name\fR
+.RS 4
+Only show the names of the discovered realms\&.
+.RE
+.PP
+\fB\-\-server\-software=xxx\fR
+.RS 4
+Only discover realms which run the given server software\&. Possible values include
+\fIactive\-directory\fR
+or
+\fIipa\fR\&.
+.RE
+.PP
+\fB\-\-membership\-software=xxx\fR
+.RS 4
+Only discover realms for which the given membership software can be used to subsequently perform enrollment\&. Possible values include
+\fIsamba\fR
+or
+\fIadcli\fR\&.
+.RE
+.PP
+\fB\-\-use\-ldaps\fR
+.RS 4
+See option description in
+the section called \(lqJOIN\(rq\&.
+.RE
+.SH "JOIN"
+.PP
+Configure the local machine for use with a realm\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm join domain\&.example\&.com
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm join \-\-user=admin \-\-computer\-ou=OU=Special domain\&.example\&.com
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The realm is first discovered, as we would with the
+\fBdiscover\fR
+command\&. If no domain is specified, then the domain assigned through DHCP is used as a default\&.
+.PP
+After a successful join, the computer will be in a state where it is able to resolve remote user and group names from the realm\&. For kerberos realms, a computer account and host keytab is created\&.
+.PP
+Joining arbitrary kerberos realms is not supported\&. The realm must have a supported mechanism for joining from a client machine, such as Active Directory or IPA\&.
+.PP
+If the domain has been preconfigured, and unless
+\-\-user
+is explicitly specified, an automatic join is attempted first\&.
+.PP
+Note that the
+\-\-user,
+\-\-no\-password, and
+\-\-one\-time\-password
+options are mutually exclusive\&. At most one of them can be specified\&.
+.PP
+It is generally possible to use kerberos credentials to perform a join operation\&. Use the
+\fBkinit\fR
+command to acquire credentials prior to starting the join\&. Do not specify the
+\fB\-\-user\fR
+argument, the user will be selected automatically from the credential cache\&. The
+\fBrealm\fR
+respects the
+KRB5_CCACHE
+environment variable, but uses the default kerberos credential cache if it\*(Aqs not present\&. Not all types of servers can be joined using kerberos credentials, some (like IPA) insist on prompting for a password\&.
+.PP
+The following options can be used:
+.PP
+\fB\-\-automatic\-id\-mapping=no\fR
+.RS 4
+Do not perform UID/GID mapping for users and groups, but expect these identifiers to be present in the domain already\&.
+.RE
+.PP
+\fB\-\-client\-software=xxx\fR
+.RS 4
+Only join realms for which we can use the given client software\&. Possible values include
+\fIsssd\fR
+or
+\fIwinbind\fR\&. Not all values are supported for all realms\&. By default the client software is automatically selected\&.
+.RE
+.PP
+\fB\-\-computer\-ou=OU=xxx\fR
+.RS 4
+The distinguished name of an organizational unit to create the computer account\&. The exact format of the distinguished name depends on the client software and membership software\&. You can usually omit the root DSE portion of distinguished name\&. This is an Active Directory specific option\&.
+.RE
+.PP
+\fB\-\-membership\-software=xxx\fR
+.RS 4
+The software to use when joining to the realm\&. Possible values include
+\fIsamba\fR
+or
+\fIadcli\fR\&. Not all values are supported for all realms\&. By default the membership software is automatically selected\&.
+.RE
+.PP
+\fB\-\-computer\-name=xxx\fR
+.RS 4
+This option only applies to Active Directory realms\&. Specify this option to override the default name used when creating the computer account\&. The system\*(Aqs FQDN will still be saved in the dNSHostName attribute\&.
+.sp
+Specify the name as a string of 15 or fewer characters that is a valid NetBIOS computer name\&.
+.RE
+.PP
+\fB\-\-no\-password\fR
+.RS 4
+Perform the join automatically without a password\&.
+.RE
+.PP
+\fB\-\-one\-time\-password=xxxx\fR
+.RS 4
+Perform the join using a one time password specified on the command line\&. This is not possible with all types of realms\&.
+.RE
+.PP
+\fB\-\-os\-name=xxx\fR
+.RS 4
+The name of the operation system of the client\&. When joining an AD domain the value is store in the matching AD attribute\&.
+.RE
+.PP
+\fB\-\-os\-version=xxx\fR
+.RS 4
+The version of the operation system of the client\&. When joining an AD domain the value is store in the matching AD attribute\&.
+.RE
+.PP
+\fB\-\-server\-software=xxx\fR
+.RS 4
+Only join realms for run the given server software\&. Possible values include
+\fIactive\-directory\fR
+or
+\fIipa\fR\&.
+.RE
+.PP
+\fB\-U\fR, \fB\-\-user=xxx\fR
+.RS 4
+The user name to be used to authenticate with when joining the machine to the realm\&. You will be prompted for a password\&.
+.RE
+.PP
+\fB\-\-user\-principal=\fR\fB\fIhost/name@REALM\fR\fR
+.RS 4
+Set the
+\fBuserPrincipalName\fR
+field of the computer account to this kerberos principal\&. If you omit the value for this option, then a principal will be set based on the defaults of the membership software\&.
+.sp
+AD makes a distinction between user and service principals\&. Only with user principals you can request a Kerberos Ticket\-Granting\-Ticket (TGT), i\&.e\&. only user principals can be used with the
+\fBkinit\fR
+command\&. By default the user principal and the canonical principal name of an AD computer account is
+shortname$@AD\&.DOMAIN, where shortname is the NetBIOS name which is limited to 15 characters\&.
+.sp
+If there are applications which are not aware of the AD default and are using a hard\-coded default principal the
+\fB\-\-user\-principal\fR
+can be used to make AD aware of this principal\&. Please note that
+\fBuserPrincipalName\fR
+is a single value LDAP attribute, i\&.e\&. only one alternative user principal besides the AD default user principal can be set\&.
+.RE
+.PP
+\fB\-\-use\-ldaps\fR
+.RS 4
+Use the ldaps port when connecting to AD where possible\&. In general this option is not needed because
+\fBrealmd\fR
+itself only read public information from the Active Directory domain controller which is available anonymously\&. The supported membership software products will use encrypted connections protected with GSS\-SPNEGO/GSSAPI which offers a comparable level of security than ldaps\&. This option is only needed if the standard LDAP port (389/tcp) is blocked by a firewall and only the LDAPS port (636/tcp) is available\&. Given that and to lower the initial effort to discover a remote domain
+\fBrealmd\fR
+does not require a strict certificate check\&. If the validation of the LDAP server certificate fails
+\fBrealmd\fR
+will continue to setup the encrypted connection to the LDAP server\&.
+.sp
+If this option is set to
+\fIyes\fR
+\fBrealmd\fR
+will use the ldaps port when reading the rootDSE and call the
+\fBadcli\fR
+membership software with the option
+\fB\-\-use\-ldaps\fR\&. The Samba base membership currently offers only deprecated ways to enable ldaps\&. Support will be added in
+\fBrealmd\fR
+when a new way is available\&.
+.RE
+.PP
+\fB\-\-do\-not\-touch\-config\fR
+.RS 4
+Run the join operation but do not touch the local configuration of the client except adding new Kerberos keys to the keytab\&. The purpose of this option is to synchronize the keytab entries with the ones stored in AD or recreate the computer object in AD without changing the local configuration which might contain changes which would get overwritten by a fully leave/join cycle\&.
+.sp
+If running
+\fBrealm join\fR
+with this options does not help to fix issues it is recommended to call
+\fBrealm leave\fR
+followed by
+\fBrealm join\fR
+to enforce a fresh configuration with default settings\&. Since this might overwrite manual changes to the related configuration files it is recommend to save those change before running the commands\&.
+.sp
+This options is only available when joining AD domains\&.
+.RE
+.SH "LEAVE"
+.PP
+Deconfigure the local machine for use with a realm\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm leave
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm leave domain\&.example\&.com
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+If no realm name is specified, then the first configured realm will be used\&.
+.PP
+The following options can be used:
+.PP
+\fB\-\-client\-software=xxx\fR
+.RS 4
+Only leave the realm which is using the given client software\&. Possible values include
+\fIsssd\fR
+or
+\fIwinbind\fR\&.
+.RE
+.PP
+\fB\-\-server\-software=xxx\fR
+.RS 4
+Only leave the realm which is using the given server software\&. Possible values include
+\fIactive\-directory\fR
+or
+\fIipa\fR\&.
+.RE
+.PP
+\fB\-\-remove\fR
+.RS 4
+Remove or disable computer account from the directory while leaving the realm\&. This will usually prompt for a pasword\&.
+.RE
+.PP
+\fB\-U\fR, \fB\-\-user\fR
+.RS 4
+The user name to be used to authenticate with when leaving the realm\&. You will be prompted for a password\&. Implies
+\fB\-\-remove\fR\&.
+.RE
+.PP
+\fB\-\-use\-ldaps\fR
+.RS 4
+See option description in
+the section called \(lqJOIN\(rq\&.
+.RE
+.SH "LIST"
+.PP
+List all the discovered and configured realms\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm list
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+By default, realms that have been discovered, but not configured (using the
+\fBjoin\fR
+command), are not displayed\&. Also, by default, the list of realm details displayed is verbose\&. The options below can be used to change this default behavior
+.PP
+The following options can be used:
+.PP
+\fB\-\-all\fR
+.RS 4
+Show all discovered realms (whether or not they have been configured)\&.
+.RE
+.PP
+\fB\-\-name\-only\fR
+.RS 4
+Display only realm names (as opposed to verbose output)\&.
+.RE
+.SH "PERMIT"
+.PP
+Permit local login by users of the realm\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm permit \-\-all
+$ realm permit user@example\&.com
+$ realm permit DOMAIN\e\eUser2
+$ realm permit \-\-withdraw user@example\&.com
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The current login policy and format of the user names can be seen by using the
+\fBrealm list\fR
+command\&.
+.PP
+The following options can be used:
+.PP
+\fB\-\-all, \-a\fR
+.RS 4
+Permit logins using realm accounts on the local machine according to the realm policy\&.This usually defaults to allowing any realm user to log in\&.
+.RE
+.PP
+\fB\-\-groups, \-g\fR
+.RS 4
+Treat the specified names as groups rather than user login names\&. Permit login by users in the specified groups\&.
+.RE
+.PP
+\fB\-\-realm, \-R\fR
+.RS 4
+Specify the of the realm to change login policy for\&.
+.RE
+.PP
+\fB\-\-withdraw, \-x\fR
+.RS 4
+Remove a login from the list of realm accounts permitted to log into the machine\&.
+.RE
+.SH "DENY"
+.PP
+Deny local login by realm accounts\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ realm deny \-\-all
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This command prevents realm accounts from logging into the local machine\&. Use
+\fBrealm permit\fR
+to restrict logins to specific accounts\&.
+.PP
+The following options can be used:
+.PP
+\fB\-\-all, \-a\fR
+.RS 4
+This option should be specified
+.RE
+.PP
+\fB\-\-realm, \-R\fR
+.RS 4
+Specify the name of the realm to deny users login to\&.
+.RE
+.SH "SEE ALSO"
+.PP
+\fBrealmd.conf\fR(5)
+.SH "AUTHOR"
+.PP
+\fBStef Walter\fR <\&stef@thewalter\&.net\&>
+.RS 4
+Maintainer
+.RE

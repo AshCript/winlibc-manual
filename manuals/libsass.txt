@@ -1,0 +1,2303 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "LIBSASS" "3" "Jan 04, 2023" "0.22.0" "libsass"
+.SH NAME
+libsass \- libsass Documentation
+.sp
+This package provides a simple Python extension module \fI\%sass\fP which is
+binding \fI\%LibSass\fP (written in C/C++ by Hampton Catlin and Aaron Leung).
+It\(aqs very straightforward and there isn\(aqt any headache related Python
+distribution/deployment.  That means you can add just \fBlibsass\fP into
+your \fBsetup.py\fP\(aqs \fBinstall_requires\fP list or \fBrequirements.txt\fP
+file.
+.sp
+It currently supports CPython 3.6+ and PyPy 3!
+.SH FEATURES
+.INDENT 0.0
+.IP \(bu 2
+You don\(aqt need any Ruby/Node.js stack at all, for development or deployment
+either.
+.IP \(bu 2
+Fast. (\fI\%LibSass\fP is written in C++.)
+.IP \(bu 2
+Simple API.  See \fI\%example code\fP for details.
+.IP \(bu 2
+Custom functions.
+.IP \(bu 2
+\fB@import\fP callbacks.
+.IP \(bu 2
+Support both tabbed (Sass) and braces (SCSS) syntax.
+.IP \(bu 2
+WSGI middleware for ease of development.
+It automatically compiles Sass/SCSS files for each request.
+See also \fI\%sassutils.wsgi\fP for details.
+.IP \(bu 2
+\fBsetuptools\fP/\fI\%distutils\fP integration.
+You can build all Sass/SCSS files using
+\fBsetup.py build_sass\fP command.
+See also \fI\%sassutils.distutils\fP for details.
+.IP \(bu 2
+Works also on PyPy.
+.IP \(bu 2
+Provides prebuilt wheel (\fI\%PEP 427\fP) binaries for Windows and Mac.
+.UNINDENT
+.SH INSTALL
+.sp
+It\(aqs available on \fI\%PyPI\fP, so you can install it using \fBpip\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ pip install libsass
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+libsass requires some features introduced by the recent C++ standard.
+You need a C++ compiler that support those features.
+See also libsass project\(aqs \fI\%README\fP file.
+.UNINDENT
+.UNINDENT
+.SH EXAMPLES
+.SS Compile a String of Sass to CSS
+.sp
+.nf
+.ft C
+>>> import sass
+>>> sass.compile(string=\(aqa { b { color: blue; } }\(aq)
+\(aqa b {\en  color: blue; }\en\(aq
+.ft P
+.fi
+.SS Compile a Directory of Sass Files to CSS
+.sp
+.nf
+.ft C
+>>> import sass
+>>> import os
+>>> os.mkdir(\(aqcss\(aq)
+>>> os.mkdir(\(aqsass\(aq)
+>>> scss = """\e
+\&... $theme_color: #cc0000;
+\&... body {
+\&...     background\-color: $theme_color;
+\&... }
+\&... """
+>>> with open(\(aqsass/example.scss\(aq, \(aqw\(aq) as example_scss:
+\&...      example_scss.write(scss)
+\&...
+>>> sass.compile(dirname=(\(aqsass\(aq, \(aqcss\(aq), output_style=\(aqcompressed\(aq)
+>>> with open(\(aqcss/example.css\(aq) as example_css:
+\&...     print(example_css.read())
+\&...
+body{background\-color:#c00}
+.ft P
+.fi
+.SH USER'S GUIDE
+.SS Using with Flask
+.sp
+This guide explains how to use libsass with the \fI\%Flask\fP web framework.
+\fI\%sassutils\fP package provides several tools that can be integrated
+into web applications written in Flask.
+.SS Contents
+.INDENT 0.0
+.IP \(bu 2
+\fI\%Using with Flask\fP
+.INDENT 2.0
+.IP \(bu 2
+\fI\%Directory layout\fP
+.IP \(bu 2
+\fI\%Defining manifest\fP
+.IP \(bu 2
+\fI\%Building Sass/SCSS for each request\fP
+.IP \(bu 2
+\fI\%Building Sass/SCSS for each deployment\fP
+.UNINDENT
+.UNINDENT
+.SS Directory layout
+.sp
+Imagine the project contained in such directory layout:
+.INDENT 0.0
+.IP \(bu 2
+\fBsetup.py\fP
+.IP \(bu 2
+\fBmyapp/\fP
+.INDENT 2.0
+.IP \(bu 2
+\fB__init__.py\fP
+.IP \(bu 2
+\fBstatic/\fP
+.INDENT 2.0
+.IP \(bu 2
+\fBsass/\fP
+.IP \(bu 2
+\fBcss/\fP
+.UNINDENT
+.IP \(bu 2
+\fBtemplates/\fP
+.UNINDENT
+.UNINDENT
+.sp
+Sass/SCSS files will go inside \fBmyapp/static/sass/\fP directory.
+Compiled CSS files will go inside \fBmyapp/static/css/\fP directory.
+CSS files can be regenerated, so add \fBmyapp/static/css/\fP into your
+ignore list like \fB\&.gitignore\fP or \fB\&.hgignore\fP\&.
+.SS Defining manifest
+.sp
+The \fI\%sassutils\fP defines a concept named \fImanifest\fP\&.
+Manifest is the build settings of Sass/SCSS.  It specifies some paths
+related to building Sass/SCSS:
+.INDENT 0.0
+.IP \(bu 2
+The path of the directory which contains Sass/SCSS source files.
+.IP \(bu 2
+The path of the directory which the compiled CSS files will go.
+.IP \(bu 2
+The path, exposed to HTTP (through WSGI), of the directory that
+will contain the compiled CSS files.
+.UNINDENT
+.sp
+Every package may have its own manifest.  Paths have to be relative
+to the path of the package.
+.sp
+For example, in the above project, the package name is \fBmyapp\fP\&.
+The path of the package is \fBmyapp/\fP\&.  The path of the Sass/SCSS
+directory is \fBstatic/sass/\fP (relative to the package directory).
+The path of the CSS directory is \fBstatic/css/\fP\&.
+The exposed path is \fB/static/css\fP\&.
+.sp
+These settings can be represented as the following manifests:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(aqmyapp\(aq: (\(aqstatic/sass\(aq, \(aqstatic/css\(aq, \(aq/static/css\(aq)
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+As you can see the above, the set of manifests are represented in dictionary,
+in which the keys are packages names and the values are tuples of paths.
+.SS Building Sass/SCSS for each request
+.sp
+\fBSEE ALSO:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.TP
+.B Flask \-\-\- \fI\%Hooking in WSGI Middlewares\fP
+The section which explains how to integrate WSGI middlewares to
+Flask.
+.TP
+.B Flask \-\-\- flask:app\-dispatch
+The documentation which explains how Flask dispatches each
+request internally.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+In development, manually building Sass/SCSS files for each change is
+a tedious task.  \fI\%SassMiddleware\fP makes the web
+application build Sass/SCSS files for each request automatically.
+It\(aqs a WSGI middleware, so it can be plugged into the web app written in
+Flask.
+.sp
+\fI\%SassMiddleware\fP takes two required parameters:
+.INDENT 0.0
+.IP \(bu 2
+The WSGI\-compliant callable object.
+.IP \(bu 2
+The set of manifests represented as a dictionary.
+.UNINDENT
+.sp
+So:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+from flask import Flask
+from sassutils.wsgi import SassMiddleware
+
+app = Flask(__name__)
+
+app.wsgi_app = SassMiddleware(app.wsgi_app, {
+    \(aqmyapp\(aq: (\(aqstatic/sass\(aq, \(aqstatic/css\(aq, \(aq/static/css\(aq)
+})
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+And then, if you want to link a compiled CSS file, use the
+\fI\%url_for()\fP function:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+<link href="{{ url_for(\(aqstatic\(aq, filename=\(aqcss/style.scss.css\(aq) }}"
+      rel="stylesheet" type="text/css">
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The linked filename is \fBstyle.scss.css\fP, not just \fBstyle.scss\fP\&.
+All compiled filenames have trailing \fB\&.css\fP suffix.
+.UNINDENT
+.UNINDENT
+.SS Building Sass/SCSS for each deployment
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This section assumes that you use \fI\%setuptools\fP for deployment.
+.UNINDENT
+.UNINDENT
+.sp
+\fBSEE ALSO:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.TP
+.B Flask \-\-\- flask:distribute\-deployment
+How to deploy Flask application using \fI\%setuptools\fP\&.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+If libsass is installed in the \fBsite\-packages\fP (for example,
+your virtualenv), the \fBsetup.py\fP script also gets a new command
+provided by libsass: \fI\%build_sass\fP\&.
+The command is aware of the \fBsass_manifests\fP option of \fBsetup.py\fP and
+builds all Sass/SCSS sources according to the manifests.
+.sp
+Add these arguments to \fBsetup.py\fP script:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+setup(
+    # ...,
+    setup_requires=[\(aqlibsass >= 0.6.0\(aq],
+    sass_manifests={
+        \(aqmyapp\(aq: (\(aqstatic/sass\(aq, \(aqstatic/css\(aq, \(aq/static/css\(aq)
+    }
+)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The \fBsetup_requires\fP option makes sure that libsass is installed
+in \fBsite\-packages\fP (for example, your virtualenv) before
+the \fBsetup.py\fP script.  That means if you run the \fBsetup.py\fP
+script and libsass isn\(aqt installed in advance, it will automatically
+install libsass first.
+.sp
+The \fBsass_manifests\fP specifies the manifests for libsass.
+.sp
+Now \fBsetup.py build_sass\fP will compile all Sass/SCSS files
+in the specified path and generates compiled CSS files inside the specified
+path (according to the manifests).
+.sp
+If you use it with \fBsdist\fP or \fBbdist\fP commands, the packed archive will
+also contain the compiled CSS files!
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python setup.py build_sass sdist
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+You can add aliases to make these commands always run the \fBbuild_sass\fP
+command first.  Make \fBsetup.cfg\fP config:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+[aliases]
+sdist = build_sass sdist
+bdist = build_sass bdist
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Now it automatically builds Sass/SCSS sources and include the compiled CSS files
+to the package archive when you run \fBsetup.py sdist\fP\&.
+.SS Changelog
+.SS Version 0.22.0
+.sp
+Released on November 12, 2022.
+.INDENT 0.0
+.IP \(bu 2
+Remove python 2.x support [\fI\%#373\fP by anthony sottile].
+.IP \(bu 2
+Remove deprecated \fBsassc\fP cli [\fI\%#379\fP by anthony sottile].
+.UNINDENT
+.SS Version 0.21.0
+.sp
+Released on May 20, 2021.
+.INDENT 0.0
+.IP \(bu 2
+Fix build on OpenBSD. [\fI\%#310\fP by Denis Fondras].
+.IP \(bu 2
+Produce abi3 wheels on windows. [\fI\%#322\fP by Anthony Sottile]
+.IP \(bu 2
+Make the manpage build reproducible. [\fI\%#319\fP by Chris Lamb]
+.IP \(bu 2
+Follow up the libsass upstream: 3.6.5 \-\-\- See the release notes of LibSass
+\fI\%3.6.5\fP\&. [\fI\%#344\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.20.1
+.sp
+Released on August 27, 2020.
+.INDENT 0.0
+.IP \(bu 2
+(no changes, re\-releasing to test build automation)
+.UNINDENT
+.SS Version 0.20.0
+.sp
+Released on May 1, 2020.
+.INDENT 0.0
+.IP \(bu 2
+Produce abi3 wheels on macos / linux [\fI\%#307\fP by Anthony Sottile]
+.IP \(bu 2
+Follow up the libsass upstream: 3.6.4 \-\-\- See the release notes of LibSass
+\fI\%3.6.4\fP\&. [\fI\%#313\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.19.4
+.sp
+Released on November 3, 2019.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.6.3 \-\-\- See the release notes of LibSass
+\fI\%3.6.3\fP\&. [\fI\%#304\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.19.3
+.sp
+Released on October 5, 2019.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.6.2 \-\-\- See the release notes of LibSass
+\fI\%3.6.2\fP\&. [\fI\%#302\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.19.2
+.sp
+Released on June 16, 2019.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.6.1 \-\-\- See the release notes of LibSass
+\fI\%3.6.1\fP\&. [\fI\%#298\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.19.1
+.sp
+Released on May 18, 2019.
+.INDENT 0.0
+.IP \(bu 2
+Re\-release of 0.19.0 with windows python2.7 wheels [\fI\%#297\fP by Anthony
+Sottile]
+.UNINDENT
+.SS Version 0.19.0
+.sp
+Released on May 18, 2019.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.6.0 \-\-\- See the release notes of LibSass
+\fI\%3.6.0\fP\&. [\fI\%#295\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.18.0
+.sp
+Release on March 13, 2019
+.INDENT 0.0
+.IP \(bu 2
+Add support for previous import path to importer callbacks [\fI\%#287\fP
+\fI\%#291\fP by Frankie Dintino]
+.UNINDENT
+.SS Version 0.17.0
+.sp
+Release on January 03, 2019
+.INDENT 0.0
+.IP \(bu 2
+.INDENT 2.0
+.TP
+.B Add several new cli options [\fI\%#279\fP \fI\%#268\fP by Frankie Dintino]
+.INDENT 7.0
+.IP \(bu 2
+\fB\-\-sourcemap\-file\fP: output file for source map
+.IP \(bu 2
+\fB\-\-sourcemap\-contents\fP: embed \fBsourcesContent\fP in source map
+.IP \(bu 2
+\fB\-\-sourcemap\-embed\fP: embed \fBsourceMappingURL\fP as data uri
+.IP \(bu 2
+\fB\-\-omit\-sourcemap\-url\fP: omit source map url comment from output
+.IP \(bu 2
+\fB\-\-sourcemap\-root\fP: base path, emitted as \fBsourceRoot\fP in source map
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Fix \fB\&.sass\fP in \fBWsgiMiddleware\fP (again) [\fI\%#280\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.16.1
+.sp
+Released on November 25, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Fix compilation on macos mojave [\fI\%#276\fP \fI\%#277\fP by Anthony
+Sottile]
+.IP \(bu 2
+Fix \fB\&.sass\fP in \fBWsgiMiddleware\fP for \fBstrip_extension=True\fP
+[\fI\%#278\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.16.0
+.sp
+Released on November 13, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Use \fB\-lc++\fP link flag when compiling with \fBclang\fP [\fI\%#270\fP by
+Christian Thieme \fI\%#271\fP by Anthony Sottile]
+.IP \(bu 2
+Honor \fBstrip_extension\fP in \fBSassMiddleware\fP [\fI\%#274\fP by Anthony
+Sottile]
+.IP \(bu 2
+Follow up the libsass upstream: 3.5.5 \-\-\- See the release notes of LibSass
+\fI\%3.5.5\fP\&. [\fI\%#275\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.15.1
+.sp
+Released on September 24, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Fix \fBsetup.py sdist\fP (regressed in 0.15.0) [\fI\%#267\fP by
+Anthony Sottile]
+.UNINDENT
+.SS Version 0.15.0
+.sp
+Released on September 16, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Fix invalid escape sequences [\fI\%#249\fP by Anthony Sottile]
+.IP \(bu 2
+Add code of conduct [\fI\%#251\fP by Nick Schonning]
+.IP \(bu 2
+Add support for python3.7 and remove testing for python3.4 [\fI\%#254\fP
+by Anthony Sottile]
+.IP \(bu 2
+Add \fBstrip_extension\fP option for wsgi / distutils builder [\fI\%#55\fP
+\fI\%#258\fP by Anthony Sottile \fI\%#260\fP by Morten Brekkevold]
+.IP \(bu 2
+Deprecate \fBsassc\fP (replaced by \fBpysassc\fP).  [\fI\%#262\fP by
+Anthony Sottile]
+.IP \(bu 2
+Import abc classes from \fBcollections.abc\fP to remove \fBDeprecationWarning\fP
+[\fI\%#264\fP by Gary van der Merwe \fI\%#265\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.14.5
+.sp
+Released on April 25, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.5.4 \-\-\- See the release notes of LibSass
+\fI\%3.5.4\fP\&. [\fI\%#247\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.14.4
+.sp
+Released on April 24, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Add ability to specify imports for custom extensions.  This provides a
+way to enable imports of \fB\&.css\fP files (which was removed in 3.5.3).
+Specify \fB\-\-import\-extensions .css\fP to restore the previous behavior.
+[\fI\%#246\fP by Samuel Colvin]
+.UNINDENT
+.SS Version 0.14.3
+.sp
+Released on April 23, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.5.3 \-\-\- See the release notes of LibSass
+\fI\%3.5.3\fP\&. [\fI\%#244\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.14.2
+.sp
+Released on March 16, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.5.2 \-\-\- See the release notes of LibSass
+\fI\%3.5.2\fP\&. [\fI\%#243\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.14.1
+.sp
+Released on March 12, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.5.1 \-\-\- See the release notes of LibSass
+\fI\%3.5.1\fP\&. [\fI\%#242\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.14.0
+.sp
+Released on March 6, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.5.0 \-\-\- See the release notes of LibSass
+\fI\%3.5.0\fP\&. [\fI\%#241\fP by Anthony Sottile]
+.IP \(bu 2
+\fBSassList\fP type gained an additional option \fBbracketed=False\fP to match
+the upstream changes to the \fBsass_list\fP type. [\fI\%#184\fP by Anthony
+Sottile]
+.UNINDENT
+.SS Version 0.13.7
+.sp
+Released on February 5, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.9 \-\-\- See the release notes of LibSass
+\fI\%3.4.9\fP\&. [\fI\%#232\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.13.6
+.sp
+Released on January 19, 2018.
+.INDENT 0.0
+.IP \(bu 2
+libsass\-python has moved to the sass organization!
+.UNINDENT
+.SS Version 0.13.5
+.sp
+Released on January 11, 2018.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.8 \-\-\- See the release notes of LibSass
+\fI\%3.4.8\fP\&. [\fI\%#228\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.13.4
+.sp
+Released on November 14, 2017.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.7 \-\-\- See the release notes of LibSass
+\fI\%3.4.7\fP\&. [\fI\%#226\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.13.3
+.sp
+Released on October 11, 2017.
+.INDENT 0.0
+.IP \(bu 2
+Sort input files for determinism [\fI\%#212\fP by Bernhard M. Wiedemann]
+.IP \(bu 2
+Include LICENSE file in distributions [\fI\%#216\fP by Dougal J. Sutherland]
+.IP \(bu 2
+Add a \fBpysassc\fP entry to replace \fBsassc\fP [\fI\%#218\fP by
+Anthony Sottile]
+.IP \(bu 2
+Enable building with dynamic linking [\fI\%#219\fP by Marcel Plch]
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.6 \-\-\- See the release notes of LibSass
+\fI\%3.4.6\fP\&. [\fI\%#221\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.13.2
+.sp
+Released on June 14, 2017.
+.INDENT 0.0
+.IP \(bu 2
+Always add cwd to import paths [\fI\%#208\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.13.1
+.sp
+Released on June 8, 2017.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.5 \-\-\- See the release notes of LibSass
+\fI\%3.4.5\fP\&. [\fI\%#207\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.13.0
+.sp
+Released on June 7, 2017.
+.INDENT 0.0
+.IP \(bu 2
+Use \fBgetfullargspec\fP when available in python 3. [\fI\%#188\fP by
+Thom Wiggers]
+.IP \(bu 2
+Use \fBsass_copy_c_string\fP instead of \fBstrdup\fP for portability
+[\fI\%#196\fP by Anthony Sottile]
+.IP \(bu 2
+Use \fB\-std=gnu++0x\fP to fix installation under cygwin [\fI\%#195\fP
+\fI\%#197\fP by Anthony Sottile]
+.IP \(bu 2
+Correct source map url [\fI\%#201\fP \fI\%#202\fP by Anthony Sottile]
+.IP \(bu 2
+Remove \fB\-\-watch\fP [\fI\%#203\fP by Anthony Sottile]
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.4 \-\-\- See the release notes of LibSass
+\fI\%3.4.4\fP\&. [\fI\%#205\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.12.3
+.sp
+Released on January 7, 2017.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.3 \-\-\- See the release notes of LibSass
+\fI\%3.4.3\fP\&. [\fI\%#178\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.12.2
+.sp
+Released on January 5, 2017.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.2 \-\-\- See the release notes of LibSass
+\fI\%3.4.2\fP\&. [\fI\%#176\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.12.1
+.sp
+Released on December 20, 2016.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.1 \-\-\- See the release notes of LibSass
+\fI\%3.4.1\fP\&. [\fI\%#175\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.12.0
+.sp
+Released on December 10, 2016.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.4.0 \-\-\- See the release notes of LibSass
+\fI\%3.4.0\fP\&. [\fI\%#173\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.11.2
+.sp
+Released on October 24, 2016.
+.INDENT 0.0
+.IP \(bu 2
+Drop support for python2.6 [\fI\%#158\fP by Anthony Sottile]
+.IP \(bu 2
+Deprecate \fB\-\-watch\fP [\fI\%#156\fP by Anthony Sottile]
+.IP \(bu 2
+Preserve line endings [\fI\%#160\fP by Anthony Sottile]
+.IP \(bu 2
+Follow up the libsass upstream: 3.3.6 \-\-\- See the release notes of LibSass
+\fI\%3.3.6\fP\&. [\fI\%#167\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.11.1
+.sp
+Released on April 22, 2016.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.3.5 \-\-\- See the release notes of LibSass
+\fI\%3.3.5\fP\&. [\fI\%#148\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.11.0
+.sp
+Released on March 23, 2016.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.3.4 \-\-\- See the release notes of LibSass
+\fI\%3.3.4\fP\&. [\fI\%#144\fP by Anthony Sottile]
+.IP \(bu 2
+Expose libsass version in \fBsassc \-\-version\fP and \fBsass.libsass_version\fP
+[\fI\%#142\fP \fI\%#141\fP \fI\%#140\fP by Anthony Sottile]
+.IP \(bu 2
+Fix warning about unused enum on switch [\fI\%#127\fP \fI\%#131\fP by
+Anthony Sottile]
+.IP \(bu 2
+Sourcemaps no longer imply source comments [\fI\%#124\fP \fI\%#130\fP by
+Tim Tisdall]
+.IP \(bu 2
+Add \fB\-\-source\-comments\fP option to \fBsassc\fP [\fI\%#124\fP \fI\%#130\fP by
+Anthony Sottile]
+.IP \(bu 2
+Improve formatting of \fBCompileError\fP under python3 [\fI\%#123\fP by Anthony
+Sottile]
+.IP \(bu 2
+Raise when compiling a directory which does not exist [\fI\%#116\fP
+\fI\%#119\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.10.1
+.sp
+Released on January 29, 2016.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.3.3 \-\-\- See the release notes of LibSass
+\fI\%3.3.3\fP\&. [by Anthony Sottile]
+.IP \(bu 2
+Allow \-t for style like sassc [\fI\%#98\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.10.0
+.sp
+Released on December 15, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Support custom import callbacks [\fI\%#81\fP by Alice Zoë Bevan–McGregor,
+Anthony Sottile]
+.IP \(bu 2
+Disallow arbitrary kwargs in compile() [\fI\%#109\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.9.3
+.sp
+Released on December 03, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Support "indented" Sass compilation [\fI\%#41\fP by Alice Zoë Bevan–McGregor]
+.IP \(bu 2
+Fix wheels on windows [\fI\%#28\fP \fI\%#49\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.9.2
+.sp
+Released on November 12, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.3.2 \-\-\- See the release notes of LibSass
+\fI\%3.3.2\fP\&. [by Anthony Sottile]
+.IP \(bu 2
+Require VS 2015 to build on windows [\fI\%#99\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.9.1
+.sp
+Released on October 29, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.3.1 \-\-\- See the release notes of LibSass
+\fI\%3.3.1\fP\&. [by Anthony Sottile]
+.UNINDENT
+.SS Version 0.9.0
+.sp
+Released on October 28, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Fix a bug with writing UTF\-8 to a file [\fI\%#72\fP by Caleb Ely]
+.IP \(bu 2
+Fix a segmentation fault on ^C [\fI\%#87\fP by Anthony Sottile]
+.IP \(bu 2
+Follow up the libsass upstream: 3.3.0 \-\-\- See the release notes of LibSass
+\fI\%3.3.0\fP\&. [\fI\%#96\fP by Anthony Sottile]
+.UNINDENT
+.SS Version 0.8.3
+.sp
+Released on August 2, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.2.5 \-\-\- See the release notes of LibSass
+\fI\%3.2.5\fP\&.  [\fI\%#79\fP, \fI\%#80\fP by Anthony Sottile]
+.IP \(bu 2
+Fixed a bug that \fB*.sass\fP files were ignored.
+[\fI\%#78\fP by Guilhem MAS\-PAITRAULT]
+.UNINDENT
+.SS Version 0.8.2
+.sp
+Released on May 19, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.2.4 \-\-\- See the release notes of LibSass
+\fI\%3.2.3\fP, and \fI\%3.2.4\fP\&.  [\fI\%#69\fP by Anthony Sottile]
+.IP \(bu 2
+The default value of \fI\%SassMiddleware\fP\(aqs
+\fBerror_status\fP parameter was changed from \fB\(aq500 Internal Server Error\(aq\fP
+to \fB\(aq200 OK\(aq\fP so that Mozilla Firefox can render the error message well.
+[\fI\%#67\fP, \fI\%#68\fP, \fI\%#70\fP by zxv]
+.UNINDENT
+.SS Version 0.8.1
+.sp
+Released on May 14, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Fixed a bug that there was no \fB\(aqexpanded\(aq\fP in \fI\%sass.OUTPUT_STYLES\fP
+but \fB\(aqexpected\(aq\fP instead which is a typo.  [\fI\%#66\fP by Triangle717]
+.IP \(bu 2
+Fixed broken FreeBSD build.  [\fI\%#65\fP by Toshiharu Moriyama]
+.UNINDENT
+.SS Version 0.8.0
+.sp
+Released on May 3, 2015.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.2.2 \-\-\- See the release notes of LibSass
+\fI\%3.2.0\fP, \fI\%3.2.1\fP, and \fI\%3.2.2\fP\&.
+[\fI\%#61\fP, \fI\%#52\fP, \fI\%#56\fP, \fI\%#58\fP, \fI\%#62\fP, \fI\%#64\fP
+by Anthony Sottile]
+.INDENT 2.0
+.IP \(bu 2
+Compact and expanded output styles  [\fI\%#37\fP]
+.IP \(bu 2
+Strings and interpolation closer to Ruby Sass
+.IP \(bu 2
+The correctness of the generated sourcemap files
+.IP \(bu 2
+Directive buddling
+.IP \(bu 2
+Full support for the \fB@at\-root\fP directive
+.IP \(bu 2
+Full support for \fB!global\fP variable scoping
+.UNINDENT
+.IP \(bu 2
+Now underscored files are ignored when compiling a directory.
+[\fI\%#57\fP by Anthony Sottile]
+.IP \(bu 2
+Fixed broken FreeBSD build.  [\fI\%#34\fP, \fI\%#60\fP by Ilya Baryshev]
+.IP \(bu 2
+\fI\%SassMiddleware\fP became to log syntax errors
+if exist during compilation to \fBsassutils.wsgi.SassMiddleware\fP logger
+with level \fBERROR\fP\&.  [\fI\%#42\fP]
+.UNINDENT
+.SS Version 0.7.0
+.sp
+Released on March 6, 2015.
+.sp
+Anthony Sottile contributed to the most of this release.  Huge thanks to him!
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.1.0 \-\-\- See the \fI\%release note\fP of LibSass.
+[\fI\%#38\fP, \fI\%#43\fP by Anthony Sottile]
+.INDENT 2.0
+.IP \(bu 2
+Custom functions and imports
+.IP \(bu 2
+Decrementing in \fB@for\fP loops
+.IP \(bu 2
+\fB@debug\fP and \fB@error\fP
+.IP \(bu 2
+\fBnot\fP operator
+.IP \(bu 2
+\fBnth()\fP for maps
+.IP \(bu 2
+\fBinspect()\fP
+.IP \(bu 2
+\fBfeature\-exists()\fP
+.IP \(bu 2
+\fBunique\-id()\fP
+.IP \(bu 2
+\fBrandom()\fP
+.UNINDENT
+.IP \(bu 2
+Added custom functions support.  [\fI\%#13\fP, \fI\%#44\fP by Anthony Sottile]
+.INDENT 2.0
+.IP \(bu 2
+Added \fI\%sass.SassFunction\fP class.
+.IP \(bu 2
+Added \fBcustom_functions\fP parameter to \fI\%sass.compile()\fP function.
+.IP \(bu 2
+Added data types for custom functions:
+.INDENT 2.0
+.IP \(bu 2
+\fI\%sass.SassNumber\fP
+.IP \(bu 2
+\fI\%sass.SassColor\fP
+.IP \(bu 2
+\fI\%sass.SassList\fP
+.IP \(bu 2
+\fI\%sass.SassMap\fP
+.IP \(bu 2
+\fI\%sass.SassError\fP
+.IP \(bu 2
+\fI\%sass.SassWarning\fP
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Added \fBprecision\fP parameter to \fI\%sass.compile()\fP function.
+[\fI\%#39\fP by Andrea Stagi]
+.IP \(bu 2
+\fBsassc\fP has a new \fB\-p\fP/\fB\-\-precision\fP option.  [\fI\%#39\fP by Andrea Stagi]
+.UNINDENT
+.SS Version 0.6.2
+.sp
+Released on November 25, 2014.
+.sp
+Although 0.6.0\-\-0.6.1 have needed GCC (G++) 4.8+, LLVM Clang 3.3+,
+now it became back to only need GCC (G++) 4.6+, LLVM Clang 2.9+,
+or Visual Studio 2013 Update 4+.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.0.2 \-\-\- See the \fI\%release note\fP of libsass.
+[\fI\%#33\fP by Rodolphe Pelloux\-Prayer]
+.IP \(bu 2
+Fixed a bug that \fBsassc \-\-watch\fP crashed when a file is not
+compilable on the first try.  [\fI\%#32\fP by Alan Justino da Silva]
+.IP \(bu 2
+Fixed broken build on Windows.
+.UNINDENT
+.SS Version 0.6.1
+.sp
+Released on November 6, 2014.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.0.1 \-\-\- See the \fI\%release note\fP of LibSass.
+.IP \(bu 2
+Fixed a bug that \fI\%SassMiddleware\fP never closes
+the socket on some WSGI servers e.g. \fBeventlet.wsgi\fP\&.
+.UNINDENT
+.SS Version 0.6.0
+.sp
+Released on October 27, 2014.
+.sp
+Note that since libsass\-python 0.6.0 (and libsass 3.0) it requires C++11
+to compile.  Although 0.6.2 became back to only need GCC (G++) 4.6+,
+LLVM Clang 2.9+, from 0.6.0 to 0.6.1 you need GCC (G++) 4.8+, LLVM Clang 3.3+,
+or Visual Studio 2013 Update 4+.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 3.0 \-\-\- See the \fI\%release note\fP of LibSass.
+.INDENT 2.0
+.IP \(bu 2
+Decent extends support
+.IP \(bu 2
+Basic Sass Maps Support
+.IP \(bu 2
+Better UTF\-8 Support
+.IP \(bu 2
+\fBcall()\fP function
+.IP \(bu 2
+Better Windows Support
+.IP \(bu 2
+Spec Enhancements
+.UNINDENT
+.IP \(bu 2
+Added missing \fI\%partial import\fP support.  [\fI\%#27\fP by item4]
+.IP \(bu 2
+\fI\%SOURCE_COMMENTS\fP became deprecated.
+.IP \(bu 2
+\fI\%sass.compile()\fP\(aqs parameter \fBsource_comments\fP now can take only
+\fBbool\fP instead of \fBstr\fP\&.  String values like \fB\(aqnone\(aq\fP,
+\fB\(aqline_numbers\(aq\fP, and \fB\(aqmap\(aq\fP become deprecated, and will be obsolete
+soon.
+.IP \(bu 2
+\fI\%build_directory()\fP function has a new optional
+parameter \fBoutput_style\fP\&.
+.IP \(bu 2
+\fBbuild()\fP method has a new optional
+parameter \fBoutput_style\fP\&.
+.IP \(bu 2
+Added \fB\-\-output\-style\fP/\fB\-s\fP option to
+\fI\%build_sass\fP command.  [\fI\%#25\fP]
+.UNINDENT
+.SS Version 0.5.1
+.sp
+Released on September 23, 2014.
+.INDENT 0.0
+.IP \(bu 2
+Fixed a bug that \fI\%SassMiddleware\fP yielded
+\fI\%str\fP instead of \fI\%bytes\fP on Python 3.
+.IP \(bu 2
+Fixed several Unicode\-related bugs on Windows.
+.IP \(bu 2
+Fixed a bug that \fI\%build_directory()\fP,
+\fI\%SassMiddleware\fP, and
+\fI\%build_sass\fP don\(aqt recursively build
+subdirectories.
+.UNINDENT
+.SS Version 0.5.0
+.sp
+Released on June 6, 2014.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream: 2.0 \-\-\- See the \fI\%release note\fP of LibSass.
+.INDENT 2.0
+.IP \(bu 2
+Added indented syntax support (\fB*.sass\fP files).
+.IP \(bu 2
+Added expanded selector support (BEM).
+.IP \(bu 2
+Added string functions.
+.IP \(bu 2
+Fixed UTF\-8 support.
+.IP \(bu 2
+Backward incompatibility: broken extends.
+.UNINDENT
+.UNINDENT
+.SS Unstable version 0.4.2.20140529.cd3ee1cbe3
+.sp
+Released on May 29, 2014.
+.INDENT 0.0
+.IP \(bu 2
+Version scheme changed to use periods (\fB\&.\fP) instead of hyphens (\fB\-\fP)
+due to setuptools seems to treat hyphens special.
+.IP \(bu 2
+Fixed malformed packaging that doesn\(aqt correctly preserve the package name
+and version.
+.UNINDENT
+.SS Unstable Version 0.4.2\-20140528\-cd3ee1cbe3
+.sp
+Released on May 28, 2014.
+.INDENT 0.0
+.IP \(bu 2
+Follow up the libsass upstream:
+\fI\%cd3ee1cbe34d5316eb762a43127a3de9575454ee\fP\&.
+.UNINDENT
+.SS Version 0.4.2
+.sp
+Released on May 22, 2014.
+.INDENT 0.0
+.IP \(bu 2
+Fixed build failing on Mac OS X 10.8 or earlier.  [\fI\%#19\fP]
+.IP \(bu 2
+Fixed \fI\%UnicodeEncodeError\fP that \fI\%Manifest.build_one()\fP method rises when the input source
+contains any non\-ASCII Unicode characters.
+.UNINDENT
+.SS Version 0.4.1
+.sp
+Released on May 20, 2014.
+.INDENT 0.0
+.IP \(bu 2
+Fixed \fI\%UnicodeEncodeError\fP that rise when the input source contains
+any non\-ASCII Unicode characters.
+.UNINDENT
+.SS Version 0.4.0
+.sp
+Released on May 6, 2014.
+.INDENT 0.0
+.IP \(bu 2
+\fBsassc\fP has a new \fB\-w\fP/\fB\-\-watch\fP option.
+.IP \(bu 2
+Expose source maps support:
+.INDENT 2.0
+.IP \(bu 2
+\fBsassc\fP has a new \fB\-m\fP/\fB\-g\fP/\fB\-\-sourcemap\fP option.
+.IP \(bu 2
+\fI\%SassMiddleware\fP now also creates source map files
+with filenames followed by \fB\&.map\fP suffix.
+.IP \(bu 2
+\fI\%Manifest.build_one()\fP method
+has a new \fBsource_map\fP option.  This option builds also a source map
+file with the filename followed by \fB\&.map\fP suffix.
+.IP \(bu 2
+\fI\%sass.compile()\fP has a new optional parameter \fBsource_comments\fP\&.
+It can be one of \fI\%sass.SOURCE_COMMENTS\fP keys.  It also has
+a new parameter \fBsource_map_filename\fP which is required only when
+\fBsource_comments=\(aqmap\(aq\fP\&.
+.UNINDENT
+.IP \(bu 2
+Fixed Python 3 incompatibility of \fBsassc\fP program.
+.IP \(bu 2
+Fixed a bug that multiple \fBinclude_paths\fP doesn\(aqt work on Windows.
+.UNINDENT
+.SS Version 0.3.0
+.sp
+Released on February 21, 2014.
+.INDENT 0.0
+.IP \(bu 2
+Added support for Python 3.3.  [\fI\%#7\fP]
+.IP \(bu 2
+Dropped support for Python 2.5.
+.IP \(bu 2
+Fixed build failing on Mac OS X.
+[\fI\%#4\fP, \fI\%#5\fP, \fI\%#6\fP by Hyungoo Kang]
+.IP \(bu 2
+Now the builder creates target subdirectories recursively even if they don\(aqt
+exist yet, rather than silently failing.
+[\fI\%#8\fP, \fI\%#9\fP by Philipp Volguine]
+.IP \(bu 2
+Merged recent changes from libsass 1.0.1: \fI\%57a2f62\-\-v1.0.1\fP\&.
+.INDENT 2.0
+.IP \(bu 2
+Supports \fI\%variable arguments\fP\&.
+.IP \(bu 2
+Supports sourcemaps.
+.UNINDENT
+.UNINDENT
+.SS Version 0.2.4
+.sp
+Released on December 4, 2012.
+.INDENT 0.0
+.IP \(bu 2
+Added \fBsassc\fP CLI executable script.
+.IP \(bu 2
+Added \fI\%sass.OUTPUT_STYLES\fP constant map.
+.IP \(bu 2
+Merged recent changes from libsass upstream:
+\fI\%e997102\-\-a84b181\fP\&.
+.UNINDENT
+.SS Version 0.2.3
+.sp
+Released on October 24, 2012.
+.INDENT 0.0
+.IP \(bu 2
+\fI\%sassutils.distutils\fP: Prevent double monkey patch of \fBsdist\fP\&.
+.IP \(bu 2
+Merged upstream changes of libsass.
+.UNINDENT
+.SS Version 0.2.2
+.sp
+Released on September 28, 2012.
+.INDENT 0.0
+.IP \(bu 2
+Fixed a link error on PyPy and Linux.
+.IP \(bu 2
+Fixed build errors on Windows.
+.UNINDENT
+.SS Version 0.2.1
+.sp
+Released on September 12, 2012.
+.INDENT 0.0
+.IP \(bu 2
+Support Windows.
+.UNINDENT
+.SS Version 0.2.0
+.sp
+Released on August 24, 2012.
+.INDENT 0.0
+.IP \(bu 2
+Added new \fI\%sassutils\fP package.
+.INDENT 2.0
+.IP \(bu 2
+Added \fI\%sassutils.builder\fP module to build the whole directory
+at a time.
+.IP \(bu 2
+Added \fI\%sassutils.distutils\fP module for \fI\%distutils\fP and
+\fBsetuptools\fP integration.
+.IP \(bu 2
+Added \fI\%sassutils.wsgi\fP module which provides a development\-purpose
+WSGI middleware.
+.UNINDENT
+.IP \(bu 2
+Added \fI\%build_sass\fP command for
+\fI\%distutils\fP/\fBsetuptools\fP\&.
+.UNINDENT
+.SS Version 0.1.1
+.sp
+Released on August 18, 2012.
+.INDENT 0.0
+.IP \(bu 2
+Fixed segmentation fault for reading \fBfilename\fP which does not exist.
+Now it raises a proper \fBexceptions.IOError\fP exception.
+.UNINDENT
+.SS Version 0.1.0
+.sp
+Released on August 17, 2012.  Initial version.
+.SH REFERENCES
+.SS \fI\%pysassc\fP \-\-\- SassC compliant command line interface
+.sp
+This provides \fI\%SassC\fP compliant CLI executable named \fBpysassc\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ pysassc
+Usage: pysassc [options] SCSS_FILE [CSS_FILE]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+There are options as well:
+.INDENT 0.0
+.TP
+.B \-t <style>, \-\-style <style>
+Coding style of the compiled result.  The same as \fI\%sass.compile()\fP
+function\(aqs \fBoutput_style\fP keyword argument.  Default is \fBnested\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-s <style>, \-\-output\-style <style>
+Alias for \-t / \-\-style.
+.sp
+Deprecated since version 0.11.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-I <dir>, \-\-include\-path <dir>
+Optional directory path to find \fB@import\fPed (S)CSS files.
+Can be multiply used.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-m, \-g, \-\-sourcemap
+Emit source map.  Requires the second argument (output CSS filename).
+The filename of source map will be the output CSS filename followed by
+\fB\&.map\fP\&.
+.sp
+New in version 0.4.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-p, \-\-precision
+Set the precision for numbers. Default is 5.
+.sp
+New in version 0.7.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-source\-comments
+Include debug info in output.
+.sp
+New in version 0.11.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-sourcemap\-file
+Output file for source map
+.sp
+New in version 0.17.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-sourcemap\-contents
+Embed sourcesContent in source map.
+.sp
+New in version 0.17.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-sourcemap\-embed
+Embed sourceMappingUrl as data URI
+.sp
+New in version 0.17.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-omit\-sourcemap\-url
+Omit source map URL comment from output
+.sp
+New in version 0.17.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-sourcemap\-root
+Base path, will be emitted to sourceRoot in source\-map as is
+.sp
+New in version 0.17.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-v, \-\-version
+Prints the program version.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-h, \-\-help
+Prints the help message.
+.UNINDENT
+.SS \fI\%sass\fP \-\-\- Binding of \fBlibsass\fP
+.sp
+This simple C extension module provides a very simple binding of \fBlibsass\fP,
+which is written in C/C++.  It contains only one function and one exception
+type.
+.sp
+.nf
+.ft C
+>>> import sass
+>>> sass.compile(string=\(aqa { b { color: blue; } }\(aq)
+\(aqa b {
+  color: blue; }
+\(aq
+.ft P
+.fi
+.INDENT 0.0
+.TP
+.B exception  sass.CompileError(msg)
+The exception type that is raised by \fI\%compile()\fP\&.
+It is a subtype of \fBexceptions.ValueError\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sass.MODES  =  frozenset({\(aqdirname\(aq, \(aqfilename\(aq, \(aqstring\(aq})
+(\fI\%frozenset\fP) The set of keywords \fI\%compile()\fP can take.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sass.OUTPUT_STYLES  =  {\(aqcompact\(aq: 2, \(aqcompressed\(aq: 3, \(aqexpanded\(aq: 1, \(aqnested\(aq: 0}
+(\fI\%collections.abc.Mapping\fP) The dictionary of output styles.
+Keys are output name strings, and values are flag integers.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sass.SOURCE_COMMENTS  =  {\(aqdefault\(aq: 1, \(aqline_numbers\(aq: 1, \(aqmap\(aq: 2, \(aqnone\(aq: 0}
+(\fI\%collections.abc.Mapping\fP) The dictionary of source comments styles.
+Keys are mode names, and values are corresponding flag integers.
+.sp
+New in version 0.4.0.
+
+.sp
+Deprecated since version 0.6.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  sass.SassColor(r, g, b, a)
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  sass.SassError(msg)
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  sass.SassFunction(name, arguments, callable_)
+Custom function for Sass.  It can be instantiated using
+\fI\%from_lambda()\fP and \fI\%from_named_function()\fP as well.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBname\fP (\fI\%str\fP) \-\- the function name
+.IP \(bu 2
+\fBarguments\fP (\fI\%collections.abc.Sequence\fP) \-\- the argument names
+.IP \(bu 2
+\fBcallable\fP (\fI\%collections.abc.Callable\fP) \-\- the actual function to be called
+.UNINDENT
+.UNINDENT
+.sp
+New in version 0.7.0.
+
+.INDENT 7.0
+.TP
+.B classmethod  from_lambda(name, lambda_)
+Make a \fI\%SassFunction\fP object from the given \fBlambda_\fP
+function.  Since lambda functions don\(aqt have their name, it need
+its \fBname\fP as well.  Arguments are automatically inspected.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBname\fP (\fI\%str\fP) \-\- the function name
+.IP \(bu 2
+\fBlambda\fP (\fBtypes.LambdaType\fP) \-\- the actual lambda function to be called
+.UNINDENT
+.TP
+.B Returns
+a custom function wrapper of the \fBlambda_\fP function
+.TP
+.B Return type
+\fI\%SassFunction\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B classmethod  from_named_function(function)
+Make a \fI\%SassFunction\fP object from the named \fBfunction\fP\&.
+Function name and arguments are automatically inspected.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBfunction\fP (\fBtypes.FunctionType\fP) \-\- the named function to be called
+.TP
+.B Returns
+a custom function wrapper of the \fBfunction\fP
+.TP
+.B Return type
+\fI\%SassFunction\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B property  signature
+Signature string of the function.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  sass.SassList(items, separator, bracketed=False)
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  sass.SassMap(*args, **kwargs)
+Because sass maps can have mapping types as keys, we need an immutable
+hashable mapping type.
+.sp
+New in version 0.7.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  sass.SassNumber(value, unit)
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class  sass.SassWarning(msg)
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sass.and_join(strings)
+Join the given \fBstrings\fP by commas with last \fI\(aq and \(aq\fP conjunction.
+.sp
+.nf
+.ft C
+>>> and_join([\(aqKorea\(aq, \(aqJapan\(aq, \(aqChina\(aq, \(aqTaiwan\(aq])
+\(aqKorea, Japan, China, and Taiwan\(aq
+.ft P
+.fi
+.INDENT 7.0
+.TP
+.B Parameters
+\fBstrings\fP \-\- a list of words to join
+.TP
+.B Returns
+a joined string
+.TP
+.B Return type
+\fI\%str\fP, \fBbasestring\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sass.compile(**kwargs)
+There are three modes of parameters \fI\%compile()\fP can take:
+\fBstring\fP, \fBfilename\fP, and \fBdirname\fP\&.
+.sp
+The \fBstring\fP parameter is the most basic way to compile Sass.
+It simply takes a string of Sass code, and then returns a compiled
+CSS string.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBstring\fP (\fI\%str\fP) \-\- Sass source code to compile.  it\(aqs exclusive to
+\fBfilename\fP and \fBdirname\fP parameters
+.IP \(bu 2
+\fBoutput_style\fP (\fI\%str\fP) \-\- an optional coding style of the compiled result.
+choose one of: \fB\(aqnested\(aq\fP (default), \fB\(aqexpanded\(aq\fP,
+\fB\(aqcompact\(aq\fP, \fB\(aqcompressed\(aq\fP
+.IP \(bu 2
+\fBsource_comments\fP (\fI\%bool\fP) \-\- whether to add comments about source lines.
+\fBFalse\fP by default
+.IP \(bu 2
+\fBsource_map_contents\fP (\fI\%bool\fP) \-\- embed include contents in map
+.IP \(bu 2
+\fBsource_map_embed\fP (\fI\%bool\fP) \-\- embed sourceMappingUrl as data URI
+.IP \(bu 2
+\fBomit_source_map_url\fP (\fI\%bool\fP) \-\- omit source map URL comment from output
+.IP \(bu 2
+\fBsource_map_root\fP (\fI\%str\fP) \-\- base path, will be emitted in source map as is
+.IP \(bu 2
+\fBinclude_paths\fP (\fI\%collections.abc.Sequence\fP) \-\- an optional list of paths to find \fB@import\fPed
+Sass/CSS source files
+.IP \(bu 2
+\fBprecision\fP (\fI\%int\fP) \-\- optional precision for numbers. \fB5\fP by default.
+.IP \(bu 2
+\fBcustom_functions\fP (\fI\%set\fP,
+\fI\%collections.abc.Sequence\fP,
+\fI\%collections.abc.Mapping\fP) \-\- optional mapping of custom functions.
+see also below \fI\%custom functions\fP description
+.IP \(bu 2
+\fBcustom_import_extensions\fP \-\- (ignored, for backward compatibility)
+.IP \(bu 2
+\fBindented\fP (\fI\%bool\fP) \-\- optional declaration that the string is Sass, not SCSS
+formatted. \fBFalse\fP by default
+.IP \(bu 2
+\fBimporters\fP (\fI\%collections.abc.Callable\fP) \-\- optional callback functions.
+see also below \fI\%importer callbacks\fP description
+.UNINDENT
+.TP
+.B Returns
+the compiled CSS string
+.TP
+.B Return type
+\fI\%str\fP
+.TP
+.B Raises
+\fI\%sass.CompileError\fP \-\- when it fails for any reason
+(for example the given Sass has broken syntax)
+.UNINDENT
+.sp
+The \fBfilename\fP is the most commonly used way.  It takes a string of
+Sass filename, and then returns a compiled CSS string.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP) \-\- the filename of Sass source code to compile.
+it\(aqs exclusive to \fBstring\fP and \fBdirname\fP parameters
+.IP \(bu 2
+\fBoutput_style\fP (\fI\%str\fP) \-\- an optional coding style of the compiled result.
+choose one of: \fB\(aqnested\(aq\fP (default), \fB\(aqexpanded\(aq\fP,
+\fB\(aqcompact\(aq\fP, \fB\(aqcompressed\(aq\fP
+.IP \(bu 2
+\fBsource_comments\fP (\fI\%bool\fP) \-\- whether to add comments about source lines.
+\fBFalse\fP by default
+.IP \(bu 2
+\fBsource_map_filename\fP (\fI\%str\fP) \-\- use source maps and indicate the source map
+output filename.  \fBNone\fP means not
+using source maps.  \fBNone\fP by default.
+.IP \(bu 2
+\fBsource_map_contents\fP (\fI\%bool\fP) \-\- embed include contents in map
+.IP \(bu 2
+\fBsource_map_embed\fP (\fI\%bool\fP) \-\- embed sourceMappingUrl as data URI
+.IP \(bu 2
+\fBomit_source_map_url\fP (\fI\%bool\fP) \-\- omit source map URL comment from output
+.IP \(bu 2
+\fBsource_map_root\fP (\fI\%str\fP) \-\- base path, will be emitted in source map as is
+.IP \(bu 2
+\fBinclude_paths\fP (\fI\%collections.abc.Sequence\fP) \-\- an optional list of paths to find \fB@import\fPed
+Sass/CSS source files
+.IP \(bu 2
+\fBprecision\fP (\fI\%int\fP) \-\- optional precision for numbers. \fB5\fP by default.
+.IP \(bu 2
+\fBcustom_functions\fP (\fI\%set\fP,
+\fI\%collections.abc.Sequence\fP,
+\fI\%collections.abc.Mapping\fP) \-\- optional mapping of custom functions.
+see also below \fI\%custom functions\fP description
+.IP \(bu 2
+\fBcustom_import_extensions\fP \-\- (ignored, for backward compatibility)
+.IP \(bu 2
+\fBimporters\fP (\fI\%collections.abc.Callable\fP) \-\- optional callback functions.
+see also below \fI\%importer callbacks\fP description
+.UNINDENT
+.TP
+.B Returns
+the compiled CSS string, or a pair of the compiled CSS string
+and the source map string if \fBsource_map_filename\fP is set
+.TP
+.B Return type
+\fI\%str\fP, \fI\%tuple\fP
+.TP
+.B Raises
+.INDENT 7.0
+.IP \(bu 2
+\fI\%sass.CompileError\fP \-\- when it fails for any reason
+(for example the given Sass has broken syntax)
+.IP \(bu 2
+\fBexceptions.IOError\fP \-\- when the \fBfilename\fP doesn\(aqt exist or
+cannot be read
+.UNINDENT
+.UNINDENT
+.sp
+The \fBdirname\fP is useful for automation.  It takes a pair of paths.
+The first of the \fBdirname\fP pair refers the source directory, contains
+several Sass source files to compiled.  Sass source files can be nested
+in directories.  The second of the pair refers the output directory
+that compiled CSS files would be saved.  Directory tree structure of
+the source directory will be maintained in the output directory as well.
+If \fBdirname\fP parameter is used the function returns \fBNone\fP\&.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBdirname\fP (\fI\%tuple\fP) \-\- a pair of \fB(source_dir, output_dir)\fP\&.
+it\(aqs exclusive to \fBstring\fP and \fBfilename\fP
+parameters
+.IP \(bu 2
+\fBoutput_style\fP (\fI\%str\fP) \-\- an optional coding style of the compiled result.
+choose one of: \fB\(aqnested\(aq\fP (default), \fB\(aqexpanded\(aq\fP,
+\fB\(aqcompact\(aq\fP, \fB\(aqcompressed\(aq\fP
+.IP \(bu 2
+\fBsource_comments\fP (\fI\%bool\fP) \-\- whether to add comments about source lines.
+\fBFalse\fP by default
+.IP \(bu 2
+\fBsource_map_contents\fP (\fI\%bool\fP) \-\- embed include contents in map
+.IP \(bu 2
+\fBsource_map_embed\fP (\fI\%bool\fP) \-\- embed sourceMappingUrl as data URI
+.IP \(bu 2
+\fBomit_source_map_url\fP (\fI\%bool\fP) \-\- omit source map URL comment from output
+.IP \(bu 2
+\fBsource_map_root\fP (\fI\%str\fP) \-\- base path, will be emitted in source map as is
+.IP \(bu 2
+\fBinclude_paths\fP (\fI\%collections.abc.Sequence\fP) \-\- an optional list of paths to find \fB@import\fPed
+Sass/CSS source files
+.IP \(bu 2
+\fBprecision\fP (\fI\%int\fP) \-\- optional precision for numbers. \fB5\fP by default.
+.IP \(bu 2
+\fBcustom_functions\fP (\fI\%set\fP,
+\fI\%collections.abc.Sequence\fP,
+\fI\%collections.abc.Mapping\fP) \-\- optional mapping of custom functions.
+see also below \fI\%custom functions\fP description
+.IP \(bu 2
+\fBcustom_import_extensions\fP \-\- (ignored, for backward compatibility)
+.UNINDENT
+.TP
+.B Raises
+\fI\%sass.CompileError\fP \-\- when it fails for any reason
+(for example the given Sass has broken syntax)
+.UNINDENT
+.sp
+The \fBcustom_functions\fP parameter can take three types of forms:
+.sp
+\fI\%set\fP/\fI\%Sequence\fP of \fI\%SassFunction\fPs
+.INDENT 7.0
+.INDENT 3.5
+It is the most general form.  Although pretty verbose, it can take
+any kind of callables like type objects, unnamed functions,
+and user\-defined callables.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sass.compile(
+    ...,
+    custom_functions={
+        sass.SassFunction(\(aqfunc\-name\(aq, (\(aq$a\(aq, \(aq$b\(aq), some_callable),
+        ...
+    }
+)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B \fI\%Mapping\fP of names to functions
+Less general, but easier\-to\-use form.  Although it\(aqs not it can take
+any kind of callables, it can take any kind of \fIfunctions\fP defined
+using \fI\%def\fP/\fI\%lambda\fP syntax.
+It cannot take callables other than them since inspecting arguments
+is not always available for every kind of callables.
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sass.compile(
+    ...,
+    custom_functions={
+        \(aqfunc\-name\(aq: lambda a, b: ...,
+        ...
+    }
+)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fI\%set\fP/\fI\%Sequence\fP of named functions
+.INDENT 7.0
+.INDENT 3.5
+Not general, but the easiest\-to\-use form for \fInamed\fP functions.
+It can take only named functions, defined using \fI\%def\fP\&.
+It cannot take lambdas sinc names are unavailable for them.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+def func_name(a, b):
+    return ...
+
+sass.compile(
+    ...,
+    custom_functions={func_name}
+)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Newer versions of \fBlibsass\fP allow developers to define callbacks to be
+called and given a chance to process \fB@import\fP directives. You can
+define yours by passing in a list of callables via the \fBimporters\fP
+parameter. The callables must be passed as 2\-tuples in the form:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+(priority_int, callback_fn)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+A priority of zero is acceptable; priority determines the order callbacks
+are attempted.
+.sp
+These callbacks can accept one or two string arguments. The first argument
+is the path that was passed to the \fB@import\fP directive; the second
+(optional) argument is the previous resolved path, where the \fB@import\fP
+directive was found. The callbacks must either return \fBNone\fP to
+indicate the path wasn\(aqt handled by that callback (to continue with others
+or fall back on internal \fBlibsass\fP filesystem behaviour) or a list of
+one or more tuples, each in one of three forms:
+.INDENT 7.0
+.IP \(bu 2
+A 1\-tuple representing an alternate path to handle internally; or,
+.IP \(bu 2
+A 2\-tuple representing an alternate path and the content that path
+represents; or,
+.IP \(bu 2
+A 3\-tuple representing the same as the 2\-tuple with the addition of a
+"sourcemap".
+.UNINDENT
+.sp
+All tuple return values must be strings. As a not overly realistic
+example:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+def my_importer(path, prev):
+    return [(path, \(aq#\(aq + path + \(aq { color: red; }\(aq)]
+
+sass.compile(
+        ...,
+        importers=[(0, my_importer)]
+    )
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Now, within the style source, attempting to \fB@import \(aqbutton\(aq;\fP will
+instead attach \fBcolor: red\fP as a property of an element with the
+imported name.
+.sp
+New in version 0.4.0: Added \fBsource_comments\fP and \fBsource_map_filename\fP parameters.
+
+.sp
+Changed in version 0.6.0: The \fBsource_comments\fP parameter becomes to take only \fI\%bool\fP
+instead of \fI\%str\fP\&.
+
+.sp
+Deprecated since version 0.6.0: Values like \fB\(aqnone\(aq\fP, \fB\(aqline_numbers\(aq\fP, and \fB\(aqmap\(aq\fP for
+the \fBsource_comments\fP parameter are deprecated.
+
+.sp
+New in version 0.7.0: Added \fBprecision\fP parameter.
+
+.sp
+New in version 0.7.0: Added \fBcustom_functions\fP parameter.
+
+.sp
+New in version 0.11.0: \fBsource_map_filename\fP no longer implies \fBsource_comments\fP\&.
+
+.sp
+New in version 0.17.0: Added \fBsource_map_contents\fP, \fBsource_map_embed\fP,
+\fBomit_source_map_url\fP, and \fBsource_map_root\fP parameters.
+
+.sp
+New in version 0.18.0: The importer callbacks can now take a second argument, the previously\-
+resolved path, so that importers can do relative path resolution.
+
+.UNINDENT
+.SS \fI\%sassutils\fP \-\-\- Additional utilities related to Sass
+.sp
+This package provides several additional utilities related to Sass
+which depends on libsass core (\fI\%sass\fP module).
+.SS \fI\%sassutils.builder\fP \-\-\- Build the whole directory
+.INDENT 0.0
+.TP
+.B class  sassutils.builder.Manifest(sass_path, css_path=None, wsgi_path=None, strip_extension=None)
+Building manifest of Sass/SCSS.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsass_path\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the path of the directory that contains Sass/SCSS
+source files
+.IP \(bu 2
+\fBcss_path\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the path of the directory to store compiled CSS
+files
+.IP \(bu 2
+\fBstrip_extension\fP (\fI\%bool\fP) \-\- whether to remove the original file extension
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B build(package_dir, output_style=\(aqnested\(aq)
+Builds the Sass/SCSS files in the specified \fBsass_path\fP\&.
+It finds \fBsass_path\fP and locates \fBcss_path\fP
+as relative to the given \fBpackage_dir\fP\&.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpackage_dir\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the path of package directory
+.IP \(bu 2
+\fBoutput_style\fP (\fI\%str\fP) \-\- an optional coding style of the compiled result.
+choose one of: \fB\(aqnested\(aq\fP (default),
+\fB\(aqexpanded\(aq\fP, \fB\(aqcompact\(aq\fP, \fB\(aqcompressed\(aq\fP
+.UNINDENT
+.TP
+.B Returns
+the set of compiled CSS filenames
+.TP
+.B Return type
+\fI\%frozenset\fP
+.UNINDENT
+.sp
+New in version 0.6.0: The \fBoutput_style\fP parameter.
+
+.UNINDENT
+.INDENT 7.0
+.TP
+.B build_one(package_dir, filename, source_map=False)
+Builds one Sass/SCSS file.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpackage_dir\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the path of package directory
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the filename of Sass/SCSS source to compile
+.IP \(bu 2
+\fBsource_map\fP (\fI\%bool\fP) \-\- whether to use source maps.  if \fBTrue\fP
+it also write a source map to a \fBfilename\fP
+followed by \fB\&.map\fP suffix.
+default is \fBFalse\fP
+.UNINDENT
+.TP
+.B Returns
+the filename of compiled CSS
+.TP
+.B Return type
+\fI\%str\fP, \fBbasestring\fP
+.UNINDENT
+.sp
+New in version 0.4.0: Added optional \fBsource_map\fP parameter.
+
+.UNINDENT
+.INDENT 7.0
+.TP
+.B resolve_filename(package_dir, filename)
+Gets a proper full relative path of Sass source and
+CSS source that will be generated, according to \fBpackage_dir\fP
+and \fBfilename\fP\&.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpackage_dir\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the path of package directory
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the filename of Sass/SCSS source to compile
+.UNINDENT
+.TP
+.B Returns
+a pair of (sass, css) path
+.TP
+.B Return type
+\fI\%tuple\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B unresolve_filename(package_dir, filename)
+Retrieves the probable source path from the output filename.  Pass
+in a .css path to get out a .scss path.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBpackage_dir\fP (\fI\%str\fP) \-\- the path of the package directory
+.IP \(bu 2
+\fBfilename\fP (\fI\%str\fP) \-\- the css filename
+.UNINDENT
+.TP
+.B Returns
+the scss filename
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sassutils.builder.SUFFIXES  =  frozenset({\(aqsass\(aq, \(aqscss\(aq})
+(\fI\%frozenset\fP) The set of supported filename suffixes.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sassutils.builder.SUFFIX_PATTERN  =  re.compile(\(aq[.](sass|scss)$\(aq)
+(\fBre.RegexObject\fP) The regular expression pattern which matches to
+filenames of supported \fI\%SUFFIXES\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sassutils.builder.build_directory(sass_path, css_path, output_style=\(aqnested\(aq, _root_sass=None, _root_css=None, strip_extension=False)
+Compiles all Sass/SCSS files in \fBpath\fP to CSS.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBsass_path\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the path of the directory which contains source files
+to compile
+.IP \(bu 2
+\fBcss_path\fP (\fI\%str\fP, \fBbasestring\fP) \-\- the path of the directory compiled CSS files will go
+.IP \(bu 2
+\fBoutput_style\fP (\fI\%str\fP) \-\- an optional coding style of the compiled result.
+choose one of: \fB\(aqnested\(aq\fP (default), \fB\(aqexpanded\(aq\fP,
+\fB\(aqcompact\(aq\fP, \fB\(aqcompressed\(aq\fP
+.UNINDENT
+.TP
+.B Returns
+a dictionary of source filenames to compiled CSS filenames
+.TP
+.B Return type
+\fI\%collections.abc.Mapping\fP
+.UNINDENT
+.sp
+New in version 0.6.0: The \fBoutput_style\fP parameter.
+
+.UNINDENT
+.SS \fI\%sassutils.distutils\fP \-\-\- \fBsetuptools\fP/\fI\%distutils\fP integration
+.sp
+This module provides extensions (and some magical monkey\-patches, sorry)
+of the standard \fI\%distutils\fP and \fBsetuptools\fP (now it\(aqs named
+Distribute) for libsass.
+.sp
+To use this, add \fBlibsass\fP into \fBsetup_requires\fP (not \fBinstall_requires\fP)
+option of the \fBsetup.py\fP script:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+from setuptools import setup
+
+setup(
+    # ...,
+    setup_requires=[\(aqlibsass >= 0.6.0\(aq]
+)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+It will adds \fI\%build_sass\fP command to the \fBsetup.py\fP script:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python setup.py build_sass
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This commands builds Sass/SCSS files to compiled CSS files of the project
+and makes the package archive (made by \fBsdist\fP,
+\fBbdist\fP, and so on) to include these compiled
+CSS files.
+.sp
+To set the directory of Sass/SCSS source files and the directory to
+store compiled CSS files, specify \fBsass_manifests\fP option:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+from setuptools import find_packages, setup
+
+setup(
+    name=\(aqYourPackage\(aq,
+    packages=find_packages(),
+    sass_manifests={
+        \(aqyour.webapp\(aq: (\(aqstatic/sass\(aq, \(aqstatic/css\(aq)
+    },
+    setup_requires=[\(aqlibsass >= 0.6.0\(aq]
+)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The option should be a mapping of package names to pairs of paths, e.g.:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(aqpackage\(aq: (\(aqstatic/sass\(aq, \(aqstatic/css\(aq),
+    \(aqpackage.name\(aq: (\(aqstatic/scss\(aq, \(aqstatic\(aq)
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The option can also be a mapping of package names to manifest dictionaries:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(aqpackage\(aq: {
+        \(aqsass_path\(aq: \(aqstatic/sass\(aq,
+        \(aqcss_path\(aq: \(aqstatic/css\(aq,
+        \(aqstrip_extension\(aq: True,
+    },
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+New in version 0.15.0: Added \fBstrip_extension\fP so \fBa.scss\fP is compiled to \fBa.css\fP instead
+of \fBa.scss.css\fP\&.  This option will default to \fBTrue\fP in the future.
+
+.sp
+New in version 0.6.0: Added \fB\-\-output\-style\fP/\fB\-s\fP option to \fI\%build_sass\fP command.
+
+.INDENT 0.0
+.TP
+.B class  sassutils.distutils.build_sass(dist, **kw)
+Builds Sass/SCSS files to CSS files.
+.INDENT 7.0
+.TP
+.B finalize_options()
+Set final values for all the options that this command supports.
+This is always called as late as possible, ie.  after any option
+assignments from the command\-line or from other commands have been
+done.  Thus, this is the place to code option dependencies: if
+\(aqfoo\(aq depends on \(aqbar\(aq, then it is safe to set \(aqfoo\(aq from \(aqbar\(aq as
+long as \(aqfoo\(aq still has the same value it was assigned in
+\(aqinitialize_options()\(aq.
+.sp
+This method must be implemented by all command classes.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B get_package_dir(package)
+Returns the directory, relative to the top of the source
+distribution, where package \fBpackage\fP should be found
+(at least according to the \fBpackage_dir\fP option, if any).
+.sp
+Copied from \fBdistutils.command.build_py.get_package_dir()\fP
+method.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B initialize_options()
+Set default values for all the options that this command
+supports.  Note that these defaults may be overridden by other
+commands, by the setup script, by config files, or by the
+command\-line.  Thus, this is not the place to code dependencies
+between options; generally, \(aqinitialize_options()\(aq implementations
+are just a bunch of "self.foo = None" assignments.
+.sp
+This method must be implemented by all command classes.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B run()
+A command\(aqs raison d\(aqetre: carry out the action it exists to
+perform, controlled by the options initialized in
+\(aqinitialize_options()\(aq, customized by other commands, the setup
+script, the command\-line, and config files, and finalized in
+\(aqfinalize_options()\(aq.  All terminal output and filesystem
+interaction should be done by \(aqrun()\(aq.
+.sp
+This method must be implemented by all command classes.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B sassutils.distutils.validate_manifests(dist, attr, value)
+Verifies that \fBvalue\fP is an expected mapping of package to
+\fI\%sassutils.builder.Manifest\fP\&.
+.UNINDENT
+.SS \fI\%sassutils.wsgi\fP \-\-\- WSGI middleware for development purpose
+.INDENT 0.0
+.TP
+.B class  sassutils.wsgi.SassMiddleware(app, manifests, package_dir={}, error_status=\(aq200 OK\(aq)
+WSGI middleware for development purpose.  Every time a CSS file has
+requested it finds a matched Sass/SCSS source file and then compiled
+it into CSS.
+.sp
+It shows syntax errors in three ways:
+.INDENT 7.0
+.TP
+.B Heading comment
+The result CSS includes detailed error message in the heading
+CSS comment e.g.:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+/*
+Error: invalid property name
+*/
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.TP
+.B Red text in \fBbody:before\fP
+The result CSS draws detailed error message in \fB:before\fP
+pseudo\-class of \fBbody\fP element e.g.:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+body:before {
+    content: \(aqError: invalid property name\(aq;
+    color: maroon;
+    background\-color: white;
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+In most cases you could be aware of syntax error by refreshing your
+working document because it will removes all other styles and leaves
+only a red text.
+.TP
+.B \fI\%logging\fP
+It logs syntax errors if exist during compilation to
+\fBsassutils.wsgi.SassMiddleware\fP logger with level \fBERROR\fP\&.
+.sp
+To enable this:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+from logging import Formatter, StreamHandler, getLogger
+logger = getLogger(\(aqsassutils.wsgi.SassMiddleware\(aq)
+handler = StreamHandler(level=logging.ERROR)
+formatter = Formatter(fmt=\(aq*\(aq * 80 + \(aq\en%(message)s\en\(aq + \(aq*\(aq * 80)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Or simply:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+import logging
+logging.basicConfig()
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBapp\fP (\fI\%collections.abc.Callable\fP) \-\- the WSGI application to wrap
+.IP \(bu 2
+\fBmanifests\fP (\fI\%collections.abc.Mapping\fP) \-\- build settings.  the same format to
+\fBsetup.py\fP script\(aqs \fBsass_manifests\fP
+option
+.IP \(bu 2
+\fBpackage_dir\fP (\fI\%collections.abc.Mapping\fP) \-\- optional mapping of package names to directories.
+the same format to \fBsetup.py\fP script\(aqs
+\fBpackage_dir\fP option
+.UNINDENT
+.UNINDENT
+.sp
+Changed in version 0.4.0: It creates also source map files with filenames followed by
+\fB\&.map\fP suffix.
+
+.sp
+New in version 0.8.0: It logs syntax errors if exist during compilation to
+\fBsassutils.wsgi.SassMiddleware\fP logger with level \fBERROR\fP\&.
+
+.INDENT 7.0
+.TP
+.B static  quote_css_string(s)
+Quotes a string as CSS string literal.
+.UNINDENT
+.UNINDENT
+.SH CREDIT
+.sp
+Hong Minhee wrote this Python binding of \fI\%LibSass\fP\&.
+.sp
+Hampton Catlin and Aaron Leung wrote \fI\%LibSass\fP, which is portable C/C++
+implementation of \fI\%Sass\fP\&.
+.sp
+Hampton Catlin originally designed \fI\%Sass\fP language and wrote the first
+reference implementation of it in Ruby.
+.sp
+The above three  are all distributed under \fI\%MIT license\fP\&.
+.SH OPEN SOURCE
+.INDENT 0.0
+.TP
+.B GitHub (Git repository + issues)
+\fI\%https://github.com/sass/libsass\-python\fP
+.TP
+.B Azure Pipelines CI (linux + windows)
+\fI\%https://dev.azure.com/asottile/asottile/_build/latest?definitionId=22&branchName=main\fP
+\fI\%Build Status\fP.TP
+.B Azure Pipelines Coverage (Test coverage)
+\fI\%https://dev.azure.com/asottile/asottile/_build/latest?definitionId=22&branchName=main\fP
+\fI\%Coverage Status\fP.TP
+.B PyPI
+\fI\%https://pypi.org/pypi/libsass/\fP
+\fI\%PyPI\fP.TP
+.B Changelog
+\fI\%Changelog\fP
+.UNINDENT
+.SH INDICES AND TABLES
+.INDENT 0.0
+.IP \(bu 2
+\fI\%Index\fP
+.IP \(bu 2
+\fI\%Module Index\fP
+.IP \(bu 2
+\fI\%Search Page\fP
+.UNINDENT
+.SH AUTHOR
+Hong Minhee
+.SH COPYRIGHT
+2023, Hong Minhee
+.\" Generated by docutils manpage writer.
+.

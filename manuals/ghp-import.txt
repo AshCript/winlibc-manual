@@ -1,0 +1,25 @@
+.TH GHP-IMPORT "1" "August 2014" "ghp-import 0.4.1" "User Commands"
+.SH NAME
+ghp-import \- Easily import docs to your gh-pages branch
+.SH SYNOPSIS
+.B ghp-import
+[\fIOPTIONS\fR] \fIDIRECTORY\fR
+.SH OPTIONS
+.TP
+\fB\-n\fR
+Include a .nojekyll file in the branch.
+.TP
+\fB\-m\fR MESG
+The commit message to use on the target branch.
+.TP
+\fB\-p\fR
+Push the branch to origin/{branch} after committing.
+.TP
+\fB\-r\fR REMOTE
+The name of the remote to push to. [origin]
+.TP
+\fB\-b\fR BRANCH
+Name of the branch to write to. [gh\-pages]
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show help message and exit

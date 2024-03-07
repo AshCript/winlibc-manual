@@ -1,0 +1,34 @@
+.TH "discover-modprobe" "8" 
+.SH "NAME" 
+discover-modprobe \(em kernel module loading using discover(1) 
+.SH "SYNOPSIS" 
+.PP 
+\fBdiscover-modprobe\fR [\-n]  [\-v]  
+.SH "Description" 
+.PP 
+\fBdiscover-modprobe\fR loads kernel modules 
+identified by \fBdiscover\fR. It will typically be invoked 
+automatically at boot time. 
+.SH "Options" 
+.IP "\fB-n\fP" 10 
+Echo the \fBmodprobe\fR invocations instead of 
+running them. 
+.IP "\fB-v\fP" 10 
+Be verbose. 
+.SH "Files" 
+.IP "\fB/etc/discover-modprobe.conf\fP" 10 
+This configuration file defines the types of modules 
+to load by default, and specific modules 
+\fInot\fP to load. 
+.IP "\fB/var/lib/discover/crash\fP" 10 
+A crash file written and erased each time 
+\fBdiscover-modprobe\fR attempts to load a 
+module. If the file lingers, the computer is assumed to have 
+crashed while loading that module, and the module name is added 
+to \fBdiscover-modprobe.conf\fP as a module to 
+skip in the future. 
+ 
+.SH "See Also" 
+.PP 
+discover-modprobe.conf(5), modprobe(8), discover(1) 
+.\" created by instant / docbook-to-man, Thu 31 Aug 2006, 11:05 

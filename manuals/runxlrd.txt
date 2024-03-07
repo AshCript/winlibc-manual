@@ -1,0 +1,135 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\"
+.\" $Id: runxlrd.1 13212 2007-05-24 05:27:04Z joostvb $
+.\" $URL: https://infix.uvt.nl/its-id/trunk/sources/python-xlrd/debian/runxlrd.1 $
+.\"
+.\" Copyright (C) 2007 Joost van Baal
+.\" You can redistribute this file and/or modify it under
+.\" the terms of the BSD license.
+.\"
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.\"
+.\" URL - macro for URLs
+.\" The ﬁrst argument is the URL, the second is the text to be
+.\" hyperlinked, and the third (optional) argument is any text that
+.\" needs to immediately trail the hyperlink without intervening
+.\" whitespace.
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH RUNXLRD 1 2007-05-24 "xlrd 0.9.2"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.SH NAME
+runxlrd \- extract data from Microsoft Excel spreadsheet files
+.SH SYNOPSIS
+.BI "runxlrd [" options ] " command " [ input\-file\-patterns ]
+.\" .RI [ options ] " files" ...
+.SH DESCRIPTION
+This manual page documents briefly the
+.B runxlrd
+command.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+\fBrunxlrd\fP offers a commandline interface to the Python xlrd
+module; it extracts data from Microsoft Excel spreadsheet files. For a
+complete list of options and commands, run
+.B runxlrd
+with
+.Ar --help
+argument.
+.SH OPTIONS
+.TP
+\fB\-h\fP, \fB\-\-help\fP
+Show summary of options and exit.
+.\".TP
+.\".B \-h, \-\-help
+.\" Show summary of options and exit.
+.\"
+.\" .TP
+.\" .B \-v, \-\-version
+.\" Show version of program.
+.TP
+.BI "-l " logfilename
+Contains error messages.
+.TP
+\fB\-v\fP \fIverbosity\fP, \fB\-\-verbosity\fP=\fIverbosity\fP
+Level of information and diagnostics provided.
+.TP
+\fB\-m\fP \fImmap\fP, \fB\-\-mmap\fP=\fImmap\fP
+1: use mmap; 0: don't use mmap; \-1: accept heuristic.
+.TP
+\fB\-e\fP \fIencoding\fP, \fB\-\-encoding\fP=\fIencoding\fP
+Encoding override.
+.TP
+\fB\-f\fP \fIformatting\fP, \fB\-\-formatting\fP=\fIformatting\fP
+0 (default): no fmt info 1: fmt info (all cells) 2: fmt info (margins trimmed).
+.TP
+\fB\-g\fP \fIgc\fP, \fB\-\-gc=gc\fP
+0: auto gc enabled; 1: auto gc disabled, manual collect after each file; 2: no gc.
+.TP
+\fB\-s\fP \fIonesheet\fP, \fB\-\-onesheet\fP=\fIonesheet\fP
+Restrict output to this sheet (name or index).
+.SH COMMANDS
+Main commands are
+.IP \(bu 2
+.B 2rows
+.IP \(bu 2
+.B 3rows
+.IP \(bu 2
+.B bench
+.IP \(bu 2
+.B hdr
+.IP \(bu 2
+.B labels
+.IP \(bu 2
+.B names
+.IP \(bu 2
+.B ov
+.IP \(bu 2
+.B show
+.IP \(bu 2
+.B version
+.IP \(bu 2
+.B xfc
+.LP
+See the xlrd API documentation for the meaning of these commands.
+.SH EXAMPLES
+To show the first, second and last rows of each sheet in each file, run
+.RS
+.B $ runxlrd 3rows *blah*.xls
+.RE
+.br
+Run
+.RS
+.B $ runxlrd -e koi8_r 3rows myfile.xls
+.RE
+to explicitly pass the needed codepage to xlrd, e.g. if the codepage record
+is missing, or if it exists but is wrong.
+.SH SEE ALSO
+The xlrd API documentation, shipped in the file xlrd.html.
+.br
+The
+.URL "http://www.python-excel.org" "xlrd website" "."
+.SH AUTHOR
+runxlrd was written by John Machin.
+.PP
+This manual page was written by Joost van Baal <joostvb+debian@uvt.nl>,
+for the Debian project (but may be used by others).

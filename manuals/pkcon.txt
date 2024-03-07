@@ -1,0 +1,359 @@
+'\" t
+.\"     Title: pkcon
+.\"    Author: Richard Hughes
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: July 29, 2013
+.\"    Manual: User Commands
+.\"    Source: PackageKit
+.\"  Language: English
+.\"
+.TH "PKCON" "1" "July 29, 2013" "PackageKit" "User Commands"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pkcon \- PackageKit console client
+.SH "SYNOPSIS"
+.HP \w'\fBpkcon\fR\ 'u
+\fBpkcon\fR [\fBOPTION\fR...] [\fBCOMMAND\fR]
+.SH "DESCRIPTION"
+.PP
+This manual page documents briefly the
+\fBpkcon\fR
+command\&.
+.PP
+\fBpkcon\fR
+is the command line client for PackageKit\&.
+.SH "COMMANDS"
+.PP
+pkcon knows about the following commands\&. Depending on the backend in use, not all of them may be available\&.
+.PP
+backend\-details
+.RS 4
+Print information about the PackageKit backend in use\&.
+.RE
+.PP
+get\-roles
+.RS 4
+List the roles that a transaction can have\&.
+.RE
+.PP
+get\-groups
+.RS 4
+List the available package groups\&.
+.RE
+.PP
+get\-filters
+.RS 4
+List the available filters\&.
+.RE
+.PP
+get\-transactions
+.RS 4
+List known transactions\&.
+.RE
+.PP
+get\-time \fIROLE\fR
+.RS 4
+Print the time that has passed since the last transaction with the given role\&.
+.RE
+.PP
+search [name|details|group|file] \fIDATA\fR
+.RS 4
+Search for a package matching the given data\&. The search is performed in the package information that is indicated by the first argument: name, details, group or files\&.
+.RE
+.PP
+install \fIPACKAGES\fR
+.RS 4
+Install the given packages from repositories\&.
+.RE
+.PP
+install\-local \fIFILES\fR
+.RS 4
+Install the given packages from the local filesystem\&.
+.RE
+.PP
+download \fIDIRECTORY\fR \fIPACKAGES\fR
+.RS 4
+Download the given packages from repositories, and store them in the given directory\&.
+.RE
+.PP
+install\-sig \fITYPE\fR \fIKEY_ID\fR \fIPACKAGE\fR
+.RS 4
+Install a package signature\&. Only GPG signatures are supported at this time\&.
+.RE
+.PP
+remove \fIPACKAGE\fR
+.RS 4
+Remove the given package\&.
+.RE
+.PP
+update [\fIPACKAGES\fR]
+.RS 4
+Update the system by installing available updates\&. If a list of packages is specified, only install updates for these packages\&.
+.RE
+.PP
+refresh [force]
+.RS 4
+Refresh the cached information about available updates\&.
+.RE
+.PP
+resolve \fIPACKAGE\fR
+.RS 4
+Resolve the given package name and print information about installed or available packages and updates\&.
+.RE
+.PP
+upgrade\-system \fIDISTRIBUTION\fR [minimal|default|complete]
+.RS 4
+Upgrade the system to the given distribution\&.
+.RE
+.PP
+get\-updates
+.RS 4
+List available updates\&.
+.RE
+.PP
+get\-distro\-upgrades
+.RS 4
+List available distribution upgrades\&.
+.RE
+.PP
+depends\-on \fIPACKAGE\fR
+.RS 4
+List dependencies fo the given package\&.
+.RE
+.PP
+required\-by \fIPACKAGE\fR
+.RS 4
+List packages that require the given package\&.
+.RE
+.PP
+get\-details \fIPACKAGE\fR
+.RS 4
+Print details about the available or installed package with the given name\&.
+.RE
+.PP
+get\-details\-local \fIFILE\fR
+.RS 4
+Print details about the local package\&.
+.RE
+.PP
+get\-files \fIPACKAGE\fR
+.RS 4
+List the files contained in the given package\&.
+.RE
+.PP
+get\-files\-local \fIFILE\fR
+.RS 4
+List the files contained in the local package\&.
+.RE
+.PP
+get\-update\-detail \fIPACKAGE\fR
+.RS 4
+Print the package changelog for the given package\&.
+.RE
+.PP
+get\-packages
+.RS 4
+List all available and installed packages\&.
+.RE
+.PP
+repo\-list
+.RS 4
+List all configured package repositories\&.
+.RE
+.PP
+repo\-enable \fIREPOSITORY\fR
+.RS 4
+Enable the given repository\&.
+.RE
+.PP
+repo\-disable \fIREPOSITORY\fR
+.RS 4
+Disable the given repository\&.
+.RE
+.PP
+repo\-set\-data \fIREPOSITORY\fR \fIPARAMETER\fR \fIDATA\fR
+.RS 4
+Set the given parameter to the given value for the repository\&.
+.RE
+.PP
+repo\-remove \fIREPOSITORY\fR \fIPARAMETER\fR
+.RS 4
+Removes the repository and optionally any packages installed from it\&.
+.RE
+.PP
+what\-provides \fISTRING\fR
+.RS 4
+List packages that provide the given string\&.
+.RE
+.PP
+accept\-eula \fIEULA_ID\fR
+.RS 4
+Accept the EULA with the given id\&.
+.RE
+.PP
+get\-categories
+.RS 4
+List available categories\&.
+.RE
+.PP
+repair
+.RS 4
+Attempt to repair the system package database\&.
+.RE
+.PP
+offline\-get\-prepared
+.RS 4
+Print information about the prepared offline update\&. If no offline update is prepared, exit with an exit code of 1\&.
+.RE
+.PP
+offline\-trigger
+.RS 4
+Trigger an offline update\&.
+.RE
+.PP
+offline\-status
+.RS 4
+Print information about the result of the last offline update\&.
+.RE
+.SH "OPTIONS"
+.PP
+The following options can be used to influence the behavior of
+\fBpkcon\fR\&.
+.PP
+\-\-version
+.RS 4
+Print the program version and exit\&.
+.RE
+.PP
+\-h, \-\-help
+.RS 4
+Show help options\&.
+.RE
+.PP
+\-\-help\-all
+.RS 4
+Show all help options\&.
+.RE
+.PP
+\-\-filter \fIFILTER\fR
+.RS 4
+Set the filter to use\&.
+.RE
+.PP
+\-y, \-\-noninteractive
+.RS 4
+Install packages without asking for confirmation\&.
+.RE
+.PP
+\-\-only\-download
+.RS 4
+Prepare the transaction by downloading packages only\&.
+.RE
+.PP
+\-n, \-\-background
+.RS 4
+Run the command using idle network bandwidth and also using less power\&.
+.RE
+.PP
+\-p, \-\-plain
+.RS 4
+Print to screen a machine\-readable output, rather than using animated widgets\&.
+.RE
+.PP
+\-v, \-\-verbose
+.RS 4
+Show debugging information\&.
+.RE
+.PP
+\-c, \-\-cache\-age \fIAGE\fR
+.RS 4
+Set the maximum acceptable age for cached metadata, in seconds\&. Use \-1 for \*(Aqnever\*(Aq\&.
+.RE
+.PP
+\-\-allow\-untrusted
+.RS 4
+Allow untrusted packages to be installed\&.
+.RE
+.PP
+\-\-allow\-downgrade
+.RS 4
+Allow packages to be downgraded during transaction\&.
+.RE
+.PP
+\-\-allow\-reinstall
+.RS 4
+Allow packages to be reinstalled during transaction\&.
+.RE
+.SH "RETURN VALUES"
+.PP
+\fB0\fR
+.RS 4
+Success
+.RE
+.PP
+\fB1\fR
+.RS 4
+Failed with miscellaneous internal error\&.
+.RE
+.PP
+\fB3\fR
+.RS 4
+Failed with syntax error, or failed to parse command\&.
+.RE
+.PP
+\fB4\fR
+.RS 4
+Failed as a file or directory was not found\&.
+.RE
+.PP
+\fB5\fR
+.RS 4
+Nothing useful was done\&.
+.RE
+.PP
+\fB6\fR
+.RS 4
+The initial setup failed, e\&.g\&. setting the network proxy\&.
+.RE
+.PP
+\fB7\fR
+.RS 4
+The transaction failed, see the detailed error for more information\&.
+.RE
+.SH "SEE ALSO"
+.PP
+pkmon (1)\&.
+.PP
+The programs are documented fully on https://www\&.freedesktop\&.org/software/PackageKit\&.
+.SH "AUTHOR"
+.PP
+This manual page was written by Richard Hughes
+<richard@hughsie\&.com>\&.
+.SH "AUTHOR"
+.PP
+\fBRichard Hughes\fR
+.RS 4
+Author.
+.RE
+.SH "COPYRIGHT"
+.br
+Copyright \(co 2007 - 2013 Richard Hughes
+.br

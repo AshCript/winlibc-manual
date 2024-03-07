@@ -1,0 +1,199 @@
+'\" t
+.\"     Title: colormgr
+.\"    Author: Richard Hughes
+.\" Generator: DocBook XSL Stylesheets v1.79.2 <http://docbook.sf.net/>
+.\"      Date: 18 June, 2013
+.\"    Manual: User Commands
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "COLORMGR" "1" "" "[FIXME: source]" "User Commands"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+colormgr \- Color Manager Testing Tool
+.SH "SYNOPSIS"
+.HP \w'\fBcolormgr\fR\ 'u
+\fBcolormgr\fR [\fB\-\-verbose\fR] [\fB\-\-version\fR]
+.SH "DESCRIPTION"
+.PP
+This manual page documents briefly the
+\fBcolormgr\fR
+command\&.
+.PP
+\fBcolormgr\fR
+allows an administrator to view and change color profile to device mappings\&.
+.SH "OPTIONS"
+.PP
+This program follows the usual
+GNU
+command line syntax, with long options starting with two dashes (\(oq\-\(cq)\&. A summary of options is included below\&.
+.PP
+\fB\-\-help\fR
+.RS 4
+Show summary of options\&.
+.RE
+.SH "COMMANDS"
+.PP
+This program takes commands with a variable number of arguments\&.
+.PP
+\fBcreate\-device\fR \fIdevice_id\fR \fIscope\fR
+.RS 4
+Create a device
+.RE
+.PP
+\fBcreate\-profile\fR \fIprofile_id\fR \fIscope\fR
+.RS 4
+Create a profile
+.RE
+.PP
+\fBdelete\-device\fR \fIdevice\fR
+.RS 4
+Deletes a device
+.RE
+.PP
+\fBdelete\-profile\fR \fIprofile\fR
+.RS 4
+Deletes a profile
+.RE
+.PP
+\fBdevice\-add\-profile\fR \fIdevice\fR \fIprofile\fR
+.RS 4
+Add a profile to a device that already exists
+.RE
+.PP
+\fBdevice\-get\-default\-profile\fR \fIdevice\fR
+.RS 4
+Gets the default profile for a device
+.RE
+.PP
+\fBdevice\-get\-profile\-for\-qualifier\fR \fIdevice\fR \fIqualifier\fR
+.RS 4
+Returns all the profiles that match a qualifier
+.RE
+.PP
+\fBdevice\-inhibit\fR \fIdevice\fR \fItimeout\fR
+.RS 4
+Inhibits colour profiles for this device
+.RE
+.PP
+\fBdevice\-make\-profile\-default\fR \fIdevice\fR \fIprofile\fR
+.RS 4
+Makes a profile default for a device
+.RE
+.PP
+\fBdevice\-set\-enabled\fR
+.RS 4
+Enables or disables the device
+.RE
+.PP
+\fBdevice\-set\-kind\fR \fIdevice\fR \fIkind\fR
+.RS 4
+Sets the device kind
+.RE
+.PP
+\fBdevice\-set\-model\fR \fIdevice\fR \fImodel\fR
+.RS 4
+Sets the device model
+.RE
+.PP
+\fBdevice\-set\-serial\fR \fIdevice\fR \fIserial\fR
+.RS 4
+Sets the device serial
+.RE
+.PP
+\fBdevice\-set\-vendor\fR \fIdevice\fR \fIvendor\fR
+.RS 4
+Sets the device vendor
+.RE
+.PP
+\fBfind\-device\fR \fIdevice_id\fR
+.RS 4
+Find a device from the device ID
+.RE
+.PP
+\fBfind\-device\-by\-property\fR \fIkey\fR \fIvalue\fR
+.RS 4
+Find a device with a given property value
+.RE
+.PP
+\fBfind\-profile\fR \fIprofile_id\fR
+.RS 4
+Find a profile from the profile ID
+.RE
+.PP
+\fBfind\-profile\-by\-filename\fR \fIfilename\fR
+.RS 4
+Find a profile by filename
+.RE
+.PP
+\fBget\-devices\fR
+.RS 4
+Gets all the color managed devices
+.RE
+.PP
+\fBget\-devices\-by\-kind\fR \fIkind\fR
+.RS 4
+Gets all the color managed devices of a specific kind
+.RE
+.PP
+\fBget\-profiles\fR
+.RS 4
+Gets all the available color profiles
+.RE
+.PP
+\fBget\-sensor\-reading\fR \fIdisplay_type\fR
+.RS 4
+Gets a reading from a sensor
+.RE
+.PP
+\fBget\-sensors\fR
+.RS 4
+Gets all the available colour sensors
+.RE
+.PP
+\fBget\-standard\-space\fR \fIstandard_space\fR
+.RS 4
+Get a standard colourspace
+.RE
+.PP
+\fBimport\-profile\fR \fIfilename\fR
+.RS 4
+Copies an \&.icc file into the correct per\-user directory and shows information about the imported profile\&.
+.RE
+.PP
+\fBprofile\-set\-property\fR \fIprofile\fR \fIname\fR \fIvalue\fR
+.RS 4
+Sets extra properties on the profile
+.RE
+.PP
+\fBsensor\-lock\fR
+.RS 4
+Locks the colour sensor
+.RE
+.PP
+\fBsensor\-set\-options\fR \fIname\fR \fIvalue\fR
+.RS 4
+Sets one or more sensor options
+.RE
+.SH "AUTHOR"
+.PP
+This manual page was written by Richard Hughes
+<richard@hughsie\&.com>\&.

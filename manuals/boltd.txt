@@ -1,0 +1,124 @@
+'\" t
+.\"     Title: boltd
+.\"    Author: [see the "Author" section]
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 01/10/2023
+.\"    Manual: bolt Manual
+.\"    Source: bolt 0.9.5
+.\"  Language: English
+.\"
+.TH "BOLTD" "8" "01/10/2023" "bolt 0\&.9\&.5" "bolt Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+boltd \- thunderbolt device managing system daemon
+.SH "SYNOPSIS"
+.sp
+\fBboltd\fR [\fIOPTIONS\fR]
+.SH "DESCRIPTION"
+.sp
+boltd is the thunderbolt device manager daemon\&. Its goal is to enable the secure and convenient use of thunderbolt devices by using the security features of modern thunderbolt controllers\&. It provides the org\&.freedesktop\&.bolt name on the system bus\&. boltd is autostarted via systemd/udev if a thunderbolt device is connected\&.
+.sp
+The thunderbolt I/O technology works by bridging PCIe between the controllers on each end of the connection, which in turn means that devices connected via Thunderbolt are ultimately connected via PCIe\&. Therefore thunderbolt can achieve very high connection speeds, fast enough to even drive external graphics cards\&. The downside is that it also makes certain attacks possible\&. To mitigate these security problems, the latest version \(em known as Thunderbolt 3 \(em supports different \fBsecurity levels\fR:
+.PP
+\fBnone\fR
+.RS 4
+No security\&. The behavior is identical to previous Thunderbolt versions\&.
+.RE
+.PP
+\fBdponly\fR
+.RS 4
+No PCIe tunnels are created at all, but DisplayPort tunnels are allowed and will work\&.
+.RE
+.PP
+\fBuser\fR
+.RS 4
+Connected devices must be authorized by the user\&. Only then will the PCIe tunnels be activated\&.
+.RE
+.PP
+\fBsecure\fR
+.RS 4
+Basically the same as user mode, but additionally a key will be written to the device the first time the device is connected\&. This key will then be used to verify the identity of the connected device\&.
+.RE
+.PP
+\fBusbonly\fR
+.RS 4
+One PCIe tunnel is created to a usb controller in a thunderbolt dock; no other downstream PCIe tunnels are authorized (needs 4\&.17 kernel and recent hardware)\&.
+.RE
+.sp
+The primary task of \fBboltd\fR is to authorize thunderbolt peripherals if the security level is either user or secure\&. It provides a D\-Bus API to list devices, enroll them (authorize and store them in the local database) and forget them again (remove previously enrolled devices)\&. It also emits signals if new devices are connected (or removed)\&. During enrollment devices can be set to be automatically authorized as soon as they are connected\&. A command line tool, called boltctl(1), can be used to control the daemon and perform all the above mentioned tasks\&.
+.sp
+The pre\-boot access control list (\fBBootACL\fR) feature is active when supported by the firmware and when \fIboltd\fR is running on a new enough Linux kernel (>= 4\&.17)\&. The \fIBootACL\fR is a list of UUIDs, that can be written to the thunderbolt controller\&. If enabled in the BIOS, all devices in that list will be authorized by the firmware during pre\-boot, which means these devices can be used in the BIOS setup and also during Linux early boot\&. NB: \fBno device verification\fR is done, even when the security level is set to \fIsecure\fR mode in the BIOS, i\&.e\&. the maximal effective security level for devices in the \fIBootACL\fR is only \fIuser\fR\&. If \fIBootACL\fR support is present, all new devices will be automatically added\&. Devices that are \fIforgotten\fR (removed from \fIboltd\fR) will also be removed from the \fIBootACL\fR\&. When a controller is offline, changes to the \fIBootACL\fR will be written to a journal and synchronized back when the controller is online again\&.
+.sp
+\fIIOMMU\fR support: if the hardware and firmware support using the input\(enoutput memory management unit (IOMMU) to restrict direct memory access to certain safe regions, boltd will detect that feature and change its behavior: As long as iommu support is active, as indicated by the iommu_dma_protection sysfs attribute of the domain controller, new devices will be automatically enrolled with the \fIiommu\fR policy and existing devices with \fIiommu\fR (or \fIauto\fR) policy will be automatically authorized by boltd without any user interaction\&. When iommu is not active, devices that were enrolled with the \fIiommu\fR policy will not be authorized automatically\&. The status of iommu support can be inspected by using \fBboltctl domains\fR\&.
+.SH "OPTIONS"
+.PP
+\fB\-h, \-\-help\fR
+.RS 4
+Prints a short help text and exits\&.
+.RE
+.PP
+\fB\-\-version\fR
+.RS 4
+Shows the version number and exits\&.
+.RE
+.PP
+\fB\-r, \-\-replace\fR
+.RS 4
+Replace the currently running boltd instance\&.
+.RE
+.PP
+\fB\-\-journal\fR
+.RS 4
+Force logging to the journal\&.
+.RE
+.PP
+\fB\-v, \-\-verbose\fR
+.RS 4
+Print debug output\&.
+.RE
+.SH "ENVIRONMENT"
+.PP
+\fBRUNTIME_DIRECTORY\fR
+.RS 4
+Specifies the path where the daemon stores data that only has to live as long as the current boot\&. Will be set automatically when started via systemd (>= 240)\&. If not set the default path for runtime data is
+\fI/run/boltd\fR\&.
+.RE
+.PP
+\fBSTATE_DIRECTORY\fR
+.RS 4
+Specifies the path where the daemon stores device information, including the keys used for authorization\&. Overwrites the path that was set at compile time\&. Will be set automatically when started via systemd (>= 240)\&.
+.RE
+.PP
+\fBBOLT_DBPATH\fR
+.RS 4
+Same as
+STATE_DIRECTORY
+but takes precedence over that, if set\&.
+.RE
+.SH "EXIT STATUS"
+.sp
+On success 0 is returned, a non\-zero failure code otherwise\&.
+.SH "AUTHOR"
+.sp
+Written by Christian Kellner <ckellner@redhat\&.com>\&.
+.SH "SEE ALSO"
+.sp
+boltctl(1)

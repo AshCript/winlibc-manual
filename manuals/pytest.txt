@@ -1,0 +1,325 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PYTEST" "1" "Feb 01, 2023" "7.2.1" "pytest"
+.SH NAME
+pytest \- pytest usage
+.sp
+\fBSEE ALSO:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fI\%Complete pytest command\-line flag reference\fP
+.UNINDENT
+.UNINDENT
+.sp
+In general, pytest is invoked with the command \fBpytest\fP (see below for \fI\%other ways to invoke pytest\fP). This will execute all tests in all files whose names follow the form \fBtest_*.py\fP or \fB\e*_test.py\fP
+in the current directory and its subdirectories. More generally, pytest follows \fI\%standard test discovery rules\fP\&.
+.SH SPECIFYING WHICH TESTS TO RUN
+.sp
+Pytest supports several ways to run and select tests from the command\-line.
+.sp
+\fBRun tests in a module\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest test_mod.py
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBRun tests in a directory\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest testing/
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBRun tests by keyword expressions\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest \-k \(dqMyClass and not method\(dq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This will run tests which contain names that match the given \fIstring expression\fP (case\-insensitive),
+which can include Python operators that use filenames, class names and function names as variables.
+The example above will run \fBTestMyClass.test_something\fP  but not \fBTestMyClass.test_method_simple\fP\&.
+.sp
+\fBRun tests by node ids\fP
+.sp
+Each collected test is assigned a unique \fBnodeid\fP which consist of the module filename followed
+by specifiers like class names, function names and parameters from parametrization, separated by \fB::\fP characters.
+.sp
+To run a specific test within a module:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest test_mod.py::test_func
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Another example specifying a test method in the command line:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest test_mod.py::TestClass::test_method
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBRun tests by marker expressions\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest \-m slow
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Will run all tests which are decorated with the \fB@pytest.mark.slow\fP decorator.
+.sp
+For more information see \fI\%marks\fP\&.
+.sp
+\fBRun tests from packages\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest \-\-pyargs pkg.testing
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This will import \fBpkg.testing\fP and use its filesystem location to find and run tests from.
+.SH GETTING HELP ON VERSION, OPTION NAMES, ENVIRONMENT VARIABLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest \-\-version   # shows where pytest was imported from
+pytest \-\-fixtures  # show available builtin function arguments
+pytest \-h | \-\-help # show help on command line and config file options
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH PROFILING TEST EXECUTION DURATION
+.sp
+Changed in version 6.0.
+
+.sp
+To get a list of the slowest 10 test durations over 1.0s long:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest \-\-durations=10 \-\-durations\-min=1.0
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+By default, pytest will not show test durations that are too small (<0.005s) unless \fB\-vv\fP is passed on the command\-line.
+.SH MANAGING LOADING OF PLUGINS
+.SS Early loading plugins
+.sp
+You can early\-load plugins (internal and external) explicitly in the command\-line with the \fB\-p\fP option:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest \-p mypluginmodule
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The option receives a \fBname\fP parameter, which can be:
+.INDENT 0.0
+.IP \(bu 2
+A full module dotted name, for example \fBmyproject.plugins\fP\&. This dotted name must be importable.
+.IP \(bu 2
+The entry\-point name of a plugin. This is the name passed to \fBsetuptools\fP when the plugin is
+registered. For example to early\-load the \fI\%pytest\-cov\fP plugin you can use:
+.INDENT 2.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest \-p pytest_cov
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Disabling plugins
+.sp
+To disable loading specific plugins at invocation time, use the \fB\-p\fP option
+together with the prefix \fBno:\fP\&.
+.sp
+Example: to disable loading the plugin \fBdoctest\fP, which is responsible for
+executing doctest tests from text files, invoke pytest like this:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pytest \-p no:doctest
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OTHER WAYS OF CALLING PYTEST
+.SS Calling pytest through \fBpython \-m pytest\fP
+.sp
+You can invoke testing through the Python interpreter from the command line:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python \-m pytest [...]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This is almost equivalent to invoking the command line script \fBpytest [...]\fP
+directly, except that calling via \fBpython\fP will also add the current directory to \fBsys.path\fP\&.
+.SS Calling pytest from Python code
+.sp
+You can invoke \fBpytest\fP from Python code directly:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+retcode = pytest.main()
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+this acts as if you would call \(dqpytest\(dq from the command line.
+It will not raise \fI\%SystemExit\fP but return the \fI\%exit code\fP instead.
+You can pass in options and arguments:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+retcode = pytest.main([\(dq\-x\(dq, \(dqmytestdir\(dq])
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+You can specify additional plugins to \fBpytest.main\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# content of myinvoke.py
+import sys
+
+import pytest
+
+
+class MyPlugin:
+    def pytest_sessionfinish(self):
+        print(\(dq*** test run reporting finishing\(dq)
+
+
+if __name__ == \(dq__main__\(dq:
+    sys.exit(pytest.main([\(dq\-qq\(dq], plugins=[MyPlugin()]))
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Running it will show that \fBMyPlugin\fP was added and its
+hook was invoked:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python myinvoke.py
+*** test run reporting finishing
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Calling \fBpytest.main()\fP will result in importing your tests and any modules
+that they import. Due to the caching mechanism of python\(aqs import system,
+making subsequent calls to \fBpytest.main()\fP from the same process will not
+reflect changes to those files between the calls. For this reason, making
+multiple calls to \fBpytest.main()\fP from the same process (in order to re\-run
+tests, for example) is not recommended.
+.UNINDENT
+.UNINDENT
+.SH AUTHOR
+holger krekel at merlinux eu
+.SH COPYRIGHT
+2023, holger krekel and pytest-dev team
+.\" Generated by docutils manpage writer.
+.
